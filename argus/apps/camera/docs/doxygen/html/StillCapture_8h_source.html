@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="StillCapture_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -124,14 +124,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &lt;EGLStream/EGLStream.h&gt;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="ITask_8h.html">ITask.h</a>&quot;</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="PerfTracker_8h.html">PerfTracker.h</a>&quot;</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &quot;UniquePointer.h&quot;</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;IObserver.h&quot;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="TrackedUniqueObject_8h.html">TrackedUniqueObject.h</a>&quot;</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">namespace </span>ArgusSamples</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;{</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">class </span>EventThread;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;UniquePointer.h&quot;</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &quot;IObserver.h&quot;</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="TrackedUniqueObject_8h.html">TrackedUniqueObject.h</a>&quot;</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">namespace </span>ArgusSamples</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;{</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">class </span>SessionPerfTracker;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">/**</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment"> * This task captures still images</span></div>
@@ -159,25 +159,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00068"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#aa29dcbe5a25ff01fca0e9e13283b2b18">   68</a></span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#aa29dcbe5a25ff01fca0e9e13283b2b18" title="set if was running before the device had been closed">m_wasRunning</a>;                  <span class="comment">///&lt; set if was running before the device had been closed</span></div>
 <div class="line"><a name="l00069"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#afb9fe6f6a509b7146579e8e590a593cf">   69</a></span>&#160;<span class="comment"></span>    uint32_t <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#afb9fe6f6a509b7146579e8e590a593cf" title="Incrementing capture index.">m_captureIndex</a>;            <span class="comment">///&lt; Incrementing capture index</span></div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00071"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#ac4e54d98b58bee14d7e959ab838c7046">   71</a></span>&#160;    UniquePointer&lt;EventThread&gt; <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#ac4e54d98b58bee14d7e959ab838c7046">m_eventThread</a>;</div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#af4a27000bb1bb1e4a32a1d23b1eec6fc">   72</a></span>&#160;    <a class="code" href="classArgusSamples_1_1PerfTracker.html" title="PerfTracker note down the perf for one session.">PerfTracker</a> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#af4a27000bb1bb1e4a32a1d23b1eec6fc">m_perfTracker</a>;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a2b5bcde355ef0bdb0e8f13697f2caf25">   74</a></span>&#160;    <a class="code" href="classArgusSamples_1_1TrackedUniqueObj.html">TrackedUniqueObj&lt;Argus::Request&gt;</a> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a2b5bcde355ef0bdb0e8f13697f2caf25" title="Argus preview request.">m_previewRequest</a>;      <span class="comment">///&lt; Argus preview request</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a99cdb83b0f34e19c9515ba0200124a67">   75</a></span>&#160;<span class="comment"></span>    Argus::UniqueObj&lt;Argus::OutputStream&gt; <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a99cdb83b0f34e19c9515ba0200124a67" title="Argus preview stream.">m_previewStream</a>;  <span class="comment">///&lt; Argus preview stream</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment"></span><span class="comment"></span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">    /**</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">     * Callback when the device is opened/closed.</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a216bfc2b791163e21fae0492af8498a7" title="Callback when the device is opened/closed.">onDeviceOpenChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;};</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#endif // TASK_STILL_CAPTURE_H</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#ab8abaa019cd61954ae430d665f6acfc5">   71</a></span>&#160;    UniquePointer&lt;SessionPerfTracker&gt; <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#ab8abaa019cd61954ae430d665f6acfc5">m_perfTracker</a>;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a2b5bcde355ef0bdb0e8f13697f2caf25">   73</a></span>&#160;    <a class="code" href="classArgusSamples_1_1TrackedUniqueObj.html">TrackedUniqueObj&lt;Argus::Request&gt;</a> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a2b5bcde355ef0bdb0e8f13697f2caf25" title="Argus preview request.">m_previewRequest</a>;      <span class="comment">///&lt; Argus preview request</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a99cdb83b0f34e19c9515ba0200124a67">   74</a></span>&#160;<span class="comment"></span>    Argus::UniqueObj&lt;Argus::OutputStream&gt; <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a99cdb83b0f34e19c9515ba0200124a67" title="Argus preview stream.">m_previewStream</a>;  <span class="comment">///&lt; Argus preview stream</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment"></span><span class="comment"></span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">     * Callback when the device is opened/closed.</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a216bfc2b791163e21fae0492af8498a7" title="Callback when the device is opened/closed.">onDeviceOpenChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">     * Restart when sensor mode or output size changes</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskStillCapture.html#a30c6aa5eede194e6cb811ceb6d52f861" title="Restart when sensor mode or output size changes.">restartStreams</a>(<span class="keyword">const</span> Observed &amp;source);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif // TASK_STILL_CAPTURE_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

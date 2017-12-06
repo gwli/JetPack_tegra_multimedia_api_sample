@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,11 +35,12 @@
 
 #include "Error.h"
 #include "UniquePointer.h"
+#include "InitOnce.h"
 
 #include "Composer.h"
-#include "Renderer.h"
 #include "Window.h"
 #include "StreamConsumer.h"
+#include "PerfTracker.h"
 
 namespace ArgusSamples
 {
@@ -47,17 +48,38 @@ namespace ArgusSamples
 Composer::Composer()
     : m_initialized(false)
     , m_program(0)
+    , m_vbo(0)
     , m_windowWidth(0)
     , m_windowHeight(0)
     , m_windowAspectRatio(1.0f)
-    , m_clientSequence(0)
-    , m_composerSequence(0)
 {
 }
 
 Composer::~Composer()
 {
-    shutdown();
+    if (!shutdown())
+        REPORT_ERROR("Failed to shutdown composer");
+}
+
+Composer &Composer::getInstance()
+{
+    static InitOnce initOnce;
+    static Composer instance;
+
+    if (initOnce.begin())
+    {
+        if (instance.initialize())
+        {
+            initOnce.complete();
+        }
+        else
+        {
+            initOnce.failed();
+            REPORT_ERROR("Initalization failed");
+        }
+    }
+
+    return instance;
 }
 
 bool Composer::initialize()
@@ -65,13 +87,13 @@ bool Composer::initialize()
     if (m_initialized)
         return true;
 
+    Window &window = Window::getInstance();
+
+    PROPAGATE_ERROR(m_display.initialize(window.getEGLNativeDisplay()));
+
     PROPAGATE_ERROR(m_mutex.initialize());
 
-    PROPAGATE_ERROR(m_sequenceMutex.initialize());
-    PROPAGATE_ERROR(m_sequenceCond.initialize());
-
     // initialize the window size
-    Window &window = Window::getInstance();
     PROPAGATE_ERROR(onResize(window.getWidth(), window.getHeight()));
 
     // and register as observer for size changes
@@ -95,17 +117,9 @@ bool Composer::shutdown()
     // request shutdown of the thread
     PROPAGATE_ERROR_CONTINUE(Thread::requestShutdown());
 
-    // trigger a re-compose to wake up the thread
-    PROPAGATE_ERROR_CONTINUE(reCompose());
-
     PROPAGATE_ERROR_CONTINUE(Thread::shutdown());
 
-    for (StreamList::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
-    {
-        PROPAGATE_ERROR_CONTINUE(it->m_consumer->shutdown());
-        delete it->m_consumer;
-    }
-    m_streams.clear();
+    PROPAGATE_ERROR_CONTINUE(m_display.cleanup());
 
     m_initialized = false;
 
@@ -123,15 +137,18 @@ bool Composer::bindStream(EGLStreamKHR eglStream)
     if (!streamConsumer)
         ORIGINATE_ERROR("Out of memory");
 
-    PROPAGATE_ERROR(streamConsumer->initialize());
+    // add the new stream consumer to the stream list
+    {
+        ScopedMutex sm(m_mutex);
+        PROPAGATE_ERROR(sm.expectLocked());
 
-    ScopedMutex sm(m_mutex);
-    PROPAGATE_ERROR(sm.expectLocked());
+        m_streams.push_back(Stream(streamConsumer.get()));
+    }
 
-    m_streams.push_back(Stream(streamConsumer.release()));
-
-    // trigger a re-compose because the stream configuration changed
-    PROPAGATE_ERROR(reCompose());
+    // wait until the stream is connected
+    while (streamConsumer->getStreamState() != EGL_STREAM_STATE_CONNECTING_KHR)
+        usleep(1000);
+    streamConsumer.release();
 
     return true;
 }
@@ -143,13 +160,10 @@ bool Composer::unbindStream(EGLStreamKHR eglStream)
 
     for (StreamList::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
     {
-       if (it->m_consumer->isEGLStream(eglStream))
-       {
-            PROPAGATE_ERROR(it->m_consumer->shutdown());
-            delete it->m_consumer;
-            m_streams.erase(it);
-            // trigger a re-compose because the stream configuration changed
-            PROPAGATE_ERROR(reCompose());
+        if (it->m_consumer->isEGLStream(eglStream))
+        {
+            // set the shutdown flag, the composer thread will do the actual shutdown
+            it->m_shutdown = true;
             return true;
         }
     }
@@ -169,8 +183,6 @@ bool Composer::setStreamActive(EGLStreamKHR eglStream, bool active)
        if (it->m_consumer->isEGLStream(eglStream))
        {
             it->m_active = active;
-            // trigger a re-compose because the stream configuration changed
-            PROPAGATE_ERROR(reCompose());
             return true;
         }
     }
@@ -190,24 +202,11 @@ bool Composer::setStreamAspectRatio(EGLStreamKHR eglStream, float aspectRatio)
        if (it->m_consumer->isEGLStream(eglStream))
        {
             PROPAGATE_ERROR(it->m_consumer->setStreamAspectRatio(aspectRatio));
-            // trigger a re-compose because the stream configuration changed
-            PROPAGATE_ERROR(reCompose());
             return true;
         }
     }
 
     ORIGINATE_ERROR("Stream was not bound");
-
-    return true;
-}
-
-bool Composer::reCompose()
-{
-    ScopedMutex sm(m_sequenceMutex);
-    PROPAGATE_ERROR(sm.expectLocked());
-
-    ++m_clientSequence;
-    PROPAGATE_ERROR(m_sequenceCond.signal());
 
     return true;
 }
@@ -222,8 +221,6 @@ bool Composer::onResize(uint32_t width, uint32_t height)
 
 bool Composer::threadInitialize()
 {
-    Renderer &renderer = Renderer::getInstance();
-
     // Initialize the GL context and make it current.
     PROPAGATE_ERROR(m_context.initialize(&Window::getInstance()));
     PROPAGATE_ERROR(m_context.makeCurrent());
@@ -252,6 +249,8 @@ bool Composer::threadInitialize()
         "}\n";
     PROPAGATE_ERROR(m_context.createProgram(vtxSrc, frgSrc, &m_program));
 
+    glUseProgram(m_program);
+
     // Setup vertex state.
     static const GLfloat vertices[] = {
          0.0f, 0.0f,
@@ -259,73 +258,46 @@ bool Composer::threadInitialize()
          1.0f, 0.0f,
          1.0f, 1.0f,
     };
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    if (!m_vbo)
+        ORIGINATE_ERROR("Failed to create VBO");
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glEnableVertexAttribArray(0);
 
-    if (eglSwapInterval(renderer.getEGLDisplay(), 1) != EGL_TRUE)
+    // sync to the display refresh rate
+    if (eglSwapInterval(m_display.get(), 1) != EGL_TRUE)
         ORIGINATE_ERROR("Failed to set the swap interval");
 
     return true;
 }
 
-bool Composer::threadExecute()
+bool Composer::renderStreams(uint32_t activeStreams)
 {
-    {
-        // wait for the sequence condition
-        ScopedMutex sm(m_sequenceMutex);
-        PROPAGATE_ERROR(sm.expectLocked());
-
-        PROPAGATE_ERROR(m_sequenceCond.wait(m_sequenceMutex));
-
-        // check if the sequence differs
-        if (m_clientSequence == m_composerSequence)
-            return true;
-
-        // need to compose
-        m_composerSequence = m_clientSequence;
-    }
-
     glViewport(0,0, m_windowWidth, m_windowHeight);
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // take a copy of the stream list to avoid holding the mutex too long
-    StreamList streamsCopy;
+    const uint32_t cells = static_cast<uint32_t>(ceil(sqrt(activeStreams)));
+    const float scaleX = 1.0f / cells;
+    const float scaleY = 1.0f / cells;
+    uint32_t offsetX = 0, offsetY = cells - 1;
+
     {
         ScopedMutex sm(m_mutex);
         PROPAGATE_ERROR(sm.expectLocked());
 
-        streamsCopy = m_streams;
-    }
-
-    if (streamsCopy.size() != 0)
-    {
-        // iterate through the streams and render them
-
-        glUseProgram(m_program);
-
-        uint32_t activeStreams = 0;
-        for (StreamList::iterator it = streamsCopy.begin(); it != streamsCopy.end(); ++it)
+        for (StreamList::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
         {
-            if (it->m_active)
-                ++activeStreams;
-        }
+            if (!it->m_active)
+                continue;
 
-        const uint32_t cells = static_cast<uint32_t>(ceil(sqrt(activeStreams)));
-        const float scaleX = 1.0f / cells;
-        const float scaleY = 1.0f / cells;
-        uint32_t offsetX = 0, offsetY = cells - 1;
-
-        for (StreamList::iterator it = streamsCopy.begin(); it != streamsCopy.end(); ++it)
-        {
-            if (it->m_active)
+            const EGLint streamState = it->m_consumer->getStreamState();
+            if ((streamState == EGL_STREAM_STATE_NEW_FRAME_AVAILABLE_KHR) ||
+                (streamState == EGL_STREAM_STATE_OLD_FRAME_AVAILABLE_KHR))
             {
-#ifdef WAR_EGL_STREAM_RACE
-                // hold the stream texture mutex while drawing with the texture
-                ScopedMutex sm(it->m_consumer->getStreamTextureMutex());
-                PROPAGATE_ERROR(sm.expectLocked());
-#endif // WAR_EGL_STREAM_RACE
-
                 glBindTexture(GL_TEXTURE_EXTERNAL_OES, it->m_consumer->getStreamTextureID());
 
                 // scale according to aspect ratios
@@ -349,30 +321,97 @@ bool Composer::threadExecute()
                 glUniform2f(1, scaleX * sizeX, scaleY * sizeY);
 
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            }
 
-                glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
-
-                ++offsetX;
-                if (offsetX == cells)
-                {
-                    --offsetY;
-                    offsetX = 0;
-                }
+            ++offsetX;
+            if (offsetX == cells)
+            {
+                --offsetY;
+                offsetX = 0;
             }
         }
-
-        glUseProgram(0);
     }
 
     PROPAGATE_ERROR(m_context.swapBuffers());
+
+    PROPAGATE_ERROR(PerfTracker::getInstance().onEvent(GLOBAL_EVENT_DISPLAY));
+
+    return true;
+}
+
+bool Composer::threadExecute()
+{
+    bool render = false;
+    uint32_t activeStreams = 0;
+
+    {
+        ScopedMutex sm(m_mutex);
+        PROPAGATE_ERROR(sm.expectLocked());
+
+        if (m_streams.size() == 0)
+            return true;
+
+        // first iterate through the streams and check if there are streams which should be shutdown
+        // also count the active streams
+        for (StreamList::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
+        {
+            if (it->m_shutdown)
+            {
+                // shutdown the stream consumer if it had marked so
+                PROPAGATE_ERROR_CONTINUE(it->m_consumer->shutdown());
+                delete it->m_consumer;
+                it = m_streams.erase(it);
+                continue;
+            }
+
+            // do the acquire in any case even if the stream is not active (needed to get the
+            // transition to connecting state)
+            bool acquiredNewFrame = false;
+            PROPAGATE_ERROR(it->m_consumer->acquire(&acquiredNewFrame));
+
+            // check if the stream is active
+            if (it->m_active)
+            {
+                ++activeStreams;
+                // if a new frame is available we need to render
+                if (acquiredNewFrame)
+                    render = true;
+            }
+        }
+    }
+
+    if (render)
+    {
+        PROPAGATE_ERROR(renderStreams(activeStreams));
+    }
+    else
+    {
+        // wait some time and then check again if new frames are available
+        usleep(1000);
+    }
 
     return true;
 }
 
 bool Composer::threadShutdown()
 {
-    glDeleteProgram(m_program);
-    m_program = 0;
+    for (StreamList::iterator it = m_streams.begin(); it != m_streams.end(); ++it)
+    {
+        PROPAGATE_ERROR_CONTINUE(it->m_consumer->shutdown());
+        delete it->m_consumer;
+    }
+    m_streams.clear();
+
+    if (m_program)
+    {
+        glDeleteProgram(m_program);
+        m_program = 0;
+    }
+    if (m_vbo)
+    {
+        glDeleteBuffers(1, &m_vbo);
+        m_vbo = 0;
+    }
 
     PROPAGATE_ERROR(m_context.cleanup());
 

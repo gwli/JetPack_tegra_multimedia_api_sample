@@ -29,8 +29,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
-#ifdef ENABLE_GIE
-#include "gie_inference.h"
+#ifdef ENABLE_TRT
+#include "trt_inference.h"
 #endif
 #include "v4l2_backend_test.h"
 
@@ -61,16 +61,17 @@ print_help(void)
             "\t-h,--help            Prints this text\n"
             "\t-fps <fps>           Display rate in frames per second [Default = 30]\n\n"
             "\t--s                  Give a statistic of each channel\n"
-            "\t-run-opt <0-3>       0[default], 1 parser only, 2 parser+decoder,  3 parser+decoder+VIC\n"
             "\t--input-nalu         Input to the decoder will be nal units[Default]\n"
             "\t--input-chunks       Input to the decoder will be a chunk of bytes\n\n"
-#ifdef ENABLE_GIE
-            "\t--gie-deployfile     set deploy file name\n"
-            "\t--gie-modelfile      set model file name\n"
-            "\t--gie-proc-interval  set process interval, 1 frame will be process every gie-proc-interval\n"
-            "\t--gie-forcefp32      0 to use fp16 (if supported), 1 to use fp32\n"
-            "\t--gie-dumpresult     1 to dump result, 0[default] otherwise\n"
-            "\t--gie-enable-perf    1[default] to enable perf measurement, 0 otherwise\n"
+#ifdef ENABLE_TRT
+            "\t--trt-deployfile     set deploy file name\n"
+            "\t--trt-modelfile      set model file name\n"
+            "\t--trt-proc-interval  set process interval, 1 frame will be process every trt-proc-interval\n"
+            "\t--trt-forcefp32      0 to use fp16 (if supported), 1 to use fp32\n"
+            "\t--trt-dumpresult     1 to dump result, 0[default] otherwise\n"
+            "\t--trt-enable-perf    1[default] to enable perf measurement, 0 otherwise\n"
+#else
+            "\t-run-opt <0-3>       0[default], 1 parser only, 2 parser+decoder,  3 parser+decoder+VIC\n"
 #endif
             << endl;
 }
@@ -87,8 +88,8 @@ get_decoder_type(char *arg)
 
 int
 parse_csv_args(context_t * ctx,
-#ifdef ENABLE_GIE
-            GIE_Context *gie_ctx,
+#ifdef ENABLE_TRT
+            TRT_Context *trt_ctx,
 #endif
             int argc, char *argv[])
 {
@@ -152,14 +153,6 @@ parse_csv_args(context_t * ctx,
             ctx->fps = atof(*argp);
             CSV_PARSE_CHECK_ERROR(ctx->fps == 0, "FPS should be > 0");
         }
-        else if (!strcmp(arg, "-run-opt"))
-        {
-            argp++;
-            ctx->cpu_occupation_option = atoi(*argp);
-            CSV_PARSE_CHECK_ERROR(ctx->cpu_occupation_option < 0 ||
-                                  ctx->cpu_occupation_option >3,
-                                  "parameter error:run-opt should be 0-3");
-        }
         else if (!strcmp(arg, "--s"))
         {
             ctx->do_stat = true;
@@ -183,50 +176,59 @@ parse_csv_args(context_t * ctx,
             print_help();
             exit(EXIT_SUCCESS);
         }
-#ifdef ENABLE_GIE
-        else if (!strcmp(arg, "--gie-deployfile"))
+#ifdef ENABLE_TRT
+        else if (!strcmp(arg, "--trt-deployfile"))
         {
             argp++;
             /* This parameter has been parsed in global_cfg,
                but need to skip if found here */
             continue;
         }
-        else if (!strcmp(arg, "--gie-modelfile"))
+        else if (!strcmp(arg, "--trt-modelfile"))
         {
             argp++;
             /* This parameter has been parsed in global_cfg,
                but need to skip if found here */
             continue;
         }
-        else if (!strcmp(arg, "--gie-forcefp32"))
+        else if (!strcmp(arg, "--trt-forcefp32"))
         {
             argp++;
-            gie_ctx->setForcedFp32((bool)atoi(*argp));
+            trt_ctx->setForcedFp32((bool)atoi(*argp));
         }
-        else if (!strcmp(arg, "--gie-proc-interval"))
+        else if (!strcmp(arg, "--trt-proc-interval"))
         {
             argp++;
-            gie_ctx->setFilterNum(atoi(*argp));
+            trt_ctx->setFilterNum(atoi(*argp));
         }
-        else if (!strcmp(arg, "--gie-dumpresult"))
+        else if (!strcmp(arg, "--trt-dumpresult"))
         {
             if (*(argp + 1) != NULL &&
                 (strcmp(*(argp + 1), "0") == 0 ||
                 strcmp(*(argp + 1), "1") == 0))
             {
                 argp++;
-                gie_ctx->setDumpResult((bool)atoi(*argp));
+                trt_ctx->setDumpResult((bool)atoi(*argp));
             }
         }
-        else if (!strcmp(arg, "--gie-enable-perf"))
+        else if (!strcmp(arg, "--trt-enable-perf"))
         {
             if (*(argp + 1) != NULL &&
                 (strcmp(*(argp + 1), "0") == 0 ||
                 strcmp(*(argp + 1), "1") == 0))
             {
                 argp++;
-                gie_ctx->setGieProfilerEnabled((bool)atoi(*argp));
+                trt_ctx->setTrtProfilerEnabled((bool)atoi(*argp));
             }
+        }
+#else
+        else if (!strcmp(arg, "-run-opt"))
+        {
+            argp++;
+            ctx->cpu_occupation_option = atoi(*argp);
+            CSV_PARSE_CHECK_ERROR(ctx->cpu_occupation_option < 0 ||
+                                  ctx->cpu_occupation_option >3,
+                                  "parameter error:run-opt should be 0-3");
         }
 #endif
         else
@@ -257,7 +259,7 @@ parse_global(global_cfg* cfg, int argc, char ***argv)
     CSV_PARSE_CHECK_ERROR(cfg->channel_num < 1 ||  cfg->channel_num > 4,
                     "channel should be between 1 and 4, program will exit");
 
-    for (int i = 0; i < cfg->channel_num; i++)
+    for (uint32_t i = 0; i < cfg->channel_num; i++)
     {
         if (*(argp + 1) != NULL && strcmp(*(argp + 1), "H264") != 0 &&
             strcmp(*(argp + 1), "H265") != 0)
@@ -274,16 +276,16 @@ parse_global(global_cfg* cfg, int argc, char ***argv)
 
     *argv = argp;
 
-#ifdef ENABLE_GIE
-    // seek for GIE deploy & caffemodel
+#ifdef ENABLE_TRT
+    // seek for TRT deploy & caffemodel
     while ((arg = *(++argp)))
     {
-        if (!strcmp(arg, "--gie-deployfile"))
+        if (!strcmp(arg, "--trt-deployfile"))
         {
             argp++;
             cfg->deployfile = *argp;
         }
-        else if (!strcmp(arg, "--gie-modelfile"))
+        else if (!strcmp(arg, "--trt-modelfile"))
         {
             argp++;
             cfg->modelfile = *argp;

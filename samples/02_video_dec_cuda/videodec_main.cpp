@@ -102,7 +102,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     // Reached end of buffer but could not find NAL unit
     if (!nalu_found)
     {
-        cerr << "Could not read nal unit from file. File seems to be corrupted"
+        cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
         return -1;
     }
@@ -133,7 +133,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     }
 
     // Reached end of buffer but could not find NAL unit
-    cerr << "Could not read nal unit from file. File seems to be corrupted"
+    cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
     return -1;
 }
@@ -540,6 +540,9 @@ query_and_set_capture(context_t * ctx)
 
         ret = ctx->conv->setCropRect(0, 0, crop.c.width, crop.c.height);
         TEST_ERROR(ret < 0, "Error while setting crop rect", error);
+
+        ret = ctx->conv->setDestRect(0, 0, crop.c.width, crop.c.height);
+        TEST_ERROR(ret < 0, "Error while setting dest rect", error);
 
         ret =
             ctx->conv->output_plane.setupPlane(V4L2_MEMORY_DMABUF,

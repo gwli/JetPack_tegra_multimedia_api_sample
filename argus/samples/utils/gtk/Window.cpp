@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -89,7 +89,7 @@ public:
     IGuiElement *m_guiElementView;          ///< view element
 
     GtkWindow *m_window;    ///< window
-    GtkDrawingArea *m_view; ///< view
+    GtkWidget *m_view;      ///< view
 
     uint32_t m_left;        ///< window x offset
     uint32_t m_top;         ///< window y offset
@@ -419,7 +419,7 @@ public:
     Window::PrivateData *privateData = window->m_private;
 
     // if clicking on the view grab focus
-    if (widget == GTK_WIDGET(privateData->m_view))
+    if (widget == privateData->m_view)
     {
         gtk_widget_grab_focus(widget);
     }
@@ -484,7 +484,7 @@ EGLNativeWindowType Window::getEGLNativeWindow() const
 
     if (m_private)
     {
-        GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(m_private->m_view));
+        GdkWindow *window = gtk_widget_get_window(m_private->m_view);
         if (window)
             xwindow = gdk_x11_window_get_xid(window);
     }
@@ -564,9 +564,9 @@ bool Window::setWindowGui(IGuiContainer *iGuiContainer, IGuiElement *iGuiElement
     }
 
     m_private->m_window = GTK_WINDOW(static_cast<GuiElement*>(iGuiElementWindow)->getWidget());
-    m_private->m_view = GTK_DRAWING_AREA(static_cast<GuiElement*>(iGuiElementView)->getWidget());
+    m_private->m_view = static_cast<GuiElement*>(iGuiElementView)->getWidget();
 
-    gtk_widget_set_double_buffered(GTK_WIDGET(m_private->m_view), FALSE);
+    //gtk_widget_set_double_buffered(m_private->m_view, FALSE);
 
     // enable and connect events
     if (g_signal_connect(m_private->m_window, "delete-event",
@@ -576,23 +576,23 @@ bool Window::setWindowGui(IGuiContainer *iGuiContainer, IGuiElement *iGuiElement
     }
 
     // the view is used for size and key events
-    gtk_widget_add_events(GTK_WIDGET(m_private->m_view), GDK_KEY_PRESS_MASK);
+    gtk_widget_add_events(m_private->m_view, GDK_KEY_PRESS_MASK);
     // make sure the view can have the keyboard focus, get focus when clicked on it with the mouse
     // and currently has the focus
-    gtk_widget_set_can_focus(GTK_WIDGET(m_private->m_view), TRUE);
-    gtk_widget_grab_focus(GTK_WIDGET(m_private->m_view));
+    gtk_widget_set_can_focus(m_private->m_view, TRUE);
+    gtk_widget_grab_focus(m_private->m_view);
     if (g_signal_connect(m_private->m_view, "key-press-event",
         G_CALLBACK(gtkCallBacks::onKeyPress), this) == 0)
     {
        ORIGINATE_ERROR("Failed to connect signal");
     }
-    gtk_widget_add_events(GTK_WIDGET(m_private->m_view), GDK_STRUCTURE_MASK);
+    gtk_widget_add_events(m_private->m_view, GDK_STRUCTURE_MASK);
     if (g_signal_connect(m_private->m_view, "configure-event",
         G_CALLBACK(gtkCallBacks::onConfigure), this) == 0)
     {
        ORIGINATE_ERROR("Failed to connect signal");
     }
-    gtk_widget_add_events(GTK_WIDGET(m_private->m_view), GDK_BUTTON_PRESS_MASK);
+    gtk_widget_add_events(m_private->m_view, GDK_BUTTON_PRESS_MASK);
     if (g_signal_connect(m_private->m_view, "button-press-event",
         G_CALLBACK(gtkCallBacks::onButtonPress), this) == 0)
     {

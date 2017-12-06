@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus Extension: Piecewise Linear Compression for WDR Sensor Modes</b>
+ *
+ * @b Description: Adds extra functionalities for the
+ * Piecewise Linear (PWL) compressed Wide Dynamic Range (WDR) sensor mode type.
+ */
+
 #ifndef _ARGUS_EXT_PWL_WDR_SENSOR_MODE_H
 #define _ARGUS_EXT_PWL_WDR_SENSOR_MODE_H
 
@@ -33,9 +41,8 @@ namespace Argus
 {
 
 /**
- * The Ext::PwlWdrSensorMode extension adds extra functionalities for the
- * Piecewise Linear (PWL) compressed Wide Dynamic Range (WDR) sensor mode type to
- * the Argus Driver. It introduces one new interface:
+ * Adds extra functionalities for the Piecewise Linear (PWL) Wide Dynamic
+ * Range (WDR) sensor mode type. It introduces one new interface:
  *   - IPwlWdrSensorMode; returns a list of normalized float coordinates (x,y) that define
  *                        the PWL compression curve used in the PWL WDR mode. This PWL compression
  *                        curve is used by the sensor to compress WDR pixel values before sending
@@ -47,6 +54,8 @@ namespace Argus
  *                        obtained by using the respective methods in the ISensorMode interface.
  *                        @see ISensorMode
  *
+ * @defgroup ArgusExtPwlWdrSensorMode Ext::PwlWdrSensorMode
+ * @ingroup ArgusExtensions
  */
 DEFINE_UUID(ExtensionName, EXT_PWL_WDR_SENSOR_MODE, 7f510b90,582b,11e6,bbb5,40,16,7e,ab,86,92);
 
@@ -56,6 +65,8 @@ namespace Ext
 /**
  * @class IPwlWdrSensorMode
  *
+ * Interface to the properties of a PWL WDR device.
+ *
  * Returns a list of normalized float coordinates (x,y) that define
  * the Piecewise Linear (PWL) compression curve used in the PWL Wide Dynamic Range (WDR) mode.
  * The coordinates are returned in a Point2D tuple. The coordinates
@@ -63,6 +74,8 @@ namespace Ext
  * and OutputBitDepth respectively. The Bit depths can be obtained by using
  * the respective methods in the ISensorMode interface.
  * @see ISensorMode
+ *
+ * @ingroup ArgusSensorMode ArgusExtPwlWdrSensorMode
  */
 DEFINE_UUID(InterfaceID, IID_PWL_WDR_SENSOR_MODE, 7f5acea0,582b,11e6,9414,40,16,7e,ab,86,92);
 class IPwlWdrSensorMode : public Interface

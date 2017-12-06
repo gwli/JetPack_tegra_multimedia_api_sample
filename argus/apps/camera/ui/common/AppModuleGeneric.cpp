@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -95,121 +95,6 @@ namespace ArgusSamples
     return true;
 }
 
-/* static */ bool AppModuleGeneric::device(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_deviceIndex.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::exposureTimeRange(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_exposureTimeRange.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::focusPosition(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_focusPosition.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::gainRange(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_gainRange.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::sensorMode(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_sensorModeIndex.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::frameRate(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_frameRate.setFromString(optArg));
-
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::outputSize(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_outputSize.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::outputPath(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_outputPath.set(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::vstab(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_vstabMode.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::deNoise(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_denoiseMode.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::aeAntibanding(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_aeAntibandingMode.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::aeLock(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_aeLock.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::awbLock(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_awbLock.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::awb(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_awbMode.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::exposureCompensation(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_exposureCompensation.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::ispDigitalGainRange(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_ispDigitalGainRange.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::deFogEnable(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_deFogEnable.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::deFogAmount(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_deFogAmount.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleGeneric::deFogQuality(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_deFogQuality.setFromString(optArg));
-    return true;
-}
-
 AppModuleGeneric::AppModuleGeneric()
     : m_initialized(false)
     , m_running(false)
@@ -256,87 +141,97 @@ bool AppModuleGeneric::initialize(Options &options)
         Options::Option("kpi", 0, "", Dispatcher::getInstance().m_kpi,
             "enable kpi mode.", kpi)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("device", 'd', "INDEX", Dispatcher::getInstance().m_deviceIndex,
-            "select camera device with INDEX.", device)));
+        createValueOption("device", 'd', "INDEX", "select camera device with INDEX.",
+            Dispatcher::getInstance().m_deviceIndex)));
 
     // source settings
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("exposuretimerange", 0, "RANGE",
-            Dispatcher::getInstance().m_exposureTimeRange,
+        createValueOption("exposuretimerange", 0, "RANGE",
             "sets the exposure time range to RANGE, in nanoseconds.",
-            exposureTimeRange)));
+            Dispatcher::getInstance().m_exposureTimeRange)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("gainrange", 0, "RANGE", Dispatcher::getInstance().m_gainRange,
-            "sets the gain range to RANGE.", gainRange)));
+        createValueOption("gainrange", 0, "RANGE", "sets the gain range to RANGE.",
+            Dispatcher::getInstance().m_gainRange)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("sensormode", 0, "INDEX", Dispatcher::getInstance().m_sensorModeIndex,
-            "set sensor mode to INDEX.", sensorMode)));
+        createValueOption("sensormode", 0, "INDEX", "set sensor mode to INDEX.",
+            Dispatcher::getInstance().m_sensorModeIndex)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("framerate", 0, "RATE", Dispatcher::getInstance().m_frameRate,
+        createValueOption("framerate", 0, "RATE",
             "set the sensor frame rate to RATE. If RATE is 0 then VFR (variable frame rate) is "
-            "enabled.", frameRate)));
+            "enabled.", Dispatcher::getInstance().m_frameRate)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("focusposition", 0, "POSITION", Dispatcher::getInstance().m_focusPosition,
+        createValueOption("focusposition", 0, "POSITION",
             "sets the focus position to POSITION, in focuser units.",
-            focusPosition)));
+            Dispatcher::getInstance().m_focusPosition)));
 
     // output settings
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("outputsize", 0, "WIDTHxHEIGHT", Dispatcher::getInstance().m_outputSize,
+        createValueOption("outputsize", 0, "WIDTHxHEIGHT",
             "set the still and video output size to WIDTHxHEIGHT (e.g. 1920x1080). If WIDTHxHEIGHT "
-            "is '0x0' the output size is the sensor mode size.", outputSize)));
+            "is '0x0' the output size is the sensor mode size.",
+            Dispatcher::getInstance().m_outputSize)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("outputpath", 0, "PATH", Dispatcher::getInstance().m_outputPath,
+        createValueOption("outputpath", 0, "PATH",
             "set the output file path. A file name, an incrementing index and the file extension will "
             "be appended. E.g. setting 'folder/' will result in 'folder/image0.jpg' or "
             "'folder/video0.mp4'. '/dev/null' can be used to discard output.",
-            outputPath)));
+            Dispatcher::getInstance().m_outputPath)));
 
     // stream settings
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("vstab", 0, "MODE", Dispatcher::getInstance().m_vstabMode,
-            "set the video stabilization mode.", vstab)));
+        createValueOption("vstab", 0, "MODE", "set the video stabilization mode.",
+            Dispatcher::getInstance().m_vstabMode)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("denoise", 0, "MODE", Dispatcher::getInstance().m_denoiseMode,
-            "set the denoising mode.", deNoise)));
+        createValueOption("denoise", 0, "MODE", "set the denoising mode.",
+            Dispatcher::getInstance().m_denoiseMode)));
+    PROPAGATE_ERROR(options.addOption(
+        createValueOption("denoisestrength", 0, "POSITION", "set the denoising strength.",
+            Dispatcher::getInstance().m_denoiseStrength)));
+    PROPAGATE_ERROR(options.addOption(
+        createValueOption("edgeenhance", 0, "MODE", "set the edge enhancement mode.",
+            Dispatcher::getInstance().m_edgeEnhanceMode)));
+    PROPAGATE_ERROR(options.addOption(
+        createValueOption("edgeenhancestrength", 0, "POSITION",
+            "set the edge enhancement strength.",
+            Dispatcher::getInstance().m_edgeEnhanceStrength)));
 
-        // auto control settings
+    // auto control settings
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("aeantibanding", 0, "MODE", Dispatcher::getInstance().m_aeAntibandingMode,
-            "set the auto exposure antibanding mode.", aeAntibanding)));
+        createValueOption("aeantibanding", 0, "MODE", "set the auto exposure antibanding mode.",
+            Dispatcher::getInstance().m_aeAntibandingMode)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("aelock", 0, "LOCK", Dispatcher::getInstance().m_aeLock,
-            "set the auto exposure lock.", aeLock)));
+        createValueOption("aelock", 0, "LOCK", "set the auto exposure lock.",
+            Dispatcher::getInstance().m_aeLock)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("awblock", 0, "LOCK", Dispatcher::getInstance().m_awbLock,
-            "set the auto white balance lock.", awbLock)));
+        createValueOption("awblock", 0, "LOCK", "set the auto white balance lock.",
+            Dispatcher::getInstance().m_awbLock)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("awb", 0, "MODE", Dispatcher::getInstance().m_awbMode,
-            "set the auto white balance mode.", awb)));
+        createValueOption("awb", 0, "MODE", "set the auto white balance mode.",
+            Dispatcher::getInstance().m_awbMode)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("exposurecompensation", 0, "COMPENSATION",
-            Dispatcher::getInstance().m_exposureCompensation,
+        createValueOption("exposurecompensation", 0, "COMPENSATION",
             "set the exposure compensation to COMPENSATION.",
-            exposureCompensation)));
+            Dispatcher::getInstance().m_exposureCompensation)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("ispdigitalgainrange", 0, "RANGE",
-            Dispatcher::getInstance().m_ispDigitalGainRange,
+        createValueOption("ispdigitalgainrange", 0, "RANGE",
             "sets the ISP digital gain range.",
-            ispDigitalGainRange)));
+            Dispatcher::getInstance().m_ispDigitalGainRange)));
 
     if (Dispatcher::getInstance().supportsExtension(Argus::EXT_DE_FOG))
     {
         // DeFog extension settings
         PROPAGATE_ERROR(options.addOption(
-            Options::Option("defog", 0, "ENABLE", Dispatcher::getInstance().m_deFogEnable,
-                "set the DeFog enable flag to ENABLE.", deFogEnable)));
+            createValueOption("defog", 0, "ENABLE",
+                "set the DeFog enable flag to ENABLE.",
+                Dispatcher::getInstance().m_deFogEnable)));
         PROPAGATE_ERROR(options.addOption(
-            Options::Option("defogamount", 0, "AMOUNT", Dispatcher::getInstance().m_deFogAmount,
-                "sets the amount of fog to be removed to AMOUNT.", deFogAmount)));
+            createValueOption("defogamount", 0, "AMOUNT",
+                "sets the amount of fog to be removed to AMOUNT.",
+                Dispatcher::getInstance().m_deFogAmount)));
         PROPAGATE_ERROR(options.addOption(
-            Options::Option("defogquality", 0, "QUALITY", Dispatcher::getInstance().m_deFogQuality,
+            createValueOption("defogquality", 0, "QUALITY",
                 "sets the quality of the DeFog effect to QUALITY.",
-                deFogQuality)));
+                Dispatcher::getInstance().m_deFogQuality)));
     }
 
     m_initialized = true;
@@ -461,6 +356,10 @@ bool AppModuleGeneric::start(Window::IGuiMenuBar *iGuiMenuBar,
             Argus::VideoStabilizationMode, Argus::NamedUUID);
         CREATE_GUI_ELEMENT_COMBO_BOX("De-Noise mode", m_denoiseMode,
             Argus::DenoiseMode, Argus::NamedUUID);
+        CREATE_GUI_ELEMENT("De-Noise strength", m_denoiseStrength);
+        CREATE_GUI_ELEMENT_COMBO_BOX("Edge Enhance mode", m_edgeEnhanceMode,
+            Argus::EdgeEnhanceMode, Argus::NamedUUID);
+        CREATE_GUI_ELEMENT("Edge Enhance strength", m_edgeEnhanceStrength);
 
         CREATE_GUI_ELEMENT_COMBO_BOX("AE antibanding mode", m_aeAntibandingMode,
             Argus::AeAntibandingMode, Window::IGuiElement::ValueTypeEnum);

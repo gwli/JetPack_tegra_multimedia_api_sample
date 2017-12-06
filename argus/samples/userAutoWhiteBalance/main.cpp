@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,6 +33,7 @@
 #include <Argus/Ext/BayerAverageMap.h>
 #include <EGLStream/EGLStream.h>
 #include "PreviewConsumer.h"
+#include "Options.h"
 #include <algorithm>
 
 #define EXIT_IF_TRUE(val,msg)   \
@@ -41,12 +42,6 @@
         {if (!val) {printf("%s\n",msg); return EXIT_FAILURE;}}
 #define EXIT_IF_NOT_OK(val,msg) \
         {if (val!=Argus::STATUS_OK) {printf("%s\n",msg); return EXIT_FAILURE;}}
-
-enum AnalysisMode {
-    NO_ANALYSIS_MODE,
-    BAYER_HISTOGRAM_ANALYSIS_MODE,
-    BAYER_AVERAGE_MAP_ANALYSIS_MODE
-};
 
 using namespace Argus;
 
@@ -59,6 +54,13 @@ EGLDisplayHolder g_display;
 const float BAYER_CLIP_COUNT_MAX = 0.25f;
 const float BAYER_MISSING_SAMPLE_TOLERANCE = 0.10f;
 const int CAPTURE_COUNT = 300;
+const uint32_t DEFAULT_CAMERA_INDEX = 0;
+
+struct ExecuteOptions
+{
+    uint32_t cameraIndex;
+    uint32_t useAverageMap;
+};
 
 /*
  * Program: userAutoWhiteBalance
@@ -67,7 +69,7 @@ const int CAPTURE_COUNT = 300;
  *           through the use of setWbGains() and setAwbMode(AWB_MODE_MANUAL) calls.
  */
 
-static bool execute(AnalysisMode analysisMode)
+static bool execute(const ExecuteOptions& options)
 {
     BayerTuple<float> precedingAverages(1.0f, 1.5f, 1.5f, 1.5f);
 
@@ -75,16 +77,6 @@ static bool execute(AnalysisMode analysisMode)
     Window &window = Window::getInstance();
     PROPAGATE_ERROR(g_display.initialize(window.getEGLNativeDisplay()));
 
-    if (analysisMode == NO_ANALYSIS_MODE)
-    {
-        printf("Usage: argus_userautowhitebalance <option>\n\n");
-        printf("where <option> can be one of the following:\n\n");
-        printf("     -h     Uses BayerHistogram for analysis\n");
-        printf("            This is the default analysis method\n");
-        printf("     -a     Uses BayerAverageMap for analysis\n");
-        printf("     -?     Displays this options list\n\n");
-        return false;
-    }
     /*
      * Set up Argus API Framework, identify available camera devices, create
      * a capture session for the first available device, and set up the event
@@ -94,14 +86,20 @@ static bool execute(AnalysisMode analysisMode)
     UniqueObj<CameraProvider> cameraProvider(CameraProvider::create());
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     EXIT_IF_NULL(iCameraProvider, "Cannot get core camera provider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     std::vector<CameraDevice*> cameraDevices;
     EXIT_IF_NOT_OK(iCameraProvider->getCameraDevices(&cameraDevices),
         "Failed to get camera devices");
     EXIT_IF_NULL(cameraDevices.size(), "No camera devices available");
+    if (cameraDevices.size() <= options.cameraIndex)
+    {
+        printf("Camera device specified on the command line is not available\n");
+        return EXIT_FAILURE;
+    }
 
     UniqueObj<CaptureSession> captureSession(
-        iCameraProvider->createCaptureSession(cameraDevices[0]));
+        iCameraProvider->createCaptureSession(cameraDevices[options.cameraIndex]));
 
     ICaptureSession *iSession = interface_cast<ICaptureSession>(captureSession);
     EXIT_IF_NULL(iSession, "Cannot get Capture Session Interface");
@@ -156,7 +154,7 @@ static bool execute(AnalysisMode analysisMode)
         interface_cast<IAutoControlSettings>(iRequest->getAutoControlSettings());
     EXIT_IF_NULL(iAutoControlSettings, "Failed to get AutoControlSettings interface");
 
-    if (analysisMode == BAYER_AVERAGE_MAP_ANALYSIS_MODE)
+    if (options.useAverageMap)
     {
         // Enable BayerAverageMap generation in the request.
         Ext::IBayerAverageMapSettings *iBayerAverageMapSettings =
@@ -181,7 +179,10 @@ static bool execute(AnalysisMode analysisMode)
         window.pollEvents();
 
         const uint64_t ONE_SECOND = 1000000000;
-        iEventProvider->waitForEvents(queue.get(), ONE_SECOND);
+        // WAR Bug 200317271
+        // update waitForEvents time from 1s to 2s
+        // to ensure events are queued up properly
+        iEventProvider->waitForEvents(queue.get(), 2*ONE_SECOND);
         EXIT_IF_TRUE(iQueue->getSize() == 0, "No events in queue");
 
         frameCaptureLoop += iQueue->getSize();
@@ -197,7 +198,7 @@ static bool execute(AnalysisMode analysisMode)
 
         BayerTuple<float> bayerTotals(0.0f);
         BayerTuple<float> bayerAverages(0.0f);
-        if (analysisMode == BAYER_HISTOGRAM_ANALYSIS_MODE)
+        if (!options.useAverageMap)
         {
             const IBayerHistogram* bayerHistogram =
                 interface_cast<const IBayerHistogram>(iMetadata->getBayerHistogram());
@@ -341,31 +342,28 @@ static bool execute(AnalysisMode analysisMode)
 
 }; // namespace ArgusSamples
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
-    AnalysisMode analysisMode = NO_ANALYSIS_MODE;
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
 
-    if (argc == 1)
-    {
-        analysisMode = BAYER_HISTOGRAM_ANALYSIS_MODE;
-    }
-    else if (argc == 2)
-    {
-        if (strlen(argv[1]) != 2 || *argv[1] != '-' ||
-            (*(argv[1]+1) != '?' && *(argv[1]+1) != 'h' && *(argv[1]+1) != 'a'))
-        {
-            printf("\nInvalid option: '%s'\n\n", argv[1]);
-        }
-        else if (*(argv[1]+1) == 'h')
-        {
-            analysisMode = BAYER_HISTOGRAM_ANALYSIS_MODE;
-        }
-        else if (*(argv[1]+1) == 'a')
-        {
-            analysisMode = BAYER_AVERAGE_MAP_ANALYSIS_MODE;
-        }
-    }
-    if (!ArgusSamples::execute(analysisMode))
+    ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
+    ArgusSamples::Value<uint32_t> useAverageMap(false);
+    ArgusSamples::Options options(basename(argv[0]));
+    PROPAGATE_ERROR(options.addOption(ArgusSamples::createValueOption
+        ("device",  'd', "INDEX", "Camera index.", cameraIndex)));
+    options.addOption(ArgusSamples::createValueOption
+        ("useaveragemap", 'a', "[0 or 1]", "Use Average Map (instead of Bayer Histogram).", useAverageMap));
+
+    if (!options.parse(argc, argv))
+        return EXIT_FAILURE;
+    if (options.requestedExit())
+        return EXIT_SUCCESS;
+
+    ArgusSamples::ExecuteOptions executeOptions;
+    executeOptions.cameraIndex = cameraIndex.get();
+    executeOptions.useAverageMap = useAverageMap.get();
+
+    if (!ArgusSamples::execute(executeOptions))
     {
         return EXIT_FAILURE;
     }

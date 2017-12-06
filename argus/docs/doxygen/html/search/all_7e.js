@@ -18,7 +18,6 @@ var searchData=
   ['_7eicameraprovider',['~ICameraProvider',['../classArgus_1_1ICameraProvider.html#ab2133beae7b27e198bf6c9d19c265d06',1,'Argus::ICameraProvider']]],
   ['_7eicapturemetadata',['~ICaptureMetadata',['../classArgus_1_1ICaptureMetadata.html#a91b9e7e777cf9f05a303b7c2b6bcb7eb',1,'Argus::ICaptureMetadata']]],
   ['_7eicapturesession',['~ICaptureSession',['../classArgus_1_1ICaptureSession.html#a762c4ff11f09b75289e19539db75c786',1,'Argus::ICaptureSession']]],
-  ['_7eidebugcapturemetadata',['~IDebugCaptureMetadata',['../classArgus_1_1Ext_1_1IDebugCaptureMetadata.html#a86461755f672f3e374eaf0c14ba89df2',1,'Argus::Ext::IDebugCaptureMetadata']]],
   ['_7eidebugcapturesession',['~IDebugCaptureSession',['../classArgus_1_1Ext_1_1IDebugCaptureSession.html#a48c8b109e1b7d317ad6c2b6bed273abd',1,'Argus::Ext::IDebugCaptureSession']]],
   ['_7eidefogsettings',['~IDeFogSettings',['../classArgus_1_1Ext_1_1IDeFogSettings.html#a977fcad7bdf0dfaad922d5fb3cba8675',1,'Argus::Ext::IDeFogSettings']]],
   ['_7eidenoisemetadata',['~IDenoiseMetadata',['../classArgus_1_1IDenoiseMetadata.html#a6431b04221a0d2d2f25ca2e0ddc00038',1,'Argus::IDenoiseMetadata']]],
@@ -34,7 +33,7 @@ var searchData=
   ['_7eifacedetectmetadata',['~IFaceDetectMetadata',['../classArgus_1_1Ext_1_1IFaceDetectMetadata.html#add0da7513c9b03cdd515ecc9f206b4b0',1,'Argus::Ext::IFaceDetectMetadata']]],
   ['_7eifacedetectresult',['~IFaceDetectResult',['../classArgus_1_1Ext_1_1IFaceDetectResult.html#a8931136ae185a84d7eaa9109c1da99a2',1,'Argus::Ext::IFaceDetectResult']]],
   ['_7eifacedetectsettings',['~IFaceDetectSettings',['../classArgus_1_1Ext_1_1IFaceDetectSettings.html#a7c948a8cecd01901e46f9030a040e838',1,'Argus::Ext::IFaceDetectSettings']]],
-  ['_7einputstream',['~InputStream',['../classArgus_1_1InputStream.html#a5e39ca4f3ba89e3087a9f4772bf786d8',1,'Argus::InputStream']]],
+  ['_7eiinternalframecount',['~IInternalFrameCount',['../classArgus_1_1Ext_1_1IInternalFrameCount.html#ac2f5297bccd5ece07b806d62ba13ed80',1,'Argus::Ext::IInternalFrameCount']]],
   ['_7einterface',['~Interface',['../classArgus_1_1Interface.html#a3b94d7271c3143ba58696410eb79b5de',1,'Argus::Interface']]],
   ['_7einterfaceprovider',['~InterfaceProvider',['../classArgus_1_1InterfaceProvider.html#a4cb7c57f553fdabf28830e2db520fa20',1,'Argus::InterfaceProvider']]],
   ['_7eioutputstreamsettings',['~IOutputStreamSettings',['../classArgus_1_1IOutputStreamSettings.html#af9f0104ad5205fc01042c6ec08af640b',1,'Argus::IOutputStreamSettings']]],
@@ -54,7 +53,6 @@ var searchData=
   ['_7eoutputstream',['~OutputStream',['../classArgus_1_1OutputStream.html#a16882333ea723c90e30ac31d614d2e0b',1,'Argus::OutputStream']]],
   ['_7eoutputstreamsettings',['~OutputStreamSettings',['../classArgus_1_1OutputStreamSettings.html#a5503e085c6be8dd7d933a4d48d0e3556',1,'Argus::OutputStreamSettings']]],
   ['_7erequest',['~Request',['../classArgus_1_1Request.html#a867defa619f58fca959c8f388d6b50f2',1,'Argus::Request']]],
-  ['_7erv',['~rv',['../classArgus_1_1rv.html#a701c330e33d6947d911c1ac5fe3d9316',1,'Argus::rv']]],
   ['_7esensormode',['~SensorMode',['../classArgus_1_1SensorMode.html#a71c73d83526ffcac39157dc0645ef48d',1,'Argus::SensorMode']]],
   ['_7euniqueobj',['~UniqueObj',['../classArgus_1_1UniqueObj.html#a7c717fe84a8c6b0dbf7e98e5d6e60fe8',1,'Argus::UniqueObj']]]
 ];

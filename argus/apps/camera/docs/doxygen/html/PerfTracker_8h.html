@@ -93,41 +93,50 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">PerfTracker.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Util_8h_source.html">Util.h</a>&quot;</code><br/>
+<div class="textblock"><code>#include &lt;stddef.h&gt;</code><br/>
+<code>#include &quot;<a class="el" href="Util_8h_source.html">Util.h</a>&quot;</code><br/>
+<code>#include &quot;Ordered.h&quot;</code><br/>
+<code>#include &quot;UniquePointer.h&quot;</code><br/>
 </div>
 <p><a href="PerfTracker_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1PerfTracker.html">ArgusSamples::PerfTracker</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classArgusSamples_1_1PerfTracker.html" title="PerfTracker note down the perf for one session.">PerfTracker</a> note down the perf for one session.  <a href="classArgusSamples_1_1PerfTracker.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to track global performance events.  <a href="classArgusSamples_1_1PerfTracker.html#details">More...</a><br/></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1SessionPerfTracker.html">ArgusSamples::SessionPerfTracker</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to track session performance events.  <a href="classArgusSamples_1_1SessionPerfTracker.html#details">More...</a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="namespaces"></a>
 Namespaces</h2></td></tr>
+<tr class="memitem:namespaceArgus"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceArgus.html">Argus</a></td></tr>
 <tr class="memitem:namespaceArgusSamples"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceArgusSamples.html">ArgusSamples</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a0f7c0a0ae52848a5bea395ccc41f69ae"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69ae">ArgusSamples::PerfEventType</a> { <br/>
-&#160;&#160;<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeae542ef342bbb7aee49148d1d7418ee87">ArgusSamples::APP_START</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaec55030c5081f08778483e8c2f3b6fd3">ArgusSamples::APP_INITIALIZED</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aea8d763dac4ccff5d85671d793b992adc4">ArgusSamples::TASK_START</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeabd20df51e0a487833160144a599bae71">ArgusSamples::ISSUE_CAPTURE</a>, 
+<tr class="memitem:ab27a7f01bc9a65a0022709c05c8f29b4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4">ArgusSamples::GlobalEvent</a> { <a class="el" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4a8939e24ab7f734bf020e9e594a302447">ArgusSamples::GLOBAL_EVENT_APP_START</a>, 
+<a class="el" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4aa7e7f304d2c8a63762ec9d63caad5e4a">ArgusSamples::GLOBAL_EVENT_APP_INITIALIZED</a>, 
+<a class="el" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4aa17e110896996ce9d855a78297f70029">ArgusSamples::GLOBAL_EVENT_DISPLAY</a>
+ }</td></tr>
+<tr class="memdesc:ab27a7f01bc9a65a0022709c05c8f29b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global events.  <a href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4">More...</a><br/></td></tr>
+<tr class="memitem:a72833a481ac325fdef97a3c77e46e5ae"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5ae">ArgusSamples::SessionEvent</a> { <br/>
+&#160;&#160;<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea85445eefb47dca84b24e3975771ff831">ArgusSamples::SESSION_EVENT_TASK_START</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea8ea1134833437dd0fe2f3b580d0571be">ArgusSamples::SESSION_EVENT_ISSUE_CAPTURE</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea147fd2ad27b15c2e2e878223ddbcf4b7">ArgusSamples::SESSION_EVENT_REQUEST_RECEIVED</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea8f0bc14f9a47211478c30cd558451f93">ArgusSamples::SESSION_EVENT_REQUEST_LATENCY</a>, 
 <br/>
-&#160;&#160;<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaba92743322fd459d8b1aa54f8c282060">ArgusSamples::REQUEST_RECEIVED</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aea243fecf49c94a8e01d4bdda537fe8b46">ArgusSamples::REQUEST_LATENCY</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaf335eb3eaced30fcd1846f2627940104">ArgusSamples::FRAME_COUNT</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaa503e24455f8bd6cb5aea787c05414f9">ArgusSamples::CLOSE_REQUESTED</a>, 
-<br/>
-&#160;&#160;<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aea3f37643a747a7253e895ebc37c5054f6">ArgusSamples::FLUSH_DONE</a>, 
-<a class="el" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaa5a3a92ca31248a00e8ac4f9b16ec86f">ArgusSamples::CLOSE_DONE</a>
+&#160;&#160;<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aeac4a2488f7df844d47e3c318fcf081cf9">ArgusSamples::SESSION_EVENT_FRAME_COUNT</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aeaab0a9cde2374642cea90ff6ec293ddb1">ArgusSamples::SESSION_EVENT_CLOSE_REQUESTED</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aeaa03f0ff521b8de0101807fe3c6d098b8">ArgusSamples::SESSION_EVENT_FLUSH_DONE</a>, 
+<a class="el" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea4d1ee9d07bacba26206e9b1ceecefb42">ArgusSamples::SESSION_EVENT_CLOSE_DONE</a>
 <br/>
  }</td></tr>
+<tr class="memdesc:a72833a481ac325fdef97a3c77e46e5ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Session events.  <a href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5ae">More...</a><br/></td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

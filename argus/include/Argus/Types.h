@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,13 +26,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Types API</b>
+ *
+ * @b Description: Defines the basic types that are used by the API.
+ */
+
 #ifndef _ARGUS_TYPES_H
 #define _ARGUS_TYPES_H
-
-/**
- * @file Types.h
- * Defines the basic types that are used by the API.
- */
 
 #include <stdint.h>
 #include <vector>
@@ -42,8 +44,8 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-// Some versions of the Xlib.h header file define 'Status' to 'int'. This collides with the Argus
-// 'Status' type.
+// Some versions of the Xlib.h header file define 'Status' to 'int'.
+// This collides with the libargus 'Status' type.
 // If 'Status' is defined then undefine it and use a typedef instead.
 #ifdef Status
 #undef Status
@@ -296,7 +298,7 @@ DEFINE_UUID(PixelFormat, PIXEL_FMT_JPEG_BLOB,     578b08c4,93d5,11e5,9686,1c,b7,
 DEFINE_UUID(PixelFormat, PIXEL_FMT_RAW16,         57b484d8,93d5,11e5,aeb6,1c,b7,2c,ef,d4,1e);
 
 /**
- * Utility class for Argus interfaces.
+ * Utility class for libargus interfaces.
  */
 class NonCopyable
 {
@@ -323,7 +325,7 @@ protected:
 };
 
 /**
- * A unique identifier for an Argus Interface.
+ * A unique identifier for a libargus Interface.
  */
 class InterfaceID : public NamedUUID
 {
@@ -344,7 +346,7 @@ public:
 };
 
 /**
- * The base interface for a class that provides Argus Interfaces.
+ * The base interface for a class that provides libargus Interfaces.
  */
 class InterfaceProvider : NonCopyable
 {
@@ -380,7 +382,7 @@ inline TheInterface* interface_cast(const InterfaceProvider* obj)
 }
 
 /**
- * A top level object class for Argus objects that are created and owned by
+ * A top level object class for libargus objects that are created and owned by
  * the client. All Destructable objects created by the client must be explicitly destroyed.
  */
 class Destructable
@@ -399,6 +401,7 @@ protected:
 
 /**
  * Template helper emulating C++11 rvalue semantics.
+ * @cond
  */
 template<typename T>
 class rv : public T
@@ -414,15 +417,18 @@ template<typename T>
 {
     return *static_cast<rv<T>*>(&self);
 }
+/** @endcond */
 
 /**
  * Movable smart pointer mimicking std::unique_ptr.
+ * @cond
  */
 template <typename T> struct remove_const;
 template <typename T> struct remove_const<const T&>{ typedef T& type; };
 template <typename T> struct remove_const<const T*>{ typedef T* type; };
 template <typename T> struct remove_const<const T >{ typedef T  type; };
 template <typename T> struct remove_const          { typedef T  type; };
+/** @endcond */
 
 template <typename T>
 class UniqueObj : NonCopyable

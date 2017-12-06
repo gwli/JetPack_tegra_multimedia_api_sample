@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Request API</b>
+ *
+ * @b Description: Defines the Request object and core IRequest interface.
+ */
+
 #ifndef _ARGUS_REQUEST_H
 #define _ARGUS_REQUEST_H
 
@@ -33,8 +40,10 @@ namespace Argus
 {
 
 /**
- * A Request defines the parameters to configure the capture.
- * It will expose the IRequest interface.
+ * Container for all settings used by a single capture request.
+ *
+ * @defgroup ArgusRequest Request
+ * @ingroup ArgusObjects
  */
 class Request : public InterfaceProvider, public Destructable
 {
@@ -45,10 +54,23 @@ protected:
 /**
  * @class IRequest
  *
- * Defines the interface to a capture Request.
+ * Interface to the core Request settings.
+ *
+ * @ingroup ArgusRequest
+ *
+ * @defgroup ArgusAutoControlSettings AutoControlSettings
+ * Child auto control settings, returned by IRequest::getAutoControlSettings
+ * @ingroup ArgusRequest
+ *
+ * @defgroup ArgusStreamSettings StreamSettings
+ * Child per-stream settings, returned by IRequest::getStreamSettings
+ * @ingroup ArgusRequest
+ *
+ * @defgroup ArgusSourceSettings SourceSettings
+ * Child source settings, returned by IRequest::getSourceSettings
+ * @ingroup ArgusRequest
  */
 DEFINE_UUID(InterfaceID, IID_REQUEST, eb9b3750,fc8d,455f,8e0f,91,b3,3b,d9,4e,c5);
-
 class IRequest : public Interface
 {
 public:
@@ -72,7 +94,7 @@ public:
 
     /**
      * Returns all enabled output streams.
-     * @param[out] streams, a vector that will be populated with the enabled streams.
+     * @param[out] streams A vector that will be populated with the enabled streams.
      *
      * @returns success/status of the call.
      */
@@ -92,7 +114,6 @@ public:
      * and expose the IAutoControlSettings interface.
      * @param[in] acId The id of the AC component for which the settings are requested.
      * <b>(Currently unused)</b>
-     *
      */
     virtual InterfaceProvider* getAutoControlSettings(const AutoControlId acId = 0) = 0;
 

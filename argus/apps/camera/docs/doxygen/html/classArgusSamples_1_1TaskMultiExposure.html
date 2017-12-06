@@ -151,6 +151,8 @@ Private Member Functions</h2></td></tr>
 <tr class="memdesc:a164065090a7a102f5b4d43ae41218cce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback when the exposure range or steps changes.  <a href="#a164065090a7a102f5b4d43ae41218cce"></a><br/></td></tr>
 <tr class="memitem:a37a93c8cca9ef03c55c1e7adf9ed8782"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiExposure.html#a37a93c8cca9ef03c55c1e7adf9ed8782">shutdownExpLevels</a> ()</td></tr>
 <tr class="memdesc:a37a93c8cca9ef03c55c1e7adf9ed8782"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shut down the exposure level streams.  <a href="#a37a93c8cca9ef03c55c1e7adf9ed8782"></a><br/></td></tr>
+<tr class="memitem:a82d38086037bcaf8f871787b73351af5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiExposure.html#a82d38086037bcaf8f871787b73351af5">restartStreams</a> (const Observed &amp;source)</td></tr>
+<tr class="memdesc:a82d38086037bcaf8f871787b73351af5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart when sensor mode or output size changes.  <a href="#a82d38086037bcaf8f871787b73351af5"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -162,8 +164,6 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a25bf4de932c2c7f8d610a56b87f57e35"><td class="mdescLeft">&#160;</td><td class="mdescRight">set if preview is running  <a href="#a25bf4de932c2c7f8d610a56b87f57e35"></a><br/></td></tr>
 <tr class="memitem:a3afcfebbf91e53223b061e673ff3b38e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiExposure.html#a3afcfebbf91e53223b061e673ff3b38e">m_wasRunning</a></td></tr>
 <tr class="memdesc:a3afcfebbf91e53223b061e673ff3b38e"><td class="mdescLeft">&#160;</td><td class="mdescRight">set if was running before the device had been closed  <a href="#a3afcfebbf91e53223b061e673ff3b38e"></a><br/></td></tr>
-<tr class="memitem:a5eba1561324b8b7b9ebc452abebdf076"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiExposure.html#a5eba1561324b8b7b9ebc452abebdf076">m_captureIndex</a></td></tr>
-<tr class="memdesc:a5eba1561324b8b7b9ebc452abebdf076"><td class="mdescLeft">&#160;</td><td class="mdescRight">incrementing capture index  <a href="#a5eba1561324b8b7b9ebc452abebdf076"></a><br/></td></tr>
 <tr class="memitem:a86e00ac4af4f2113e25a772e3079fdcd"><td class="memItemLeft" align="right" valign="top">std::list&lt; <a class="el" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html">ExpLevel</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiExposure.html#a86e00ac4af4f2113e25a772e3079fdcd">m_expLevels</a></td></tr>
 <tr class="memdesc:a86e00ac4af4f2113e25a772e3079fdcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">exposure level  <a href="#a86e00ac4af4f2113e25a772e3079fdcd"></a><br/></td></tr>
 </table>
@@ -210,7 +210,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00055">55</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00054">54</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -240,7 +240,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#a667493a1aae5fcd54cde4c447e43d4f5">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00143">143</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00147">147</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -268,7 +268,7 @@ Private Attributes</h2></td></tr>
 
 <p>Callback when the device is opened/closed. </p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00202">202</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00225">225</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -296,7 +296,35 @@ Private Attributes</h2></td></tr>
 
 <p>Callback when the exposure range or steps changes. </p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00228">228</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00251">251</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a82d38086037bcaf8f871787b73351af5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ArgusSamples::TaskMultiExposure::restartStreams </td>
+          <td>(</td>
+          <td class="paramtype">const Observed &amp;&#160;</td>
+          <td class="paramname"><em>source</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Restart when sensor mode or output size changes. </p>
+
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00215">215</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -325,7 +353,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#a5891b29c51e0651bf870936a51af4bcb">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00165">165</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00172">172</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -352,7 +380,7 @@ Private Attributes</h2></td></tr>
 
 <p>Shut down the exposure level streams. </p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00185">185</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00198">198</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -381,7 +409,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#a80bafe246911afeb08d21c6d33f9cade">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00243">243</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00266">266</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
@@ -410,35 +438,11 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#ab3d17813e200c57cb68f048604a2ea4a">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00301">301</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8cpp_source.html#l00324">324</a> of file <a class="el" href="MultiExposure_8cpp_source.html">MultiExposure.cpp</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="a5eba1561324b8b7b9ebc452abebdf076"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t ArgusSamples::TaskMultiExposure::m_captureIndex</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>incrementing capture index </p>
-
-<p>Definition at line <a class="el" href="MultiExposure_8h_source.html#l00075">75</a> of file <a class="el" href="MultiExposure_8h_source.html">MultiExposure.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a86e00ac4af4f2113e25a772e3079fdcd"></a>
 <div class="memitem">
 <div class="memproto">
@@ -459,7 +463,7 @@ Private Attributes</h2></td></tr>
 
 <p>exposure level </p>
 
-<p>Definition at line <a class="el" href="MultiExposure_8h_source.html#l00094">94</a> of file <a class="el" href="MultiExposure_8h_source.html">MultiExposure.h</a>.</p>
+<p>Definition at line <a class="el" href="MultiExposure_8h_source.html#l00093">93</a> of file <a class="el" href="MultiExposure_8h_source.html">MultiExposure.h</a>.</p>
 
 </div>
 </div>
@@ -600,7 +604,7 @@ Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

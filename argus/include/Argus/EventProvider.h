@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Event Provider API</b>
+ *
+ * @b Description: Defines the EventProvider interface.
+ */
+
 #ifndef _ARGUS_EVENT_PROVIDER_H
 #define _ARGUS_EVENT_PROVIDER_H
 
@@ -35,15 +42,17 @@ namespace Argus
 /**
  * @class IEventProvider
  *
- * The interface for an object which generates Events (such as CaptureSession).
+ * Interface for an object which generates Events (such as CaptureSession).
+ *
  * Any generated Events are initially stored by the provider itself, and they
  * are not copied out to public EventQueues until waitForEvents() is called.
  * If at any time there is an event type offered by a provider that is not
  * accepted by an active EventQueue created by that provider, all events of
  * that type will be discarded.
+ *
+ * @ingroup ArgusCaptureSession
  */
 DEFINE_UUID(InterfaceID, IID_EVENT_PROVIDER, 523ed330,25dc,11e5,867f,08,00,20,0c,9a,66);
-
 class IEventProvider : public Interface
 {
 public:
@@ -51,7 +60,7 @@ public:
 
     /**
      * Returns a list of event types that this provider can generate.
-     * @param[out] types, a vector that will be populated by the available event types.
+     * @param[out] types A vector that will be populated by the available event types.
      *
      * @returns success/status of the call.
      */

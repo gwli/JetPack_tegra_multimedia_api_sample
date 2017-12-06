@@ -32,37 +32,32 @@ include ../Rules.mk
 
 APP := camera_caffe
 
-CLASS_DIR := ../common/classes
-ARGUS_UTILS_DIR := ../../argus/samples/utils
+ARGUS_UTILS_DIR := $(TOP_DIR)/argus/samples/utils
 
 SRCS := \
 	camera_caffe_csvparser.cpp  \
 	camera_caffe_main.cpp  \
+	$(wildcard $(CLASS_DIR)/*.cpp) \
 	$(ARGUS_UTILS_DIR)/Thread.cpp
 
-CLASS_SRCS := $(wildcard $(CLASS_DIR)/*.cpp)
-
 OBJS := $(SRCS:.cpp=.o)
-
-CLASS_OBJS := $(CLASS_SRCS:.cpp=.o)
 
 CPPFLAGS += \
 	-I"$(ARGUS_UTILS_DIR)"
 
 LDFLAGS += \
-	-ldl -lpthread \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg -lnveglstream_camconsumer -largus
+	-ldl -lnveglstream_camconsumer -largus
 
 all: $(APP)
+
+$(CLASS_DIR)/%.o: $(CLASS_DIR)/%.cpp
+	$(MAKE) -C $(CLASS_DIR)
 
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(APP): $(OBJS)
-	$(MAKE) -C $(CLASS_DIR)
-	$(CPP) -o $@ $(OBJS) $(CLASS_OBJS) $(CPPFLAGS) $(LDFLAGS)
+	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

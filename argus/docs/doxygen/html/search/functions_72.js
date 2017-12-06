@@ -9,6 +9,5 @@ var searchData=
   ['reset',['reset',['../classArgus_1_1UniqueObj.html#ae6cb4e063009b5128e9ae1d2ce946c52',1,'Argus::UniqueObj']]],
   ['resize',['resize',['../classArgus_1_1Array2D.html#ae6166f6a5a3d6c48d93eec349b41b063',1,'Argus::Array2D']]],
   ['rgbtuple',['RGBTuple',['../classArgus_1_1RGBTuple.html#a58018eb7737c918cb08f06cd53cb6e0f',1,'Argus::RGBTuple::RGBTuple()'],['../classArgus_1_1RGBTuple.html#afce945d9bb02ab48ed765317dad88e1d',1,'Argus::RGBTuple::RGBTuple(const Tuple&lt; RGB_CHANNEL_COUNT, T &gt; &amp;other)'],['../classArgus_1_1RGBTuple.html#a65b588e522647e157fd1a140dc194659',1,'Argus::RGBTuple::RGBTuple(T init)'],['../classArgus_1_1RGBTuple.html#a1abb5a3f2b59c94db7b384c3815612d3',1,'Argus::RGBTuple::RGBTuple(T _r, T _g, T _b)']]],
-  ['right',['right',['../classArgus_1_1Rectangle.html#a9af576b44868a524ae6cd95df301488c',1,'Argus::Rectangle::right()'],['../classArgus_1_1Rectangle.html#a4e33e2a2dcd462e59fc95ef2be184268',1,'Argus::Rectangle::right() const ']]],
-  ['rv',['rv',['../classArgus_1_1rv.html#ac7a9bcfc96bc6f5d57d4f2a3f0b675f7',1,'Argus::rv::rv()'],['../classArgus_1_1rv.html#ad567da8af6cb85c2b5c00e59e183e40b',1,'Argus::rv::rv(const rv &amp;)']]]
+  ['right',['right',['../classArgus_1_1Rectangle.html#a9af576b44868a524ae6cd95df301488c',1,'Argus::Rectangle::right()'],['../classArgus_1_1Rectangle.html#a4e33e2a2dcd462e59fc95ef2be184268',1,'Argus::Rectangle::right() const ']]]
 ];

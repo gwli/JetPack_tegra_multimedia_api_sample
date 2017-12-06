@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /*
-** Copyright (c) 2013-2016 The Khronos Group Inc.
+** Copyright (c) 2013-2017 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -31,9 +31,7 @@ extern "C" {
 ** This header is generated from the Khronos OpenGL / OpenGL ES XML
 ** API Registry. The current version of the Registry, generator scripts
 ** used to make the header, and the header can be found at
-**   http://www.opengl.org/registry/
-**
-** Khronos $Revision: 33224 $ on $Date: 2016-10-14 08:45:10 -0400 (Fri, 14 Oct 2016) $
+**   https://github.com/KhronosGroup/OpenGL-Registry
 */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -53,7 +51,7 @@ extern "C" {
 #define GLAPI extern
 #endif
 
-#define GL_GLEXT_VERSION 20161014
+#define GL_GLEXT_VERSION 20170302
 
 /* Generated C header for:
  * API: gl
@@ -3355,6 +3353,16 @@ GLAPI void APIENTRY glFramebufferTextureFaceARB (GLenum target, GLenum attachmen
 #define GL_ARB_get_texture_sub_image 1
 #endif /* GL_ARB_get_texture_sub_image */
 
+#ifndef GL_ARB_gl_spirv
+#define GL_ARB_gl_spirv 1
+#define GL_SHADER_BINARY_FORMAT_SPIR_V_ARB 0x9551
+#define GL_SPIR_V_BINARY_ARB              0x9552
+typedef void (APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const GLchar *pEntryPoint, GLuint numSpecializationConstants, const GLuint *pConstantIndex, const GLuint *pConstantValue);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glSpecializeShaderARB (GLuint shader, const GLchar *pEntryPoint, GLuint numSpecializationConstants, const GLuint *pConstantIndex, const GLuint *pConstantValue);
+#endif
+#endif /* GL_ARB_gl_spirv */
+
 #ifndef GL_ARB_gpu_shader5
 #define GL_ARB_gpu_shader5 1
 #endif /* GL_ARB_gpu_shader5 */
@@ -5379,6 +5387,24 @@ GLAPI void APIENTRY glBlendEquationSeparateIndexedAMD (GLuint buf, GLenum modeRG
 #endif
 #endif /* GL_AMD_draw_buffers_blend */
 
+#ifndef GL_AMD_framebuffer_sample_positions
+#define GL_AMD_framebuffer_sample_positions 1
+#define GL_SUBSAMPLE_DISTANCE_AMD         0x883F
+#define GL_PIXELS_PER_SAMPLE_PATTERN_X_AMD 0x91AE
+#define GL_PIXELS_PER_SAMPLE_PATTERN_Y_AMD 0x91AF
+#define GL_ALL_PIXELS_AMD                 0xFFFFFFFF
+typedef void (APIENTRYP PFNGLFRAMEBUFFERSAMPLEPOSITIONSFVAMDPROC) (GLenum target, GLuint numsamples, GLuint pixelindex, const GLfloat *values);
+typedef void (APIENTRYP PFNGLNAMEDFRAMEBUFFERSAMPLEPOSITIONSFVAMDPROC) (GLuint framebuffer, GLuint numsamples, GLuint pixelindex, const GLfloat *values);
+typedef void (APIENTRYP PFNGLGETFRAMEBUFFERPARAMETERFVAMDPROC) (GLenum target, GLenum pname, GLuint numsamples, GLuint pixelindex, GLsizei size, GLfloat *values);
+typedef void (APIENTRYP PFNGLGETNAMEDFRAMEBUFFERPARAMETERFVAMDPROC) (GLuint framebuffer, GLenum pname, GLuint numsamples, GLuint pixelindex, GLsizei size, GLfloat *values);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glFramebufferSamplePositionsfvAMD (GLenum target, GLuint numsamples, GLuint pixelindex, const GLfloat *values);
+GLAPI void APIENTRY glNamedFramebufferSamplePositionsfvAMD (GLuint framebuffer, GLuint numsamples, GLuint pixelindex, const GLfloat *values);
+GLAPI void APIENTRY glGetFramebufferParameterfvAMD (GLenum target, GLenum pname, GLuint numsamples, GLuint pixelindex, GLsizei size, GLfloat *values);
+GLAPI void APIENTRY glGetNamedFramebufferParameterfvAMD (GLuint framebuffer, GLenum pname, GLuint numsamples, GLuint pixelindex, GLsizei size, GLfloat *values);
+#endif
+#endif /* GL_AMD_framebuffer_sample_positions */
+
 #ifndef GL_AMD_gcn_shader
 #define GL_AMD_gcn_shader 1
 #endif /* GL_AMD_gcn_shader */
@@ -5599,7 +5625,6 @@ GLAPI void APIENTRY glGetPerfMonitorCounterDataAMD (GLuint monitor, GLenum pname
 
 #ifndef GL_AMD_sample_positions
 #define GL_AMD_sample_positions 1
-#define GL_SUBSAMPLE_DISTANCE_AMD         0x883F
 typedef void (APIENTRYP PFNGLSETMULTISAMPLEFVAMDPROC) (GLenum pname, GLuint index, const GLfloat *val);
 #ifdef GL_GLEXT_PROTOTYPES
 GLAPI void APIENTRY glSetMultisamplefvAMD (GLenum pname, GLuint index, const GLfloat *val);
@@ -8974,6 +8999,10 @@ GLAPI void APIENTRY glResizeBuffersMESA (void);
 #endif
 #endif /* GL_MESA_resize_buffers */
 
+#ifndef GL_MESA_shader_integer_functions
+#define GL_MESA_shader_integer_functions 1
+#endif /* GL_MESA_shader_integer_functions */
+
 #ifndef GL_MESA_window_pos
 #define GL_MESA_window_pos 1
 typedef void (APIENTRYP PFNGLWINDOWPOS2DMESAPROC) (GLdouble x, GLdouble y);
@@ -9035,6 +9064,10 @@ GLAPI void APIENTRY glWindowPos4svMESA (const GLshort *v);
 #define GL_YCBCR_MESA                     0x8757
 #endif /* GL_MESA_ycbcr_texture */
 
+#ifndef GL_NVX_blend_equation_advanced_multi_draw_buffers
+#define GL_NVX_blend_equation_advanced_multi_draw_buffers 1
+#endif /* GL_NVX_blend_equation_advanced_multi_draw_buffers */
+
 #ifndef GL_NVX_conditional_render
 #define GL_NVX_conditional_render 1
 typedef void (APIENTRYP PFNGLBEGINCONDITIONALRENDERNVXPROC) (GLuint id);
@@ -9053,6 +9086,32 @@ GLAPI void APIENTRY glEndConditionalRenderNVX (void);
 #define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX 0x904A
 #define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX 0x904B
 #endif /* GL_NVX_gpu_memory_info */
+
+#ifndef GL_NVX_linked_gpu_multicast
+#define GL_NVX_linked_gpu_multicast 1
+#define GL_LGPU_SEPARATE_STORAGE_BIT_NVX  0x0800
+#define GL_MAX_LGPU_GPUS_NVX              0x92BA
+typedef void (APIENTRYP PFNGLLGPUNAMEDBUFFERSUBDATANVXPROC) (GLbitfield gpuMask, GLuint buffer, GLintptr offset, GLsizeiptr size, const void *data);
+typedef void (APIENTRYP PFNGLLGPUCOPYIMAGESUBDATANVXPROC) (GLuint sourceGpu, GLbitfield destinationGpuMask, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srxY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+typedef void (APIENTRYP PFNGLLGPUINTERLOCKNVXPROC) (void);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glLGPUNamedBufferSubDataNVX (GLbitfield gpuMask, GLuint buffer, GLintptr offset, GLsizeiptr size, const void *data);
+GLAPI void APIENTRY glLGPUCopyImageSubDataNVX (GLuint sourceGpu, GLbitfield destinationGpuMask, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srxY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+GLAPI void APIENTRY glLGPUInterlockNVX (void);
+#endif
+#endif /* GL_NVX_linked_gpu_multicast */
+
+#ifndef GL_NV_alpha_to_coverage_dither_control
+#define GL_NV_alpha_to_coverage_dither_control 1
+#define GL_ALPHA_TO_COVERAGE_DITHER_DEFAULT_NV 0x934D
+#define GL_ALPHA_TO_COVERAGE_DITHER_ENABLE_NV 0x934E
+#define GL_ALPHA_TO_COVERAGE_DITHER_DISABLE_NV 0x934F
+#define GL_ALPHA_TO_COVERAGE_DITHER_MODE_NV 0x92BF
+typedef void (APIENTRYP PFNGLALPHATOCOVERAGEDITHERCONTROLNVPROC) (GLenum mode);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glAlphaToCoverageDitherControlNV (GLenum mode);
+#endif
+#endif /* GL_NV_alpha_to_coverage_dither_control */
 
 #ifndef GL_NV_bindless_multi_draw_indirect
 #define GL_NV_bindless_multi_draw_indirect 1
@@ -9347,6 +9406,23 @@ GLAPI void APIENTRY glDrawTextureNV (GLuint texture, GLuint sampler, GLfloat x0,
 #endif
 #endif /* GL_NV_draw_texture */
 
+#ifndef GL_NV_draw_vulkan_image
+#define GL_NV_draw_vulkan_image 1
+typedef void (APIENTRY  *GLVULKANPROCNV)(void);
+typedef void (APIENTRYP PFNGLDRAWVKIMAGENVPROC) (GLuint64 vkImage, GLuint sampler, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1, GLfloat z, GLfloat s0, GLfloat t0, GLfloat s1, GLfloat t1);
+typedef GLVULKANPROCNV (APIENTRYP PFNGLGETVKPROCADDRNVPROC) (const GLchar *name);
+typedef void (APIENTRYP PFNGLWAITVKSEMAPHORENVPROC) (GLuint64 vkSemaphore);
+typedef void (APIENTRYP PFNGLSIGNALVKSEMAPHORENVPROC) (GLuint64 vkSemaphore);
+typedef void (APIENTRYP PFNGLSIGNALVKFENCENVPROC) (GLuint64 vkFence);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glDrawVkImageNV (GLuint64 vkImage, GLuint sampler, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1, GLfloat z, GLfloat s0, GLfloat t0, GLfloat s1, GLfloat t1);
+GLAPI GLVULKANPROCNV APIENTRY glGetVkProcAddrNV (const GLchar *name);
+GLAPI void APIENTRY glWaitVkSemaphoreNV (GLuint64 vkSemaphore);
+GLAPI void APIENTRY glSignalVkSemaphoreNV (GLuint64 vkSemaphore);
+GLAPI void APIENTRY glSignalVkFenceNV (GLuint64 vkFence);
+#endif
+#endif /* GL_NV_draw_vulkan_image */
+
 #ifndef GL_NV_evaluators
 #define GL_NV_evaluators 1
 #define GL_EVAL_2D_NV                     0x86C0
@@ -9580,6 +9656,41 @@ GLAPI void APIENTRY glFramebufferTextureFaceEXT (GLenum target, GLenum attachmen
 #ifndef GL_NV_geometry_shader_passthrough
 #define GL_NV_geometry_shader_passthrough 1
 #endif /* GL_NV_geometry_shader_passthrough */
+
+#ifndef GL_NV_gpu_multicast
+#define GL_NV_gpu_multicast 1
+#define GL_PER_GPU_STORAGE_BIT_NV         0x0800
+#define GL_MULTICAST_GPUS_NV              0x92BA
+#define GL_RENDER_GPU_MASK_NV             0x9558
+#define GL_PER_GPU_STORAGE_NV             0x9548
+#define GL_MULTICAST_PROGRAMMABLE_SAMPLE_LOCATION_NV 0x9549
+typedef void (APIENTRYP PFNGLRENDERGPUMASKNVPROC) (GLbitfield mask);
+typedef void (APIENTRYP PFNGLMULTICASTBUFFERSUBDATANVPROC) (GLbitfield gpuMask, GLuint buffer, GLintptr offset, GLsizeiptr size, const GLvoid *data);
+typedef void (APIENTRYP PFNGLMULTICASTCOPYBUFFERSUBDATANVPROC) (GLuint readGpu, GLbitfield writeGpuMask, GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
+typedef void (APIENTRYP PFNGLMULTICASTCOPYIMAGESUBDATANVPROC) (GLuint srcGpu, GLbitfield dstGpuMask, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
+typedef void (APIENTRYP PFNGLMULTICASTBLITFRAMEBUFFERNVPROC) (GLuint srcGpu, GLuint dstGpu, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+typedef void (APIENTRYP PFNGLMULTICASTFRAMEBUFFERSAMPLELOCATIONSFVNVPROC) (GLuint gpu, GLuint framebuffer, GLuint start, GLsizei count, const GLfloat *v);
+typedef void (APIENTRYP PFNGLMULTICASTBARRIERNVPROC) (void);
+typedef void (APIENTRYP PFNGLMULTICASTWAITSYNCNVPROC) (GLuint signalGpu, GLbitfield waitGpuMask);
+typedef void (APIENTRYP PFNGLMULTICASTGETQUERYOBJECTIVNVPROC) (GLuint gpu, GLuint id, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLMULTICASTGETQUERYOBJECTUIVNVPROC) (GLuint gpu, GLuint id, GLenum pname, GLuint *params);
+typedef void (APIENTRYP PFNGLMULTICASTGETQUERYOBJECTI64VNVPROC) (GLuint gpu, GLuint id, GLenum pname, GLint64 *params);
+typedef void (APIENTRYP PFNGLMULTICASTGETQUERYOBJECTUI64VNVPROC) (GLuint gpu, GLuint id, GLenum pname, GLuint64 *params);
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glRenderGpuMaskNV (GLbitfield mask);
+GLAPI void APIENTRY glMulticastBufferSubDataNV (GLbitfield gpuMask, GLuint buffer, GLintptr offset, GLsizeiptr size, const GLvoid *data);
+GLAPI void APIENTRY glMulticastCopyBufferSubDataNV (GLuint readGpu, GLbitfield writeGpuMask, GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
+GLAPI void APIENTRY glMulticastCopyImageSubDataNV (GLuint srcGpu, GLbitfield dstGpuMask, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
+GLAPI void APIENTRY glMulticastBlitFramebufferNV (GLuint srcGpu, GLuint dstGpu, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+GLAPI void APIENTRY glMulticastFramebufferSampleLocationsfvNV (GLuint gpu, GLuint framebuffer, GLuint start, GLsizei count, const GLfloat *v);
+GLAPI void APIENTRY glMulticastBarrierNV (void);
+GLAPI void APIENTRY glMulticastWaitSyncNV (GLuint signalGpu, GLbitfield waitGpuMask);
+GLAPI void APIENTRY glMulticastGetQueryObjectivNV (GLuint gpu, GLuint id, GLenum pname, GLint *params);
+GLAPI void APIENTRY glMulticastGetQueryObjectuivNV (GLuint gpu, GLuint id, GLenum pname, GLuint *params);
+GLAPI void APIENTRY glMulticastGetQueryObjecti64vNV (GLuint gpu, GLuint id, GLenum pname, GLint64 *params);
+GLAPI void APIENTRY glMulticastGetQueryObjectui64vNV (GLuint gpu, GLuint id, GLenum pname, GLuint64 *params);
+#endif
+#endif /* GL_NV_gpu_multicast */
 
 #ifndef GL_NV_gpu_program4
 #define GL_NV_gpu_program4 1

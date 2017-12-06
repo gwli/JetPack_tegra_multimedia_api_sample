@@ -36,27 +36,45 @@
 #include <sys/time.h>
 
 /**
+ * @file
+ * <b>NVIDIA Multimedia API: Element Profiler API</b>
  *
- * @c %NvElementProfiler is a helper class for profiling the performance of individual
- * elements.
+ * @b Description: This file profiles the performance of individual elements.
+ */
+
+
+/**
  *
- * NvElementProfiler currently measures processing latencies, average processing rate and
- * number of units which arrived late at the element. This should be used internally
- * by the components.
+ * Helper class for profiling the performance of individual elements.
  *
- * Components should call startProcessing() to indicate that a unit has been submitted
+ * NvElementProfiler currently measures processing latencies, average processing rate, and
+ * the number of units that arrived late at the element. Components should use this
+ * information internally.
+ *
+ * If you require latency measurements,
+ * you must call startProcessing() to indicate that a unit has been submitted
  * for processing and finishProcessing() to indicate that a unit has finished processing.
- * Components who do not require latency measurement need not call startProcessing().
+ * If you require only averaging processing rate or the number of units that
+ * arrived late need not call startProcessing().
  *
- * Components can get data from NvElementProfiler using getProfilerData(). It
- * fills the #NvElementProfilerData structure. Components might not support all
- * the fields available in the strcuture and so a variable #valid_fields of
- * type #ProfilerField is also included in the structure.
+ * You can get data from NvElementProfiler using getProfilerData(). This function
+ * fills the [NvElementProfilerData](@ref NvElementProfiler::NvElementProfilerData)
+ * structure. Components that do not support all
+ * the fields available in the structure must use the variable
+ * [valid_fields](@ref NvElementProfiler::NvElementProfilerData::valid_fields) of
+ * type [ProfilerField](@ref NvElementProfiler::ProfilerField), which is also
+ * included in the structure.
+ *
+ * @defgroup l4t_mm_nvelementprofiler_group  Element Profiler API
+ * @ingroup aa_framework_api_group
+ * @{
  */
 class NvElementProfiler {
 public:
     /**
-     * Data type indicating valid fields in #NvElementProfilerData structure.
+     * @defgroup Defines @c valid_field values for the #NvElementProfilerData structure.
+     * @ingroup l4t_mm_nvelementprofiler_group
+     * @{
      */
     typedef int ProfilerField;
     static const ProfilerField PROFILER_FIELD_NONE = 0;
@@ -65,12 +83,13 @@ public:
     static const ProfilerField PROFILER_FIELD_LATENCIES = 4;
     static const ProfilerField PROFILER_FIELD_FPS = 8;
     static const ProfilerField PROFILER_FIELD_ALL = (PROFILER_FIELD_FPS << 1) - 1;
+    /** @} */
 
     /**
      * Holds profiling data for the element.
      *
-     * Some elements may not support all the fields in the structure. User should check
-     * the valid_fields flag to check which fields are valid.
+     * Some elements may not support all the fields in the structure. User must check
+     * the @a valid_fields flag to determine which fields are valid.
      */
     typedef struct {
         /** Valid Fields which are supported by the element. */
@@ -96,21 +115,21 @@ public:
     } NvElementProfilerData;
 
     /**
-     * Get the profiling data for the element.
+     * Gets the profiling data for the element.
      *
      * @param[out] data Reference to the NvElementProfilerData structure which should be filled.
      */
     void getProfilerData(NvElementProfilerData &data);
 
     /**
-     * Print the element's profiling data to an output stream.
+     * Prints the element's profiling data to an output stream.
      *
      * @param[in] out_stream Reference to a std::ostream.
      */
     void printProfilerData(std::ostream &out_stream = std::cout);
 
     /**
-     * Inform the profiler processing has started.
+     * Informs the profiler that processing has started.
      *
      * Has no effect if profiler is disabled.
      *
@@ -119,7 +138,7 @@ public:
     uint64_t startProcessing();
 
     /**
-     * Inform the profiler processing has finished.
+     * Informs the profiler that processing has finished.
      *
      * Has no effect if profiler is disabled.
      *
@@ -130,21 +149,21 @@ public:
     void finishProcessing(uint64_t id, bool is_late);
 
     /**
-     * Enable the profiler.
+     * Enables the profiler.
      *
-     * startProcessing() and finishProcessing() will not have any effect till the profiler is enabled.
+     * startProcessing() and finishProcessing() are ineffective until the profiler is enabled.
      *
      * @param[in] reset_data Reset the profiled data.
      */
     void enableProfiling(bool reset_data);
 
     /**
-     * Disable the profiler.
+     * Disables the profiler.
      */
     void disableProfiling();
 private:
     /**
-     * Reset the profiler data.
+     * Resets the profiler data.
      */
     void reset();
 
@@ -162,8 +181,8 @@ private:
         struct timeval stop_time;
 
         /** Total accumulated time.
-         *  When performance measurement is restarted #start_time and #stop_time
-         *  will be reset. This field is used to accumulate time before
+         *  When performance measurement is restarted @a start_time and @a stop_time
+         *  are reset. This field is used to accumulate time before
          *  resetting. */
         struct timeval accumulated_time;
 
@@ -198,5 +217,7 @@ private:
 
     friend class NvElement;
 };
+
+/** @} */
 
 #endif

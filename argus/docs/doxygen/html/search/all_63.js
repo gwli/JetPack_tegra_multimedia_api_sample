@@ -1,5 +1,11 @@
 var searchData=
 [
+  ['cameradevice',['CameraDevice',['../group__ArgusCameraDevice.html',1,'']]],
+  ['cameraprovider',['CameraProvider',['../group__ArgusCameraProvider.html',1,'']]],
+  ['capturemetadata',['CaptureMetadata',['../group__ArgusCaptureMetadata.html',1,'']]],
+  ['capturesession',['CaptureSession',['../group__ArgusCaptureSession.html',1,'']]],
+  ['capturecomplete_20event',['CaptureComplete Event',['../group__ArgusEventCaptureComplete.html',1,'']]],
+  ['capturestarted_20event',['CaptureStarted Event',['../group__ArgusEventCaptureStarted.html',1,'']]],
   ['cameradevice',['CameraDevice',['../classArgus_1_1CameraDevice.html',1,'Argus']]],
   ['cameradevice_2eh',['CameraDevice.h',['../CameraDevice_8h.html',1,'']]],
   ['cameraprovider',['CameraProvider',['../classArgus_1_1CameraProvider.html',1,'Argus']]],

@@ -34,8 +34,8 @@
  */
 
 /**
- * @defgroup ee_nvv4l2element_group V4L2 Element Class
- * @ingroup ee_nvelement_group
+ * @defgroup l4t_mm_nvv4l2element_group V4L2 Element Class
+ * @ingroup l4t_mm_nvelement_group
  *
  * Helper class that provides common functionality for V4L2-based components,
  * such as encoder and decoder. Objects instantiated from this class create

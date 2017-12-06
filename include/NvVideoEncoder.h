@@ -33,8 +33,8 @@
  */
 
 /**
- * @defgroup ee_nvvideoencoder_group Video Encoder
- * @ingroup ee_nvvideo_group
+ * @defgroup l4t_mm_nvvideoencoder_group Video Encoder
+ * @ingroup l4t_mm_nvvideo_group
  *
  * Helper class that creates new V4L2
  * video encoders, and it sets encoder capture and output plane
@@ -51,9 +51,9 @@
  * @brief Defines a helper class for V4L2 Video Encoder.
  *
  * The video encoder device node is \c "/dev/nvhost-msenc". The category name
- * for encoder is \c "NVENC".
+ * for the encoder is \c "NVENC".
  *
- * Refer to [V4L2 Video Encoder](group__V4L2Enc.html) for more information on the converter.
+ * Refer to [V4L2 Video Encoder](group__V4L2Enc.html) for more information on the encoder.
  */
 
 class NvVideoEncoder:public NvV4l2Element
@@ -91,7 +91,7 @@ public:
      */
     int setOutputPlaneFormat(uint32_t pixfmt, uint32_t width, uint32_t height);
     /**
-     * Sets the format on the encoder capture plane.
+     * Sets the format on the converter capture plane.
      *
      * Calls \c VIDIOC_S_FMT IOCTL internally on the capture plane.
      *
@@ -238,6 +238,19 @@ public:
      * @return 0 for success, -1 otherwise.
      */
     int setSliceLength(v4l2_enc_slice_length_type type, uint32_t length);
+
+    /**
+     * Sets the encoder HW Preset Type.
+     *
+     * Calls the VIDIOC_S_EXT_CTRLS ioctl internally with Control ID
+     * #V4L2_CID_MPEG_VIDEOENC_HW_PRESET_TYPE_PARAM. Must be called after setFormat() on
+     * both the planes and before \c requestBuffers on any of the planes.
+     *
+     * @param[in] type HW Preset Type, one of
+     *                         enum v4l2_enc_hw_preset_type_param.
+     * @return 0 for success, -1 otherwise.
+     */
+    int setHWPresetType(v4l2_enc_hw_preset_type type);
 
     /**
      * Sets the Region of Interest (ROI) parameters for the next buffer, which will
@@ -449,6 +462,31 @@ public:
     int setQpRange(uint32_t MinQpI, uint32_t MaxQpI, uint32_t MinQpP,
             uint32_t MaxQpP, uint32_t MinQpB, uint32_t MaxQpB);
 
+    /**
+     * Enables/disables insert VUI.
+     *
+     * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
+     * @c V4L2_CID_MPEG_VIDEO_H264_VUI_SAR_ENABLE. Must be called after
+     * setFormat on both the planes.
+     *
+     * @param[in] enabled Boolean value indicating whether to enable/disable
+     *                    the control.
+     * @return 0 for success, -1 otherwise.
+     */
+    int setInsertVuiEnabled(bool enabled);
+
+    /**
+     * Enables/disables insert AUD.
+     *
+     * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
+     * @c V4L2_CID_MPEG_VIDEO_H264_AUD_SAR_ENABLE. Must be called after
+     * setFormat on both the planes.
+     *
+     * @param[in] enabled Boolean value indicating whether to enable/disable
+     *                    the control.
+     * @return 0 for success, -1 otherwise.
+     */
+    int setInsertAudEnabled(bool enabled);
 
 private:
     /**

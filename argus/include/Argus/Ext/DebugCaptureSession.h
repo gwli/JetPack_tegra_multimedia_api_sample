@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus Extension: Debug Capture Session API</b>
+ *
+ * @b Description: This file defines the DebugCaptureSession extension.
+ */
+
 #ifndef _ARGUS_DEBUG_CAPTURE_SESSION_H
 #define _ARGUS_DEBUG_CAPTURE_SESSION_H
 
@@ -33,13 +40,14 @@ namespace Argus
 {
 
 /**
- * The Ext::DebugCaptureSession extension adds internal method to
- * the Argus driver. It introduces one new interface:
+ * Adds a debug interface to dump internal libargus runtime information.
+ * It introduces one new interface:
  *   - IDebugCaptureSession: used to dump session runtime information
+ *
+ * @defgroup ArgusExtDebugCaptureSession Ext::DebugCaptureSession
+ * @ingroup ArgusExtensions
  */
-
-DEFINE_UUID(ExtensionName, EXT_DEBUG_CAPTURE_SESSION,
-                                             1fee5f03,2ea9,4558,8e92,c2,4b,0b,82,b9,af);
+DEFINE_UUID(ExtensionName, EXT_DEBUG_CAPTURE_SESSION, 1fee5f03,2ea9,4558,8e92,c2,4b,0b,82,b9,af);
 
 namespace Ext
 {
@@ -47,13 +55,11 @@ namespace Ext
 /**
  * @class IDebugCaptureSession
  *
- * Interface used to dump session runtime information
+ * Interface used to dump CaptureSession runtime information
  *
- * This interface is available from the CaptureSession class.
+ * @ingroup ArgusCaptureSession ArgusExtDebugCaptureSession
  */
-
 DEFINE_UUID(InterfaceID, IID_DEBUG_CAPTURE_SESSION, beaa075b,dcf7,4e26,b255,3c,98,db,03,5b,99);
-
 class IDebugCaptureSession : public Interface
 {
 public:

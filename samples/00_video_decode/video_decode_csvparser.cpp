@@ -51,6 +51,7 @@ print_help(void)
 {
     cerr << "\nvideo_decode <in-file> <in-format> [options]\n\n"
             "Supported formats:\n"
+            "\tVP9\n"
             "\tH264\n"
             "\tH265\n\n"
             "OPTIONS:\n"
@@ -70,6 +71,7 @@ print_help(void)
             "\t--input-nalu         Input to the decoder will be nal units\n"
             "\t--input-chunks       Input to the decoder will be a chunk of bytes [Default]\n\n"
             "\t--report-metadata    Enable metadata reporting\n\n"
+            "\t-v4l2-memory         Select v4l2-memory type 1 V4L2_MEMORY_MMAP 2 V4L2_MEMORY_USERPTR [Default = V4L2_MEMORY_MMAP]\n\n"
             "Allowed values for the skip-frames parameter:\n"
             "0 = Decode all frames\n"
             "1 = Skip non-reference frames\n"
@@ -83,6 +85,8 @@ get_decoder_type(char *arg)
         return V4L2_PIX_FMT_H264;
     if (!strcmp(arg, "H265"))
         return V4L2_PIX_FMT_H265;
+    if (!strcmp(arg, "VP9"))
+        return V4L2_PIX_FMT_VP9;
     return 0;
 }
 
@@ -207,6 +211,16 @@ parse_csv_args(context_t * ctx, int argc, char *argv[])
         else if (!strcmp(arg, "--report-metadata"))
         {
             ctx->enable_metadata = true;
+        }
+        else if(!strcmp(arg, "-v4l2-memory"))
+        {
+            argp++;
+            CHECK_OPTION_VALUE(argp);
+            ctx->memory_type = (enum v4l2_memory) atoi(*argp);
+            CSV_PARSE_CHECK_ERROR(
+                    (ctx->memory_type > V4L2_MEMORY_USERPTR ||
+                     ctx->memory_type < V4L2_MEMORY_MMAP),
+                    "Unsupported v4l2 memory type: " << *argp);
         }
         else if (!strcmp(arg, "-sf"))
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -56,8 +56,8 @@ namespace ArgusSamples
 // Constants.
 static const uint32_t            DEFAULT_CAPTURE_TIME  = 5; // In seconds.
 static const Size2D<uint32_t>    PREVIEW_STREAM_SIZE(640, 480);
-static const uint32_t            NUMBER_SESSIONS = 2;
 static const Rectangle<uint32_t> DEFAULT_WINDOW_RECT(0, 0, 640, 480);
+static const uint32_t            DEFAULT_CAMERA_INDEX = 0;
 
 // Globals and derived constants.
 UniqueObj<CameraProvider> g_cameraProvider;
@@ -70,6 +70,8 @@ struct ExecuteOptions
 {
     uint32_t captureSeconds;
     Rectangle<uint32_t> windowRect;
+    uint32_t cameraIndex;
+    uint32_t previewIndex;
 };
 
 static bool execute(const ExecuteOptions& options)
@@ -87,6 +89,13 @@ static bool execute(const ExecuteOptions& options)
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
+
+    if (options.cameraIndex == options.previewIndex)
+    {
+        ORIGINATE_ERROR("Camera Index and Preview Camera Index may not be the same");
+        return EXIT_FAILURE;
+    }
 
     // Get the camera devices.
     std::vector<CameraDevice*> cameraDevices;
@@ -94,9 +103,15 @@ static bool execute(const ExecuteOptions& options)
     if (cameraDevices.size() == 0)
         ORIGINATE_ERROR("No cameras available");
 
-    if (cameraDevices.size() < NUMBER_SESSIONS)
+    if (cameraDevices.size() <= options.cameraIndex)
     {
-        ORIGINATE_ERROR("Insufficient number of sensors present cannot run multisensor sample");
+        ORIGINATE_ERROR("Camera index %d not available; there are %d cameras",
+                        options.cameraIndex, (unsigned)cameraDevices.size());
+    }
+    if (cameraDevices.size() <= options.previewIndex)
+    {
+        ORIGINATE_ERROR("Preview camera index %d not available; there are %d cameras",
+                        options.previewIndex, (unsigned)cameraDevices.size());
     }
 
     // Get the second cameras properties since it is used for the storage session.
@@ -114,21 +129,25 @@ static bool execute(const ExecuteOptions& options)
     }
 
     // Create the capture sessions, one will be for storing images and one for preview.
-    UniqueObj<CaptureSession> captureSessions[NUMBER_SESSIONS];
-    for (uint32_t i = 0; i < NUMBER_SESSIONS; i++)
-    {
-        captureSessions[i] =
-                UniqueObj<CaptureSession>(iCameraProvider->createCaptureSession(cameraDevices[i]));
+    UniqueObj<CaptureSession> storageSession =
+        UniqueObj<CaptureSession>(
+            iCameraProvider->createCaptureSession(cameraDevices[options.cameraIndex]));
+    if (!storageSession)
+        ORIGINATE_ERROR(
+            "Failed to create storage CaptureSession with camera index %d.", options.cameraIndex);
+    ICaptureSession *iStorageCaptureSession = interface_cast<ICaptureSession>(storageSession);
+    if (!iStorageCaptureSession)
+        ORIGINATE_ERROR("Failed to get storage capture session interface");
 
-        if (!captureSessions[i])
-            ORIGINATE_ERROR("Failed to create CaptureSession with device %d.", i);
-    }
-
-    ICaptureSession *iPreviewCaptureSession = interface_cast<ICaptureSession>(captureSessions[0]);
-    ICaptureSession *iStorageCaptureSession = interface_cast<ICaptureSession>(captureSessions[1]);
-
-    if (!iPreviewCaptureSession || !iStorageCaptureSession)
-        ORIGINATE_ERROR("Failed to get capture session interfaces");
+    UniqueObj<CaptureSession> previewSession =
+        UniqueObj<CaptureSession>(
+            iCameraProvider->createCaptureSession(cameraDevices[options.previewIndex]));
+    if (!previewSession)
+        ORIGINATE_ERROR(
+            "Failed to create preview CaptureSession with camera index %d.", options.previewIndex);
+    ICaptureSession *iPreviewCaptureSession = interface_cast<ICaptureSession>(previewSession);
+    if (!iPreviewCaptureSession)
+        ORIGINATE_ERROR("Failed to get preview capture session interface");
 
     // Create streams.
     PRODUCER_PRINT("Creating the preview stream.\n");
@@ -239,10 +258,18 @@ static bool execute(const ExecuteOptions& options)
 
 int main(int argc, char** argv)
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
     ArgusSamples::Value<uint32_t> captureTime(ArgusSamples::DEFAULT_CAPTURE_TIME);
     ArgusSamples::Value<Rectangle<uint32_t> > windowRect(ArgusSamples::DEFAULT_WINDOW_RECT);
+    ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
+    ArgusSamples::Value<uint32_t> previewIndex(ArgusSamples::DEFAULT_CAMERA_INDEX+1);
 
-    ArgusSamples::Options options("argus_multisensor");
+    ArgusSamples::Options options(basename(argv[0]));
+    options.addOption(ArgusSamples::createValueOption
+        ("device", 'd', "INDEX", "Camera index.", cameraIndex));
+    options.addOption(ArgusSamples::createValueOption
+        ("previewdevice", 'p', "INDEX", "Preview Camera index.", previewIndex));
     options.addOption(ArgusSamples::createValueOption
         ("duration", 's', "SECONDS", "Capture duration.", captureTime));
     options.addOption(ArgusSamples::createValueOption
@@ -256,6 +283,8 @@ int main(int argc, char** argv)
     ArgusSamples::ExecuteOptions executeOptions;
     executeOptions.captureSeconds = captureTime.get();
     executeOptions.windowRect = windowRect.get();
+    executeOptions.cameraIndex = cameraIndex.get();
+    executeOptions.previewIndex = previewIndex.get();
 
     if (!ArgusSamples::execute(executeOptions))
         return EXIT_FAILURE;

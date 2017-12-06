@@ -163,50 +163,54 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00072"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#aac782749d02412f13244b8e600537c96">   72</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#aac782749d02412f13244b8e600537c96" title="-1 eV to +2 eV">m_initialized</a>;                 <span class="comment">///&lt; set if initialized</span></div>
 <div class="line"><a name="l00073"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a25bf4de932c2c7f8d610a56b87f57e35">   73</a></span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a25bf4de932c2c7f8d610a56b87f57e35" title="set if preview is running">m_running</a>;                     <span class="comment">///&lt; set if preview is running</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a3afcfebbf91e53223b061e673ff3b38e">   74</a></span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a3afcfebbf91e53223b061e673ff3b38e" title="set if was running before the device had been closed">m_wasRunning</a>;                  <span class="comment">///&lt; set if was running before the device had been closed</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a5eba1561324b8b7b9ebc452abebdf076">   75</a></span>&#160;<span class="comment"></span>    uint32_t <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a5eba1561324b8b7b9ebc452abebdf076" title="incrementing capture index">m_captureIndex</a>;            <span class="comment">///&lt; incrementing capture index</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment"></span><span class="comment"></span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">    /**</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">     * For each exposure level there is one request where the exposure compensation is set to the</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">     * correct value. Each request outputs to a stream which is rendered.</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html">   81</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html" title="For each exposure level there is one request where the exposure compensation is set to the correct va...">ExpLevel</a></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#ac3601088e86016135f9129dbda8d9de6">ExpLevel</a>();</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a9918b19ae429b43242d03604cd5fef01">~ExpLevel</a>();</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a5c88a460519f0f4b707fad17e97cb1de">shutdown</a>();</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#ae666afa543c453341ceaeeeb6eac4260">initialize</a>(<span class="keywordtype">float</span> exposureCompensation);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a7aac9c7b6dad0213e5d0a8b672a47b66">   90</a></span>&#160;        <a class="code" href="classArgusSamples_1_1TrackedUniqueObj.html">TrackedUniqueObj&lt;Argus::Request&gt;</a> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a7aac9c7b6dad0213e5d0a8b672a47b66" title="Argus request.">m_request</a>; <span class="comment">///&lt; Argus request</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#aba51fc6029266097dc159e1d69b93f66">   91</a></span>&#160;<span class="comment"></span>        Argus::UniqueObj&lt;Argus::OutputStream&gt; <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#aba51fc6029266097dc159e1d69b93f66" title="Argus output stream.">m_outputStream</a>; <span class="comment">///&lt; Argus output stream</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span>    };</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a86e00ac4af4f2113e25a772e3079fdcd">   94</a></span>&#160;    std::list&lt;ExpLevel*&gt; <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a86e00ac4af4f2113e25a772e3079fdcd" title="exposure level">m_expLevels</a>;   <span class="comment">///&lt; exposure level</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment"></span><span class="comment"></span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">    /**</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">     * Callback when the device is opened/closed.</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a426dcd26ee6d01e865f8851f0f550298" title="Callback when the device is opened/closed.">onDeviceOpenChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">    /**</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">     * Callback when the exposure range or steps changes.</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a164065090a7a102f5b4d43ae41218cce" title="Callback when the exposure range or steps changes.">onParametersChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">    /**</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">     * Shut down the exposure level streams.</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">     */</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a37a93c8cca9ef03c55c1e7adf9ed8782" title="Shut down the exposure level streams.">shutdownExpLevels</a>();</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;};</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor">#endif // TASK_MULTI_EXPOSURE_H</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment"></span><span class="comment"></span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">     * For each exposure level there is one request where the exposure compensation is set to the</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">     * correct value. Each request outputs to a stream which is rendered.</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html">   80</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html" title="For each exposure level there is one request where the exposure compensation is set to the correct va...">ExpLevel</a></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    {</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#ac3601088e86016135f9129dbda8d9de6">ExpLevel</a>();</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a9918b19ae429b43242d03604cd5fef01">~ExpLevel</a>();</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a5c88a460519f0f4b707fad17e97cb1de">shutdown</a>();</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#ae666afa543c453341ceaeeeb6eac4260">initialize</a>(<span class="keywordtype">float</span> exposureCompensation);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a7aac9c7b6dad0213e5d0a8b672a47b66">   89</a></span>&#160;        <a class="code" href="classArgusSamples_1_1TrackedUniqueObj.html">TrackedUniqueObj&lt;Argus::Request&gt;</a> <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#a7aac9c7b6dad0213e5d0a8b672a47b66" title="Argus request.">m_request</a>; <span class="comment">///&lt; Argus request</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#aba51fc6029266097dc159e1d69b93f66">   90</a></span>&#160;<span class="comment"></span>        Argus::UniqueObj&lt;Argus::OutputStream&gt; <a class="code" href="classArgusSamples_1_1TaskMultiExposure_1_1ExpLevel.html#aba51fc6029266097dc159e1d69b93f66" title="Argus output stream.">m_outputStream</a>; <span class="comment">///&lt; Argus output stream</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment"></span>    };</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a86e00ac4af4f2113e25a772e3079fdcd">   93</a></span>&#160;    std::list&lt;ExpLevel*&gt; <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a86e00ac4af4f2113e25a772e3079fdcd" title="exposure level">m_expLevels</a>;   <span class="comment">///&lt; exposure level</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment"></span><span class="comment"></span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">     * Callback when the device is opened/closed.</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a426dcd26ee6d01e865f8851f0f550298" title="Callback when the device is opened/closed.">onDeviceOpenChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">     * Callback when the exposure range or steps changes.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a164065090a7a102f5b4d43ae41218cce" title="Callback when the exposure range or steps changes.">onParametersChanged</a>(<span class="keyword">const</span> Observed &amp;source);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">     * Shut down the exposure level streams.</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a37a93c8cca9ef03c55c1e7adf9ed8782" title="Shut down the exposure level streams.">shutdownExpLevels</a>();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">    /**</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">     * Restart when sensor mode or output size changes</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">     */</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html#a82d38086037bcaf8f871787b73351af5" title="Restart when sensor mode or output size changes.">restartStreams</a>(<span class="keyword">const</span> Observed &amp;source);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;};</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="preprocessor">#endif // TASK_MULTI_EXPOSURE_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

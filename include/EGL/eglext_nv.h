@@ -18,6 +18,7 @@ extern "C" {
 #ifndef EGL_EXT_stream_acquire_mode
 #define EGL_EXT_stream_acquire_mode 1
 #define EGL_CONSUMER_AUTO_ACQUIRE_EXT         0x332B
+#define EGL_RESOURCE_BUSY_EXT                 0x3353
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLSTREAMCONSUMERACQUIREATTRIBEXTPROC) (EGLDisplay dpy, EGLStreamKHR stream, const EGLAttrib *attrib_list);
 #ifdef EGL_EGLEXT_PROTOTYPES
 EGLAPI EGLBoolean EGLAPIENTRY eglStreamConsumerAcquireAttribEXT (EGLDisplay dpy, EGLStreamKHR stream, const EGLAttrib *attrib_list);
@@ -134,81 +135,6 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSetRendererNV(EGLenum renderer);
 #endif
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLSETRENDERERNVPROC)(EGLenum renderer);
 #endif /* EGL_NV_set_renderer */
-
-#ifndef EGL_NV_stream_cross_display
-#define EGL_NV_stream_cross_display 1
-#define EGL_STREAM_CROSS_DISPLAY_NV          0x334E
-#endif /* EGL_NV_stream_cross_display */
-
-#ifndef EGL_NV_stream_cross_object
-#define EGL_NV_stream_cross_object 1
-#define EGL_STREAM_CROSS_OBJECT_NV           0x334D
-#endif /* EGL_NV_stream_cross_object */
-
-#ifndef EGL_NV_stream_cross_partition
-#define EGL_NV_stream_cross_partition 1
-#define EGL_STREAM_CROSS_PARTITION_NV        0x323F
-#endif /* EGL_NV_stream_cross_partition */
-
-#ifndef EGL_NV_stream_cross_process
-#define EGL_NV_stream_cross_process 1
-#define EGL_STREAM_CROSS_PROCESS_NV          0x3245
-#endif /* EGL_NV_stream_cross_process */
-
-#ifndef EGL_NV_stream_cross_system
-#define EGL_NV_stream_cross_system 1
-#define EGL_STREAM_CROSS_SYSTEM_NV           0x334F
-#endif /* EGL_NV_stream_cross_system */
-
-#ifndef EGL_NV_stream_fifo_next
-#define EGL_NV_stream_fifo_next 1
-#define EGL_PENDING_FRAME_NV                 0x3329
-#define EGL_STREAM_TIME_PENDING_NV           0x332A
-#endif /* EGL_NV_stream_fifo_next */
-
-#ifndef EGL_NV_stream_fifo_synchronous
-#define EGL_NV_stream_fifo_synchronous 1
-#define EGL_STREAM_FIFO_SYNCHRONOUS_NV       0x3336
-#endif /* EGL_NV_stream_fifo_synchronous */
-
-#ifndef EGL_NV_stream_frame_limits
-#define EGL_NV_stream_frame_limits 1
-#define EGL_PRODUCER_MAX_FRAME_HINT_NV       0x3337
-#define EGL_CONSUMER_MAX_FRAME_HINT_NV       0x3338
-#endif /* EGL_NV_stream_frame_limits */
-
-#ifndef EGL_NV_stream_remote
-#define EGL_NV_stream_remote 1
-#define EGL_STREAM_STATE_INITIALIZING_NV     0x3240
-#define EGL_STREAM_TYPE_NV                   0x3241
-#define EGL_STREAM_PROTOCOL_NV               0x3242
-#define EGL_STREAM_ENDPOINT_NV               0x3243
-#define EGL_STREAM_LOCAL_NV                  0x3244
-#define EGL_STREAM_PROTOCOL_FD_NV            0x3246
-#define EGL_STREAM_CONSUMER_NV               0x3247
-#define EGL_STREAM_PRODUCER_NV               0x3248
-#define EGL_SYNC_CONNECTION_NV               0x3249
-#define EGL_STREAM_NV                        0x324A
-#endif /* EGL_NV_stream_remote */
-
-#ifndef EGL_NV_stream_reset
-#define EGL_NV_stream_reset 1
-#define EGL_SUPPORT_RESET_NV                 0x3334
-#define EGL_SUPPORT_REUSE_NV                 0x3335
-#ifdef EGL_EGLEXT_PROTOTYPES
-EGLAPI EGLBoolean EGLAPIENTRY eglResetStreamNV(EGLDisplay dpy, EGLStreamKHR stream);
-#endif
-typedef EGLBoolean (EGLAPIENTRYP PFNEGLRESETSTREAMNVPROC)(EGLDisplay dpy, EGLStreamKHR stream);
-#endif /* EGL_NV_stream_reset */
-
-#ifndef EGL_NV_stream_socket
-#define EGL_NV_stream_socket 1
-#define EGL_STREAM_PROTOCOL_SOCKET_NV        0x324B
-#define EGL_SOCKET_HANDLE_NV                 0x324C
-#define EGL_SOCKET_TYPE_NV                   0x324D
-#define EGL_SOCKET_TYPE_UNIX_NV              0x324E
-#define EGL_SOCKET_TYPE_INET_NV              0x324F
-#endif /* EGL_NV_stream_socket */
 
 #ifndef EGL_NV_swap_asynchronous
 #define EGL_NV_swap_asynchronous

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Argus API: Class Members</title>
+<title>Libargus API: Class Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,9 +21,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">Argus API
+   <div id="projectname">Libargus API
    </div>
-   <div id="projectbrief">Argus Camera API</div>
+   <div id="projectbrief">Libargus Camera API</div>
   </td>
  </tr>
  </tbody>
@@ -38,6 +38,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -106,7 +107,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Groups</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(11)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -300,6 +301,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>getExposureCompensation()
 : <a class="el" href="classArgus_1_1IAutoControlSettings.html#a0de8a80e016759234a4c110cd686bf7e">Argus::IAutoControlSettings</a>
 </li>
+<li>getExposureCompensationRange()
+: <a class="el" href="classArgus_1_1ICameraProperties.html#a2ae73495b253bf7150ed6006ca113e9e">Argus::ICameraProperties</a>
+</li>
 <li>getExposureTimeRange()
 : <a class="el" href="classArgus_1_1ISensorMode.html#a2b8b2f9aa1fab2217a7afa651ba902d0">Argus::ISensorMode</a>
 , <a class="el" href="classArgus_1_1ISourceSettings.html#aabdb1b6d5d271bb07122cc8b156de3e5">Argus::ISourceSettings</a>
@@ -339,21 +343,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classArgus_1_1IBayerHistogram.html#a2d9f63683adf9957dc3cebe351b974eb">Argus::IBayerHistogram</a>
 , <a class="el" href="classArgus_1_1IRGBHistogram.html#a3cfc447d9f7a1e84a945ec05b820b9fd">Argus::IRGBHistogram</a>
 </li>
-<li>getHwFrameCount()
-: <a class="el" href="classArgus_1_1Ext_1_1IDebugCaptureMetadata.html#a89330844fed56ada2e3dd01f544e8d2c">Argus::Ext::IDebugCaptureMetadata</a>
-</li>
 <li>getInputBitDepth()
 : <a class="el" href="classArgus_1_1ISensorMode.html#a3df17c3f6e992a4f1bd24474da74ea0e">Argus::ISensorMode</a>
 </li>
 <li>getInterface()
 : <a class="el" href="classArgus_1_1InterfaceProvider.html#a63917032ebe375098e45a673e5ae818a">Argus::InterfaceProvider</a>
 </li>
+<li>getInternalFrameCount()
+: <a class="el" href="classArgus_1_1Ext_1_1IInternalFrameCount.html#a7ff02d93895277658df8847f3120f73b">Argus::Ext::IInternalFrameCount</a>
+</li>
 <li>getIspDigitalGain()
 : <a class="el" href="classArgus_1_1ICaptureMetadata.html#a10381e1e830640e2fc373569ffe17213">Argus::ICaptureMetadata</a>
 </li>
 <li>getIspDigitalGainRange()
-: <a class="el" href="classArgus_1_1ICameraProperties.html#aea5453e4036326b63ea795237a135632">Argus::ICameraProperties</a>
-, <a class="el" href="classArgus_1_1IAutoControlSettings.html#a6b494e039255bed4679d43fb527fc28b">Argus::IAutoControlSettings</a>
+: <a class="el" href="classArgus_1_1IAutoControlSettings.html#a6b494e039255bed4679d43fb527fc28b">Argus::IAutoControlSettings</a>
+, <a class="el" href="classArgus_1_1ICameraProperties.html#aea5453e4036326b63ea795237a135632">Argus::ICameraProperties</a>
 </li>
 <li>getLensApertureRange()
 : <a class="el" href="classArgus_1_1ICameraProperties.html#aa074121387a5da56a41de2b1f0876ef5">Argus::ICameraProperties</a>
@@ -373,6 +377,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>getMetadataEnable()
 : <a class="el" href="classArgus_1_1Ext_1_1ISensorPrivateMetadataRequest.html#a19c2e13714b5e8bc36525a7947ec43d6">Argus::Ext::ISensorPrivateMetadataRequest</a>
+, <a class="el" href="classArgus_1_1IOutputStreamSettings.html#a0d3aa9d2c4ebef9ef0e01e544d3df82f">Argus::IOutputStreamSettings</a>
 </li>
 <li>getMetadataSize()
 : <a class="el" href="classArgus_1_1Ext_1_1ISensorPrivateMetadataCaps.html#aaa5da5cf3038cedc5e26a92670411875">Argus::Ext::ISensorPrivateMetadataCaps</a>
@@ -386,6 +391,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>getNextEvent()
 : <a class="el" href="classArgus_1_1IEventQueue.html#ac3410fdb8b9d18d39243d93d4645f26c">Argus::IEventQueue</a>
+</li>
+<li>getOpticalBlack()
+: <a class="el" href="classArgus_1_1ISourceSettings.html#a81341fd47703ea1f48104b0e8a0af1a6">Argus::ISourceSettings</a>
+</li>
+<li>getOpticalBlackEnable()
+: <a class="el" href="classArgus_1_1ISourceSettings.html#a0a5e6f5cb6b542d92ff0cc06736097cc">Argus::ISourceSettings</a>
 </li>
 <li>getOutputBitDepth()
 : <a class="el" href="classArgus_1_1ISensorMode.html#abfb8ec340a93413809c6554a307ddde9">Argus::ISensorMode</a>
@@ -404,8 +415,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classArgus_1_1Ext_1_1IFaceDetectResult.html#a670c55f9eae01fefd70cb256af2a4840">Argus::Ext::IFaceDetectResult</a>
 </li>
 <li>getResolution()
-: <a class="el" href="classArgus_1_1IStream.html#a2ee9ba314f0b8b0a78b29c9a55f99cbd">Argus::IStream</a>
-, <a class="el" href="classArgus_1_1ISensorMode.html#a07c3812c182fe139ef9b6a60804be398">Argus::ISensorMode</a>
+: <a class="el" href="classArgus_1_1ISensorMode.html#a07c3812c182fe139ef9b6a60804be398">Argus::ISensorMode</a>
+, <a class="el" href="classArgus_1_1IStream.html#a2ee9ba314f0b8b0a78b29c9a55f99cbd">Argus::IStream</a>
 , <a class="el" href="classArgus_1_1IOutputStreamSettings.html#a4faf0b87c3e3925bd6c79d93e47c0807">Argus::IOutputStreamSettings</a>
 </li>
 <li>getRGBHistogram()
@@ -446,8 +457,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classArgus_1_1IRequest.html#ae1cda43ecffe49f5bd7688302c8c973d">Argus::IRequest</a>
 </li>
 <li>getStatus()
-: <a class="el" href="classArgus_1_1IEventCaptureComplete.html#aa0d532e250496e1e929a213afe7aeb70">Argus::IEventCaptureComplete</a>
-, <a class="el" href="classArgus_1_1IEventError.html#a693a4a9eccbe625ef1db5a25de4c76fb">Argus::IEventError</a>
+: <a class="el" href="classArgus_1_1IEventError.html#a693a4a9eccbe625ef1db5a25de4c76fb">Argus::IEventError</a>
+, <a class="el" href="classArgus_1_1IEventCaptureComplete.html#aa0d532e250496e1e929a213afe7aeb70">Argus::IEventCaptureComplete</a>
 </li>
 <li>getStreamMetadata()
 : <a class="el" href="classArgus_1_1ICaptureMetadata.html#a6a29343fc48af79064fab6d5e390cce0">Argus::ICaptureMetadata</a>
@@ -491,7 +502,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classArgus_1_1Ext_1_1IBayerAverageMap.html#ac1327cfca0f6e5c7abfff81ef04ab5aa">Argus::Ext::IBayerAverageMap</a>
 </li>
 <li>gEven()
-: <a class="el" href="classArgus_1_1BayerTuple.html#a44641085e5c41d9b9df8fcba8c8e6069">Argus::BayerTuple&lt; T &gt;</a>
+: <a class="el" href="classArgus_1_1BayerTuple.html#ab793a9235eb65c86dc8a7c54301f8221">Argus::BayerTuple&lt; T &gt;</a>
 </li>
 <li>gOdd()
 : <a class="el" href="classArgus_1_1BayerTuple.html#a18b1d6c872f7bdfc8d5eab7ce44818c0">Argus::BayerTuple&lt; T &gt;</a>
@@ -500,7 +511,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 25 2017 13:23:03 for Argus API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:18 for Libargus API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

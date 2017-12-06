@@ -32,16 +32,16 @@
 #include <Argus/Argus.h>
 #include "StreamConsumer.h"
 #include "VideoEncodeStreamConsumer.h"
-#if ENABLE_GIE
-#include "GIEStreamConsumer.h"
+#if ENABLE_TRT
+#include "TRTStreamConsumer.h"
 #endif
 #include "Error.h"
 #include "NvEglRenderer.h"
 
 //
 // This demo creates four camera input streams of different resolutions.
-// Full resolution for GIE inference and other three for video encoding.
-// GIE will detect target objects and user can see bounding box around
+// Full resolution for TRT inference and other three for video encoding.
+// TRT will detect target objects and user can see bounding box around
 // these objects in preview.
 // The app will run infinitely until user press 'q'.
 //
@@ -56,12 +56,14 @@ static const unsigned   MAX_STREAM  = 4;
 // Configurations which can be overrided by cmdline
 static std::string g_deployFile("../../data/Model/GoogleNet_three_class/GoogleNet_modified_threeClass_VGA.prototxt");
 static std::string g_modelFile("../../data/Model/GoogleNet_three_class/GoogleNet_modified_threeClass_VGA.caffemodel");
+static bool g_forceFp32 = false;
 static bool g_bNoPreview = false;
 
 // Globals.
 static NvEglRenderer *g_eglRenderer = NULL;
 bool g_bVerbose = false;
 bool g_bProfiling = false;
+UniqueObj<CameraProvider> g_cameraProvider;
 
 // Debug print macros.
 #define PRODUCER_PRINT(...) printf("PRODUCER: " __VA_ARGS__)
@@ -75,9 +77,7 @@ bool g_bProfiling = false;
 static int
 runArgusProducer(const std::vector<StreamConsumer*> &consumers)
 {
-    // Create the CameraProvider object and get the core interface.
-    UniqueObj<CameraProvider> cameraProvider = UniqueObj<CameraProvider>(CameraProvider::create());
-    ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
+    ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(g_cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to create CameraProvider");
 
@@ -123,7 +123,7 @@ runArgusProducer(const std::vector<StreamConsumer*> &consumers)
     // Wait until the consumer is connected to the stream.
     for (unsigned i = 0; i < consumers.size(); i++)
     {
-        // WAR: GIE consumer may take long time to build GIE model
+        // WAR: TRT consumer may take long time to build TRT model
         // Set timeout to 2min here
         PROPAGATE_ERROR(consumers[i]->waitRunning(120 * 1000 * 1000));
     }
@@ -181,8 +181,7 @@ runArgusProducer(const std::vector<StreamConsumer*> &consumers)
 static bool getFullResolution(Size2D<uint32_t> *result)
 {
     // Create the CameraProvider object and get the core interface.
-    UniqueObj<CameraProvider> cameraProvider = UniqueObj<CameraProvider>(CameraProvider::create());
-    ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
+    ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(g_cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
 
@@ -228,6 +227,7 @@ static void printHelp()
            "  --deploy <filename>   Sets deploy file\n"
            "  --model <filename>    Sets model file\n"
            "  --no-preview          Disables the renderer\n"
+           "  --fp32                Force to use fp32\n"
            "  -s                    Enable profiling\n"
            "  -v                    Enable verbose message\n"
            "Commands\n"
@@ -240,6 +240,7 @@ static bool parseCmdline(int argc, char **argv)
     {
         OPTION_DEPLOY_FILE = 0x100,
         OPTION_MODEL_FILE,
+        OPTION_FORCE_FP32,
         OPTION_NO_PREVIEW,
     };
 
@@ -247,6 +248,7 @@ static bool parseCmdline(int argc, char **argv)
     {
         { "deploy", 1, NULL, OPTION_DEPLOY_FILE },
         { "model",  1, NULL, OPTION_MODEL_FILE  },
+        { "fp32",   0, NULL, OPTION_FORCE_FP32  },
         { "no-preview", 0, NULL, OPTION_NO_PREVIEW },
         { 0 },
     };
@@ -264,6 +266,9 @@ static bool parseCmdline(int argc, char **argv)
                 break;
             case OPTION_NO_PREVIEW:
                 g_bNoPreview = true;
+                break;
+            case OPTION_FORCE_FP32:
+                g_forceFp32 = true;
                 break;
             case 's':
                 g_bProfiling = true;
@@ -302,6 +307,9 @@ int main(int argc, char **argv)
             ORIGINATE_ERROR("Failed to create EGL renderer");
     }
 
+    // Create the CameraProvider object.
+    g_cameraProvider.reset(CameraProvider::create());
+
     // Get full resolution
     Size2D<uint32_t> fullSize;
     getFullResolution(&fullSize);
@@ -318,16 +326,20 @@ int main(int argc, char **argv)
     consumers.push_back(&consumer3);
 #endif
 
-#if ENABLE_GIE
-    // Create GIE consumer
-    GIEStreamConsumer consumer4("gie", "gie.h264", fullSize, g_eglRenderer);
+#if ENABLE_TRT
+    // Create TRT consumer
+    TRTStreamConsumer consumer4("trt", "trt.h264", fullSize, g_eglRenderer);
     consumer4.setDeployFile(g_deployFile);
     consumer4.setModelFile(g_modelFile);
+    consumer4.setForceFp32(g_forceFp32);
     consumers.push_back(&consumer4);
 #endif
 
     // Run EGLStream Producer.
     runArgusProducer(consumers);
+
+    // Destroy CameraProvider
+    g_cameraProvider.reset(NULL);
 
     // Destroy resources
     if (g_eglRenderer)

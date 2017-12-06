@@ -32,10 +32,6 @@ include ../Rules.mk
 
 APP := video_cuda_enc
 
-CLASS_DIR := ../common/classes
-
-ALGO_DIR := ../common/algorithm/cuda
-
 SRCS := \
 	video_cuda_enc_csvparser.cpp \
 	video_cuda_enc_main.cpp \
@@ -44,37 +40,32 @@ SRCS := \
 OBJS:= $(SRCS:.cpp=.o)
 
 CPPFLAGS += \
-	-I../common/algorithm/cuda
+	-I"$(ALGO_CUDA_DIR)"
 
 LDFLAGS += \
 	-L"$(CUDA_PATH)/targets/aarch64-linux/lib" \
-	-ldl -lpthread -lrt \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg \
 	-lcuda -lcudart
 
 OBJS += \
-	../common/algorithm/cuda/NvAnalysis.o \
-	../common/algorithm/cuda/NvCudaProc.o
+	$(ALGO_CUDA_DIR)/NvAnalysis.o \
+	$(ALGO_CUDA_DIR)/NvCudaProc.o
 
 all: $(APP)
 
 $(CLASS_DIR)/%.o: $(CLASS_DIR)/%.cpp
 	$(MAKE) -C $(CLASS_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.c
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cpp
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.cu
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cu
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-%.o: %.cpp $(INCS)
+%.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $<
 
 $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	$(MAKE) -C $(ALGO_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

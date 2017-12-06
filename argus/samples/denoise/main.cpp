@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,6 +32,7 @@
 #include "Window.h"
 #include "Thread.h"
 #include "PreviewConsumer.h"
+#include "Options.h"
 
 #include <Argus/Argus.h>
 #include <EGLStream/EGLStream.h>
@@ -53,6 +54,7 @@ namespace ArgusSamples
 static const uint32_t         CAPTURE_TIME    = 10; // In seconds.
 static const Size2D<uint32_t> STREAM_SIZE      (640, 480);
 static const Rectangle<float> SOURCE_CLIP_RECT (0.4f, 0.4f, 0.6f, 0.6f);
+static const uint32_t         DEFAULT_CAMERA_INDEX = 0;
 
 // Globals.
 UniqueObj<CameraProvider> g_cameraProvider;
@@ -61,7 +63,12 @@ EGLDisplayHolder g_display;
 // Debug print macros.
 #define PRODUCER_PRINT(...) printf("PRODUCER: " __VA_ARGS__)
 
-static bool execute()
+struct ExecuteOptions
+{
+    uint32_t cameraIndex;
+};
+
+static bool execute(const ExecuteOptions& options)
 {
     // Initialize the window and EGL display.
     Window &window = Window::getInstance();
@@ -73,6 +80,7 @@ static bool execute()
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Create a capture session using the first available device.
     std::vector<CameraDevice*> cameraDevices;
@@ -80,8 +88,11 @@ static bool execute()
         ORIGINATE_ERROR("Failed to get CameraDevices");
     if (cameraDevices.size() == 0)
         ORIGINATE_ERROR("No CameraDevices available");
+    if (cameraDevices.size() <= options.cameraIndex)
+        ORIGINATE_ERROR("Camera %d not available; there are %d cameras",
+                        options.cameraIndex, (unsigned)cameraDevices.size());
     UniqueObj<CaptureSession> captureSession(
-        iCameraProvider->createCaptureSession(cameraDevices[0]));
+        iCameraProvider->createCaptureSession(cameraDevices[options.cameraIndex]));
     ICaptureSession *iCaptureSession = interface_cast<ICaptureSession>(captureSession);
     if (!iCaptureSession)
         ORIGINATE_ERROR("Failed to create CaptureSession");
@@ -181,9 +192,24 @@ static bool execute()
 
 }; // namespace ArgusSamples
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
-    if (!ArgusSamples::execute())
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
+    ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
+    ArgusSamples::Options options(basename(argv[0]));
+    options.addOption(ArgusSamples::createValueOption
+        ("device", 'd', "INDEX", "Camera index.", cameraIndex));
+
+    if (!options.parse(argc, argv))
+        return EXIT_FAILURE;
+    if (options.requestedExit())
+        return EXIT_SUCCESS;
+
+    ArgusSamples::ExecuteOptions executeOptions;
+    executeOptions.cameraIndex = cameraIndex.get();
+
+    if (!ArgusSamples::execute(executeOptions))
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;

@@ -1,4 +1,4 @@
-# Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,13 +27,13 @@
 project(arguscamerarenderer)
 
 set(SOURCES
-    Renderer.cpp
     Composer.cpp
     StreamConsumer.cpp
     )
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/apps/camera/common
+    ${CMAKE_SOURCE_DIR}/apps/camera/modules
     ${CMAKE_SOURCE_DIR}/samples/utils
     ${OPENGLES_INCLUDE_DIR}
     ${EGL_INCLUDE_DIR}
@@ -45,5 +45,6 @@ target_link_libraries(${PROJECT_NAME}
     ${OPENGLES_LIBRARIES}
     ${EGL_LIBRARIES}
     arguscameracommon
+    arguscameramodules
     argussampleutils
     )

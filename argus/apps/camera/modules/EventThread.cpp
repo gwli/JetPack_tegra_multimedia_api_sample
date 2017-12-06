@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,16 +29,16 @@
 #include "EventThread.h"
 #include "Dispatcher.h"
 #include "Util.h"
-#include <Argus/Ext/DebugCaptureMetadata.h>
+#include "PerfTracker.h"
+
+#include <Argus/Ext/InternalFrameCount.h>
 
 namespace ArgusSamples {
 
 EventThread::EventThread(Argus::CaptureSession *session,
-                         Argus::EventQueue *eventQueue,
-                         PerfTracker *perftracker)
+                         SessionPerfTracker *sessionPerfTracker)
     : m_session(session)
-    , m_eventQueue(eventQueue)
-    , m_perfTracker(perftracker)
+    , m_sessionPerfTracker(sessionPerfTracker)
 {
 }
 
@@ -48,6 +48,12 @@ EventThread::~EventThread()
 
 bool EventThread::threadInitialize()
 {
+    std::vector<Argus::EventType> eventTypes;
+    eventTypes.push_back(Argus::EVENT_TYPE_CAPTURE_COMPLETE);
+
+    PROPAGATE_ERROR(Dispatcher::getInstance().createEventQueue(eventTypes, m_eventQueue,
+        m_session));
+
     return true;
 }
 
@@ -68,34 +74,39 @@ bool EventThread::threadExecute()
     for (uint32_t i = 0; i < iEventQueue->getSize(); i++)
     {
         const Argus::Event *event = iEventQueue->getEvent(i);
-        const Argus::IEvent *ievent = Argus::interface_cast<const Argus::IEvent>(event);
-        if (!ievent)
-            ORIGINATE_ERROR("Failed to get ievent interface");
+        const Argus::IEvent *iEvent = Argus::interface_cast<const Argus::IEvent>(event);
+        if (!iEvent)
+            ORIGINATE_ERROR("Failed to get IEvent interface");
 
-        if (ievent->getEventType() == Argus::EVENT_TYPE_CAPTURE_COMPLETE)
+        if (iEvent->getEventType() == Argus::EVENT_TYPE_CAPTURE_COMPLETE)
         {
-            m_perfTracker->onEvent(REQUEST_RECEIVED);
-            uint64_t latencyMs = 0;
+            PROPAGATE_ERROR(m_sessionPerfTracker->onEvent(SESSION_EVENT_REQUEST_RECEIVED));
 
-            const Argus::IEventCaptureComplete *ieventCaptureComplete
+            const Argus::IEventCaptureComplete *iEventCaptureComplete
                  = Argus::interface_cast<const Argus::IEventCaptureComplete>(event);
-            const Argus::CaptureMetadata *metaData = ieventCaptureComplete->getMetadata();
+            const Argus::CaptureMetadata *metaData = iEventCaptureComplete->getMetadata();
             if (metaData)
             {
                 const Argus::ICaptureMetadata *iCaptureMeta =
-                          Argus::interface_cast<const Argus::ICaptureMetadata>(metaData);
+                    Argus::interface_cast<const Argus::ICaptureMetadata>(metaData);
                 if (iCaptureMeta)
                 {
-                    latencyMs = ievent->getTime()/1000 - iCaptureMeta->getSensorTimestamp()/1000000;
-                    m_perfTracker->onEvent(REQUEST_LATENCY, latencyMs);
+                    /// @todo IEvent documentation says the time value is in nano seconds, but
+                    ///       actually it's in micro seconds.
+                    const TimeValue latency =
+                        TimeValue::fromUSec(iEvent->getTime()) -
+                        TimeValue::fromNSec(iCaptureMeta->getSensorTimestamp());
+                    PROPAGATE_ERROR(m_sessionPerfTracker->onEvent(
+                        SESSION_EVENT_REQUEST_LATENCY, latency.toMSec()));
                 }
 
-                const Argus::Ext::IDebugCaptureMetadata *iDebugCaptureMeta =
-                    Argus::interface_cast<const Argus::Ext::IDebugCaptureMetadata>(metaData);
-                if (iDebugCaptureMeta)
+                const Argus::Ext::IInternalFrameCount *iInternalFrameCount =
+                    Argus::interface_cast<const Argus::Ext::IInternalFrameCount>(metaData);
+                if (iInternalFrameCount)
                 {
-                    uint64_t currentFrameCount = iDebugCaptureMeta->getHwFrameCount();
-                    m_perfTracker->onEvent(FRAME_COUNT, currentFrameCount);
+                    const uint64_t currentFrameCount = iInternalFrameCount->getInternalFrameCount();
+                    PROPAGATE_ERROR(m_sessionPerfTracker->onEvent(SESSION_EVENT_FRAME_COUNT,
+                        currentFrameCount));
                 }
 
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,19 +35,19 @@
 
 #include "ITask.h"
 #include "Util.h"
-#include "PerfTracker.h"
 #include "UniquePointer.h"
+#include "IObserver.h"
 #include "TrackedUniqueObject.h"
 
 namespace ArgusSamples
 {
 
-class EventThread;
+class SessionPerfTracker;
 
 /**
  * This task creates one session for each available sensor
  */
-class TaskMultiSession : public ITask
+class TaskMultiSession : public ITask, public IObserver
 {
 public:
     TaskMultiSession();
@@ -76,6 +76,7 @@ private:
         ~Session();
 
         bool shutdown();
+        bool start();
         bool stop();
         bool initialize(uint32_t deviceIndex);
 
@@ -83,13 +84,17 @@ private:
         TrackedUniqueObj<Argus::Request> m_request;             ///< Argus request
         Argus::UniqueObj<Argus::OutputStream> m_outputStream;   ///< Argus output stream
 
-        UniquePointer<EventThread> m_eventThread;
-        PerfTracker m_perfTracker;
+        UniquePointer<SessionPerfTracker> m_perfTracker;
     };
 
     std::list<Session*> m_sessions;
 
     bool shutdownSessions();
+
+    /**
+     * Restart when sensor mode or output size changes
+     */
+    bool restartStreams(const Observed &source);
 };
 
 }; // namespace ArgusSamples

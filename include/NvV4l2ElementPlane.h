@@ -35,8 +35,8 @@
  */
 
 /**
- * @defgroup ee_nvv4lelementplane_group NvV4l2ElementPlane Class
- * @ingroup ee_nvelement_group
+ * @defgroup l4t_mm_nvv4lelementplane_group NvV4l2ElementPlane Class
+ * @ingroup l4t_mm_nvelement_group
  *
  * Helper class for operations performed on a V4L2 element plane.
  * This includes getting/setting plane formats, plane buffers,

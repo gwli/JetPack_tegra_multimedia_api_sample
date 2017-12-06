@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="App_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -121,7 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#include &quot;Error.h&quot;</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Dispatcher_8h.html">Dispatcher.h</a>&quot;</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Renderer_8h.html">Renderer.h</a>&quot;</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Composer_8h.html">Composer.h</a>&quot;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="PerfTracker_8h.html">PerfTracker.h</a>&quot;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">namespace </span>ArgusSamples</div>
@@ -155,8 +155,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;{</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    PROPAGATE_ERROR(Window::getInstance().unregisterObserver(<span class="keyword">this</span>));</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="comment">// shutdown the renderer</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1Renderer.html#ac3b8f5a8ae233f7544f463e01605e8b5" title="Get the window instance.">Renderer::getInstance</a>().<a class="code" href="classArgusSamples_1_1App.html#adfc951e6ce4ef00bb34e8f22d251c574">shutdown</a>());</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="comment">// shutdown the composer</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1Composer.html#ab5414e37a967badf08f0046cf2f26d17" title="Get the composer instance.">Composer::getInstance</a>().<a class="code" href="classArgusSamples_1_1App.html#adfc951e6ce4ef00bb34e8f22d251c574">shutdown</a>());</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="comment">// shutdown the window</span></div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    PROPAGATE_ERROR(Window::getInstance().<a class="code" href="classArgusSamples_1_1App.html#adfc951e6ce4ef00bb34e8f22d251c574">shutdown</a>());</div>
@@ -169,11 +169,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
 <div class="line"><a name="l00079"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1App.html#aa1ec1f82360ef4cf873f2af7c7cd3df5">   79</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1App.html#aa1ec1f82360ef4cf873f2af7c7cd3df5">App::run</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;{</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="classArgusSamples_1_1PerfTracker.html#a7ed5e31c7da8acf6877fe31a73722dcd">PerfTracker::onAppEvent</a>(<a class="code" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeae542ef342bbb7aee49148d1d7418ee87">ArgusSamples::APP_START</a>);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1PerfTracker.html#af2a0116401e186ddc69c31bb35cef9b6" title="Get the window instance.">PerfTracker::getInstance</a>().onEvent(<a class="code" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4a8939e24ab7f734bf020e9e594a302447">GLOBAL_EVENT_APP_START</a>));</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1App.html#a30110fcd3c585e5ed7fea8548bb55b3f">initialize</a>());</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <a class="code" href="classArgusSamples_1_1PerfTracker.html#a7ed5e31c7da8acf6877fe31a73722dcd">PerfTracker::onAppEvent</a>(<a class="code" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaec55030c5081f08778483e8c2f3b6fd3">ArgusSamples::APP_INITIALIZED</a>);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1PerfTracker.html#af2a0116401e186ddc69c31bb35cef9b6" title="Get the window instance.">PerfTracker::getInstance</a>().onEvent(<a class="code" href="namespaceArgusSamples.html#ab27a7f01bc9a65a0022709c05c8f29b4aa7e7f304d2c8a63762ec9d63caad5e4a">GLOBAL_EVENT_APP_INITIALIZED</a>));</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="comment">// parse and execute the options</span></div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1App.html#a54a7baffee7ad152c61cfd024f77b6b3">m_options</a>.parse(argc, argv));</div>
@@ -249,7 +249,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

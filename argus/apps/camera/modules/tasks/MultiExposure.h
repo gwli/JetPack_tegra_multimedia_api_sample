@@ -72,7 +72,6 @@ private:
     bool m_initialized;                 ///< set if initialized
     bool m_running;                     ///< set if preview is running
     bool m_wasRunning;                  ///< set if was running before the device had been closed
-    uint32_t m_captureIndex;            ///< incrementing capture index
 
     /**
      * For each exposure level there is one request where the exposure compensation is set to the
@@ -107,6 +106,11 @@ private:
      * Shut down the exposure level streams.
      */
     bool shutdownExpLevels();
+
+    /**
+     * Restart when sensor mode or output size changes
+     */
+    bool restartStreams(const Observed &source);
 };
 
 }; // namespace ArgusSamples

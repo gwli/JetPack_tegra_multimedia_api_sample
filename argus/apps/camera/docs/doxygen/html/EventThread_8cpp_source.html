@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="EventThread_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -120,16 +120,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="EventThread_8h.html">EventThread.h</a>&quot;</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Dispatcher_8h.html">Dispatcher.h</a>&quot;</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Util_8h.html">Util.h</a>&quot;</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &lt;Argus/Ext/DebugCaptureMetadata.h&gt;</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="PerfTracker_8h.html">PerfTracker.h</a>&quot;</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">namespace </span>ArgusSamples {</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &lt;Argus/Ext/InternalFrameCount.h&gt;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ab743d9a3375f918b0a055ec08a3b9aaa">   36</a></span>&#160;<a class="code" href="classArgusSamples_1_1EventThread.html#ab743d9a3375f918b0a055ec08a3b9aaa">EventThread::EventThread</a>(Argus::CaptureSession *session,</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                         Argus::EventQueue *eventQueue,</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;                         <a class="code" href="classArgusSamples_1_1PerfTracker.html" title="PerfTracker note down the perf for one session.">PerfTracker</a> *perftracker)</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    : m_session(session)</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    , m_eventQueue(eventQueue)</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    , m_perfTracker(perftracker)</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">namespace </span>ArgusSamples {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#a5f187ecd9c5a7dbebd010913bd2bffae">   38</a></span>&#160;<a class="code" href="classArgusSamples_1_1EventThread.html#a5f187ecd9c5a7dbebd010913bd2bffae">EventThread::EventThread</a>(Argus::CaptureSession *session,</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;                         <a class="code" href="classArgusSamples_1_1SessionPerfTracker.html" title="Used to track session performance events.">SessionPerfTracker</a> *sessionPerfTracker)</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    : m_session(session)</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    , m_sessionPerfTracker(sessionPerfTracker)</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;{</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;}</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
@@ -139,73 +139,84 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
 <div class="line"><a name="l00049"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#a1ca2fcbe920c3c5ee7802fe92352a512">   49</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a1ca2fcbe920c3c5ee7802fe92352a512">EventThread::threadInitialize</a>()</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;{</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;}</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::vector&lt;Argus::EventType&gt; eventTypes;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    eventTypes.push_back(Argus::EVENT_TYPE_CAPTURE_COMPLETE);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">   54</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">EventThread::threadExecute</a>()</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;{</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <a class="code" href="classArgusSamples_1_1Dispatcher.html" title="The dispatcher is called by clients like the command line interface.">Dispatcher</a> &amp;dispatcher = <a class="code" href="classArgusSamples_1_1Dispatcher.html#a27c03ac9165a07afd38f5bdc27ac275e" title="Get the dispatcher instance.">Dispatcher::getInstance</a>();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="comment">// wait for events (use a time out to allow the thread to be shutdown even if there are no</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="comment">// new events)</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    PROPAGATE_ERROR(dispatcher.<a class="code" href="classArgusSamples_1_1Dispatcher.html#a86a3ac2e693c463d38ed00caee29f850" title="Wait for events from the specific session.">waitForEvents</a>(<a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>.get(), <a class="code" href="classArgusSamples_1_1TimeValue.html#a770f7c7e8357bef3b35294178ed91a86">TimeValue::fromMSec</a>(100),</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">m_session</a>));</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    Argus::IEventQueue *iEventQueue =</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        Argus::interface_cast&lt;Argus::IEventQueue&gt;(<a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>.get());</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordflow">if</span> (!iEventQueue)</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        ORIGINATE_ERROR(<span class="stringliteral">&quot;Failed to get iEventQueue&quot;</span>);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; iEventQueue-&gt;getSize(); i++)</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    {</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keyword">const</span> Argus::Event *<span class="keyword">event</span> = iEventQueue-&gt;getEvent(i);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keyword">const</span> Argus::IEvent *ievent = Argus::interface_cast&lt;<span class="keyword">const</span> Argus::IEvent&gt;(event);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordflow">if</span> (!ievent)</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;            ORIGINATE_ERROR(<span class="stringliteral">&quot;Failed to get ievent interface&quot;</span>);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">if</span> (ievent-&gt;getEventType() == Argus::EVENT_TYPE_CAPTURE_COMPLETE)</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        {</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            <a class="code" href="classArgusSamples_1_1EventThread.html#ade422ef5de124ce7a639413635510c89">m_perfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1PerfTracker.html#a8642db80c727e2519e1f4a55d53569ea">onEvent</a>(<a class="code" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaba92743322fd459d8b1aa54f8c282060">REQUEST_RECEIVED</a>);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            uint64_t latencyMs = 0;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            <span class="keyword">const</span> Argus::IEventCaptureComplete *ieventCaptureComplete</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                 = Argus::interface_cast&lt;<span class="keyword">const</span> Argus::IEventCaptureComplete&gt;(event);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            <span class="keyword">const</span> Argus::CaptureMetadata *metaData = ieventCaptureComplete-&gt;getMetadata();</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            <span class="keywordflow">if</span> (metaData)</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                <span class="keyword">const</span> Argus::ICaptureMetadata *iCaptureMeta =</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                          Argus::interface_cast&lt;<span class="keyword">const</span> Argus::ICaptureMetadata&gt;(metaData);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                <span class="keywordflow">if</span> (iCaptureMeta)</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                {</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                    latencyMs = ievent-&gt;getTime()/1000 - iCaptureMeta-&gt;getSensorTimestamp()/1000000;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                    <a class="code" href="classArgusSamples_1_1EventThread.html#ade422ef5de124ce7a639413635510c89">m_perfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1PerfTracker.html#a8642db80c727e2519e1f4a55d53569ea">onEvent</a>(<a class="code" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aea243fecf49c94a8e01d4bdda537fe8b46">REQUEST_LATENCY</a>, latencyMs);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                }</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                <span class="keyword">const</span> Argus::Ext::IDebugCaptureMetadata *iDebugCaptureMeta =</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                    Argus::interface_cast&lt;<span class="keyword">const</span> Argus::Ext::IDebugCaptureMetadata&gt;(metaData);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                <span class="keywordflow">if</span> (iDebugCaptureMeta)</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                {</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                    uint64_t currentFrameCount = iDebugCaptureMeta-&gt;getHwFrameCount();</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                    <a class="code" href="classArgusSamples_1_1EventThread.html#ade422ef5de124ce7a639413635510c89">m_perfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1PerfTracker.html#a8642db80c727e2519e1f4a55d53569ea">onEvent</a>(<a class="code" href="namespaceArgusSamples.html#a0f7c0a0ae52848a5bea395ccc41f69aeaf335eb3eaced30fcd1846f2627940104">FRAME_COUNT</a>, currentFrameCount);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                }</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;            }</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        }</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    }</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">  108</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">EventThread::threadShutdown</a>()</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;{</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;}</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1Dispatcher.html#a27c03ac9165a07afd38f5bdc27ac275e" title="Get the dispatcher instance.">Dispatcher::getInstance</a>().createEventQueue(eventTypes, <a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>,</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">m_session</a>));</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;}</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">   60</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">EventThread::threadExecute</a>()</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;{</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="classArgusSamples_1_1Dispatcher.html" title="The dispatcher is called by clients like the command line interface.">Dispatcher</a> &amp;dispatcher = <a class="code" href="classArgusSamples_1_1Dispatcher.html#a27c03ac9165a07afd38f5bdc27ac275e" title="Get the dispatcher instance.">Dispatcher::getInstance</a>();</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="comment">// wait for events (use a time out to allow the thread to be shutdown even if there are no</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="comment">// new events)</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    PROPAGATE_ERROR(dispatcher.<a class="code" href="classArgusSamples_1_1Dispatcher.html#a86a3ac2e693c463d38ed00caee29f850" title="Wait for events from the specific session.">waitForEvents</a>(<a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>.get(), <a class="code" href="classArgusSamples_1_1TimeValue.html#a770f7c7e8357bef3b35294178ed91a86">TimeValue::fromMSec</a>(100),</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">m_session</a>));</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    Argus::IEventQueue *iEventQueue =</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        Argus::interface_cast&lt;Argus::IEventQueue&gt;(<a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>.get());</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">if</span> (!iEventQueue)</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        ORIGINATE_ERROR(<span class="stringliteral">&quot;Failed to get iEventQueue&quot;</span>);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; iEventQueue-&gt;getSize(); i++)</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    {</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        <span class="keyword">const</span> Argus::Event *<span class="keyword">event</span> = iEventQueue-&gt;getEvent(i);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        <span class="keyword">const</span> Argus::IEvent *iEvent = Argus::interface_cast&lt;<span class="keyword">const</span> Argus::IEvent&gt;(event);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <span class="keywordflow">if</span> (!iEvent)</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            ORIGINATE_ERROR(<span class="stringliteral">&quot;Failed to get IEvent interface&quot;</span>);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        <span class="keywordflow">if</span> (iEvent-&gt;getEventType() == Argus::EVENT_TYPE_CAPTURE_COMPLETE)</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1EventThread.html#af0b4590350fc96130bdba0ce9b3fd330">m_sessionPerfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1SessionPerfTracker.html#adc0d9a7ed537ce62f2172eb5d4d3014a" title="Trigger a session event.">onEvent</a>(<a class="code" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea147fd2ad27b15c2e2e878223ddbcf4b7">SESSION_EVENT_REQUEST_RECEIVED</a>));</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;            <span class="keyword">const</span> Argus::IEventCaptureComplete *iEventCaptureComplete</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                 = Argus::interface_cast&lt;<span class="keyword">const</span> Argus::IEventCaptureComplete&gt;(event);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            <span class="keyword">const</span> Argus::CaptureMetadata *metaData = iEventCaptureComplete-&gt;getMetadata();</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;            <span class="keywordflow">if</span> (metaData)</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;            {</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                <span class="keyword">const</span> Argus::ICaptureMetadata *iCaptureMeta =</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                    Argus::interface_cast&lt;<span class="keyword">const</span> Argus::ICaptureMetadata&gt;(metaData);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                <span class="keywordflow">if</span> (iCaptureMeta)</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                {<span class="comment"></span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">                    /// @todo IEvent documentation says the time value is in nano seconds, but</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">                    ///       actually it&#39;s in micro seconds.</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment"></span>                    <span class="keyword">const</span> <a class="code" href="classArgusSamples_1_1TimeValue.html" title="A time value.">TimeValue</a> latency =</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                        <a class="code" href="classArgusSamples_1_1TimeValue.html#a974f2f7130e7b4d921abcb46df66c3f2">TimeValue::fromUSec</a>(iEvent-&gt;getTime()) -</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                        <a class="code" href="classArgusSamples_1_1TimeValue.html#ae747d20f2ff0a1e4ccc027b862d34c10">TimeValue::fromNSec</a>(iCaptureMeta-&gt;getSensorTimestamp());</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1EventThread.html#af0b4590350fc96130bdba0ce9b3fd330">m_sessionPerfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1SessionPerfTracker.html#adc0d9a7ed537ce62f2172eb5d4d3014a" title="Trigger a session event.">onEvent</a>(</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                        <a class="code" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aea8f0bc14f9a47211478c30cd558451f93">SESSION_EVENT_REQUEST_LATENCY</a>, latency.<a class="code" href="classArgusSamples_1_1TimeValue.html#a79b43b5b0dcaed9323203e25aecde979">toMSec</a>()));</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                }</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                <span class="keyword">const</span> Argus::Ext::IInternalFrameCount *iInternalFrameCount =</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                    Argus::interface_cast&lt;<span class="keyword">const</span> Argus::Ext::IInternalFrameCount&gt;(metaData);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                <span class="keywordflow">if</span> (iInternalFrameCount)</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                {</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                    <span class="keyword">const</span> uint64_t currentFrameCount = iInternalFrameCount-&gt;getInternalFrameCount();</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                    PROPAGATE_ERROR(<a class="code" href="classArgusSamples_1_1EventThread.html#af0b4590350fc96130bdba0ce9b3fd330">m_sessionPerfTracker</a>-&gt;<a class="code" href="classArgusSamples_1_1SessionPerfTracker.html#adc0d9a7ed537ce62f2172eb5d4d3014a" title="Trigger a session event.">onEvent</a>(<a class="code" href="namespaceArgusSamples.html#a72833a481ac325fdef97a3c77e46e5aeac4a2488f7df844d47e3c318fcf081cf9">SESSION_EVENT_FRAME_COUNT</a>,</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                        currentFrameCount));</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                }</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            }</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        }</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    }</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;}</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">  119</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">EventThread::threadShutdown</a>()</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;{</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

@@ -41,7 +41,7 @@
 
 /**
  *
- * @defgroup ee_nvlogging_group Logging API
+ * @defgroup l4t_mm_nvlogging_group Logging API
  *
  * This file defines macros that provide message logging
  * functionality.

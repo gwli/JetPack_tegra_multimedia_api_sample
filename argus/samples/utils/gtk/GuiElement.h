@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -99,6 +99,30 @@ public:
 
 public:
     std::list<Window::IGuiElement*> m_elements;
+};
+
+/**
+ * A GUI image
+ */
+class GuiImage : public GuiElementBase, public Window::IGuiImage
+{
+public:
+    GuiImage();
+    GuiImage(GtkWidget *widget);
+    ~GuiImage();
+
+    bool initialize();
+
+    /** @name IGuiImage methods */
+    /**@{*/
+    virtual bool set(size_t width, size_t height, uint32_t components, size_t rowStride,
+        const uint8_t *data);
+    /**@}*/
+
+private:
+    static gboolean drawCallback(GtkWidget *widget, cairo_t *cr, gpointer data);
+
+    cairo_surface_t *m_surface;
 };
 
 /**

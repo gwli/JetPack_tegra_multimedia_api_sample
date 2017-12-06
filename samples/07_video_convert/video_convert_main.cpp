@@ -227,7 +227,7 @@ main(int argc, char *argv[])
 
     TEST_ERROR(ctx.in_buftype == BUF_TYPE_NVBL &&
             ctx.out_buftype == BUF_TYPE_NVBL,
-            "NV BL -> NV BL conversions are not supported", cleanup);
+            "NV BL -> NV BL conversions are not supported in this sample", cleanup);
 
     ctx.in_file = new ifstream(ctx.in_file_path);
     TEST_ERROR(!ctx.in_file->is_open(), "Could not open input file", cleanup);

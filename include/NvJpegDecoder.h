@@ -38,8 +38,8 @@
 
 /**
  *
- * @defgroup ee_nvjpegdecoder_group Image Decoder
- * @ingroup ee_nvimage_group
+ * @defgroup l4t_mm_nvjpegdecoder_group Image Decoder
+ * @ingroup l4t_mm_nvimage_group
  *
  * The \c %NvJPEGDecoder API provides functionality for decoding JPEG
  * images using libjpeg APIs.

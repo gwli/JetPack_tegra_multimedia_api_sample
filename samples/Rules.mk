@@ -34,7 +34,7 @@ LDFLAGS :=
 
 # ARM ABI of the target platform
 ifeq ($(TEGRA_ARMABI),)
-$(error Please specify which ARM ABI platform you are compiling for)
+TEGRA_ARMABI ?= aarch64-linux-gnu
 endif
 
 # Location of the target rootfs
@@ -47,7 +47,13 @@ endif
 endif
 
 # Location of the CUDA Toolkit
-CUDA_PATH := /usr/local/cuda
+CUDA_PATH 	:= /usr/local/cuda
+
+# Use absolute path for better access from everywhere
+TOP_DIR 	:= $(shell pwd | awk '{split($$0, f, "/samples"); print f[1]}')
+CLASS_DIR 	:= $(TOP_DIR)/samples/common/classes
+ALGO_CUDA_DIR 	:= $(TOP_DIR)/samples/common/algorithm/cuda
+ALGO_TRT_DIR 	:= $(TOP_DIR)/samples/common/algorithm/trt
 
 ifeq ($(shell uname -m), aarch64)
 CROSS_COMPILE :=
@@ -76,8 +82,14 @@ endif
 
 CPPFLAGS += \
 	-I"$(TARGET_ROOTFS)/usr/include/$(TEGRA_ARMABI)" \
-	-I"../../include"
+	-I"$(TOP_DIR)/include" \
+	-I"$(TOP_DIR)/include/libjpeg-8b" \
+	-I"$(TARGET_ROOTFS)/usr/include/libdrm"
 
 LDFLAGS += \
 	-L"$(TARGET_ROOTFS)/usr/lib/$(TEGRA_ARMABI)" \
 	-L"$(TARGET_ROOTFS)/usr/lib/$(TEGRA_ARMABI)/tegra"
+
+LDFLAGS += \
+	-lpthread -lv4l2 -lEGL -lGLESv2 -lX11 \
+	-lnvbuf_utils -lnvjpeg -lnvosd -ldrm

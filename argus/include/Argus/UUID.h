@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,16 +26,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: UUID API</b>
+ *
+ * @b Description: Defines the UUID types used by libargus.
+ */
+
 #ifndef _ARGUS_UUID_H
 #define _ARGUS_UUID_H
 
 #include <stdint.h>
 #include <cstring>
-
-/**
- * @file UUID.h
- * Defines the UUID types used by Argus.
- */
 
 namespace Argus
 {
@@ -43,7 +45,7 @@ namespace Argus
 const uint32_t MAX_UUID_NAME_SIZE = 32;
 
 /**
- * UUID
+ * A universally unique identifier.
  */
 struct UUID
 {
@@ -52,13 +54,20 @@ struct UUID
     uint16_t time_hi_and_version;
     uint16_t clock_seq;
     uint8_t  node[6];
+
+    bool operator==(const UUID &r) const
+    {
+        return memcmp(this, &r, sizeof(UUID)) == 0;
+    }
+
+    bool operator<(const UUID &r) const
+    {
+        return memcmp(this, &r, sizeof(UUID)) < 0;
+    }
 };
 
-bool operator==(const UUID& l, const UUID& r);
-bool operator<(const UUID& l, const UUID& r);
-
 /**
- * A unique identifier with a name (primarily for debugging purposes).
+ * A universally unique identifier with a name (used for debugging purposes).
  */
 class NamedUUID : public UUID
 {

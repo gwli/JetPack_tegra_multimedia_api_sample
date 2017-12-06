@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,41 +29,140 @@
 #ifndef PERFTRACKER_H
 #define PERFTRACKER_H
 
+#include <stddef.h>
+
 #include "Util.h" // for TimeValue
+#include "Ordered.h"
+#include "UniquePointer.h"
+
+namespace Argus { class CaptureSession; }
 
 namespace ArgusSamples
 {
 
-typedef enum
-{
-    APP_START,
-    APP_INITIALIZED,
-    TASK_START,
-    ISSUE_CAPTURE,
-    REQUEST_RECEIVED,
-    REQUEST_LATENCY,
-    FRAME_COUNT,
-    CLOSE_REQUESTED,
-    FLUSH_DONE,
-    CLOSE_DONE
-} PerfEventType;
+class EventThread;
 
 /**
- * PerfTracker note down the perf for one session
+ * Global events
  */
+enum GlobalEvent
+{
+    GLOBAL_EVENT_APP_START,
+    GLOBAL_EVENT_APP_INITIALIZED,
+    GLOBAL_EVENT_DISPLAY
+};
 
+/**
+ * Used to track global performance events.
+ */
 class PerfTracker
 {
 public:
-    PerfTracker();
-    void onEvent(PerfEventType type, uint64_t value = 0);
-    static void onAppEvent(PerfEventType type, uint64_t value = 0);
+    /**
+     * Get the window instance.
+     */
+    static PerfTracker &getInstance();
+
+    /**
+     * Trigger a global event.
+     *
+     * @param type [in] event type
+     */
+    bool onEvent(GlobalEvent event);
+
+    /**
+     * @returns the point in time when the app had been started
+     */
+    const TimeValue& appStartTime() const
+    {
+        return m_appStartTime;
+    }
+
+    /**
+     * @returns the point in time when app initialization finished
+     */
+    const TimeValue& appInitializedTime() const
+    {
+        return m_appInitializedTime;
+    }
+
+    /**
+     * @returns a new session Id
+     */
+    uint32_t getNewSessionID()
+    {
+        return ++m_sessionId;
+    }
 
 private:
-    static int s_count; // used for multi-session
-    int m_id;
-    static TimeValue ms_appStartTime;
-    static TimeValue ms_appInitializedTime;
+    PerfTracker();
+    ~PerfTracker();
+
+    // this is a singleton, hide copy constructor etc.
+    PerfTracker(const PerfTracker&);
+    PerfTracker& operator=(const PerfTracker&);
+
+    bool initialize();
+
+    // global performance values
+    TimeValue m_appStartTime;
+    TimeValue m_appInitializedTime;
+
+    TimeValue m_firstDisplayTime;   //< time at which the first display event had been received
+    uint64_t m_displayCount;        //< display events since first display time
+
+    Ordered<uint32_t> m_sessionId;
+};
+
+/**
+ * Session events
+ */
+enum SessionEvent
+{
+    SESSION_EVENT_TASK_START,
+    SESSION_EVENT_ISSUE_CAPTURE,
+    SESSION_EVENT_REQUEST_RECEIVED,
+    SESSION_EVENT_REQUEST_LATENCY,
+    SESSION_EVENT_FRAME_COUNT,
+    SESSION_EVENT_CLOSE_REQUESTED,
+    SESSION_EVENT_FLUSH_DONE,
+    SESSION_EVENT_CLOSE_DONE
+};
+
+/**
+ * Used to track session performance events.
+ */
+class SessionPerfTracker
+{
+public:
+    SessionPerfTracker();
+    ~SessionPerfTracker();
+
+    /**
+     * Shutdown the session performance tracker.
+     */
+    bool shutdown();
+
+    /**
+     * Set the capture session to track. If not set the internal dispatcher session is tracked.
+     *
+     * @param session [in] capture session
+     */
+    bool setSession(Argus::CaptureSession *session);
+
+    /**
+     * Trigger a session event.
+     *
+     * @param type [in] event type
+     * @param type [in] event type
+     */
+    bool onEvent(SessionEvent event, uint64_t value = 0);
+
+private:
+    uint32_t m_id;
+
+    Argus::CaptureSession *m_session;
+    UniquePointer<EventThread> m_eventThread;
 
     TimeValue m_taskStartTime;
     TimeValue m_issueCaptureTime;
@@ -77,8 +176,14 @@ private:
     TimeValue m_closeDoneTime;
 
     uint64_t m_lastFrameCount;
-    uint64_t m_totalFrameDrop;
+    int64_t m_totalFrameDrop;
+
+    uint64_t m_minLatency;
+    uint64_t m_maxLatency;
+    uint64_t m_sumLatency;
+    uint64_t m_countLatency;
 };
+
 
 }; // namespace ArgusSamples
 

@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="EventThread_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -121,43 +121,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define EVENTTHREAD_H</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;Thread.h&quot;</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &lt;Argus/Argus.h&gt;</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="PerfTracker_8h.html">PerfTracker.h</a>&quot;</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &lt;Argus/Argus.h&gt;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">namespace </span>ArgusSamples</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;{</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">/**</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"> * EventThread is created by task object.</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"> * It is given a session and event queue. A new thread is generated to</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"> * keep querying events from the session. It does some analysis and pass</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"> * info to perfTracker.</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">class </span>SessionPerfTracker;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"> * The EventThread is querying events from the session. It does some analysis and then pass the</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"> * info to a sessionPerfTracker.</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"> */</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html">   45</a></span>&#160;<span class="keyword">class </span><a class="code" href="classArgusSamples_1_1EventThread.html" title="EventThread is created by task object.">EventThread</a> : <span class="keyword">public</span> Thread</div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html">   45</a></span>&#160;<span class="keyword">class </span><a class="code" href="classArgusSamples_1_1EventThread.html" title="The EventThread is querying events from the session.">EventThread</a> : <span class="keyword">public</span> Thread</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;{</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ab743d9a3375f918b0a055ec08a3b9aaa">EventThread</a>(Argus::CaptureSession *session,</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                         Argus::EventQueue *eventQueue,</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                         <a class="code" href="classArgusSamples_1_1PerfTracker.html" title="PerfTracker note down the perf for one session.">PerfTracker</a> *perfTracker);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a4d1286000b3de80da07f6b96265997be">~EventThread</a>();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a1ca2fcbe920c3c5ee7802fe92352a512">threadInitialize</a>();</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">threadExecute</a>();</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">threadShutdown</a>();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00059"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">   59</a></span>&#160;    Argus::CaptureSession *<a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">m_session</a>;</div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">   60</a></span>&#160;    Argus::UniqueObj&lt;Argus::EventQueue&gt; <a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>; <span class="comment">// this takes ownship of queue</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ade422ef5de124ce7a639413635510c89">   61</a></span>&#160;    <a class="code" href="classArgusSamples_1_1PerfTracker.html" title="PerfTracker note down the perf for one session.">PerfTracker</a> *<a class="code" href="classArgusSamples_1_1EventThread.html#ade422ef5de124ce7a639413635510c89">m_perfTracker</a>;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;};</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#endif //EVENTTHREAD_H</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a5f187ecd9c5a7dbebd010913bd2bffae">EventThread</a>(Argus::CaptureSession *session,</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                         <a class="code" href="classArgusSamples_1_1SessionPerfTracker.html" title="Used to track session performance events.">SessionPerfTracker</a> *sessionPerfTracker);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">virtual</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a4d1286000b3de80da07f6b96265997be">~EventThread</a>();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#a1ca2fcbe920c3c5ee7802fe92352a512">threadInitialize</a>();</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ae6815a4aa478333976c608cec5cfbe6f">threadExecute</a>();</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1EventThread.html#ab638abeda6897a6154b6e6c0a495ac47">threadShutdown</a>();</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">   58</a></span>&#160;    Argus::CaptureSession *<a class="code" href="classArgusSamples_1_1EventThread.html#a0190f466222ad44488f1ae28a9692e5d">m_session</a>;</div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">   59</a></span>&#160;    Argus::UniqueObj&lt;Argus::EventQueue&gt; <a class="code" href="classArgusSamples_1_1EventThread.html#ae4737f9bed932ccc8a8fc30da2f8e1c3">m_eventQueue</a>;</div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1EventThread.html#af0b4590350fc96130bdba0ce9b3fd330">   60</a></span>&#160;    <a class="code" href="classArgusSamples_1_1SessionPerfTracker.html" title="Used to track session performance events.">SessionPerfTracker</a> *<a class="code" href="classArgusSamples_1_1EventThread.html#af0b4590350fc96130bdba0ce9b3fd330">m_sessionPerfTracker</a>;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;};</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#endif // EVENTTHREAD_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

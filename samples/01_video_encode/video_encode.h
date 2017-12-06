@@ -57,10 +57,14 @@ typedef struct
     char *Recon_Ref_file_path;
     char *RPS_Param_file_path;
     char *hints_Param_file_path;
+    char *GDR_Param_file_path;
+    char *GDR_out_file_path;
     std::ifstream *roi_Param_file;
     std::ifstream *recon_Ref_file;
     std::ifstream *rps_Param_file;
     std::ifstream *hints_Param_file;
+    std::ifstream *gdr_Param_file;
+    std::ofstream *gdr_out_file;
 
     uint32_t bitrate;
     uint32_t profile;
@@ -70,8 +74,11 @@ typedef struct
     enum v4l2_mpeg_video_h264_level level;
     uint32_t fps_n;
     uint32_t fps_d;
-
+    uint32_t gdr_start_frame_number; /* Frame number where GDR has to be started */
+    uint32_t gdr_num_frames; /* Number of frames where GDR to be applied */
+    uint32_t gdr_out_frame_number; /* Frames number from where encoded buffers are to be dumped */
     enum v4l2_enc_temporal_tradeoff_level_type temporal_tradeoff_level;
+    enum v4l2_enc_hw_preset_type hw_preset_type;
     v4l2_enc_slice_length_type slice_length_type;
     uint32_t slice_length;
     uint32_t virtual_buffer_size;
@@ -86,11 +93,14 @@ typedef struct
     uint32_t nMaxQpB;              /* Maximum QP value to use for B frames */
     uint32_t sMaxQp;               /* Session Maximum QP value */
     bool insert_sps_pps_at_idr;
+    bool insert_vui;
+    bool insert_aud;
 
     bool report_metadata;
     bool input_metadata;
     bool dump_mv;
     bool externalRPS;
+    bool enableGDR;
     bool bGapsInFrameNumAllowed;
     bool bnoIframe;
     uint32_t nH264FrameNumBits;

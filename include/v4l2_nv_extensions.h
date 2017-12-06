@@ -38,14 +38,27 @@
  * @file
  * <b>NVIDIA V4L2 API Extensions</b>
  *
- * @b Description: This file declares the NVIDIA V4L2 Extensions,
- *  controls and structures.
+ * @b Description: This file declares NVIDIA V4L2 extensions,
+ * controls and structures.
  */
 
 /**
- * V4L2 pixel format for H265
+ *
+ * @defgroup ee_extensions_group V4L2 NV Extensions API
+ *
+ * This file declares NVIDIA V4L2 extensions, controls, and structures.
+ *
+ */
+
+/**
+ * Defines V4L2 pixel format for H.265.
  */
 #define V4L2_PIX_FMT_H265     v4l2_fourcc('H', '2', '6', '5')
+
+/**
+ * Defines the V4L2 pixel format for VP9.
+ */
+#define V4L2_PIX_FMT_VP9      v4l2_fourcc('V', 'P', '9', '0')
 
 /** @cond UNUSED */
 
@@ -53,15 +66,15 @@
 #define V4L2_PIX_FMT_YUV422M v4l2_fourcc('4', '2', '2', 'M')
 #define V4L2_PIX_FMT_YUV422RM v4l2_fourcc('4', '2', 'R', 'M')
 
-#define V4L2_PIX_FMT_H264_SLICE v4l2_fourcc('S', '2', '6', '4') /* H264 parsed slices */
-#define V4L2_PIX_FMT_VP8_FRAME v4l2_fourcc('V', 'P', '8', 'F') /* VP8 parsed frames */
+#define V4L2_PIX_FMT_H264_SLICE v4l2_fourcc('S', '2', '6', '4') /** H264 parsed slices. */
+#define V4L2_PIX_FMT_VP8_FRAME v4l2_fourcc('V', 'P', '8', 'F') /** VP8 parsed frames. */
 
 #define V4L2_CTRL_FLAG_CAN_STORE    0x0200
 
 /** @endcond */
 
 /**
- * V4L2 event type for decoder resolution event change
+ * Defines the V4L2 event type for decoder resolution event change.
  */
 #define V4L2_EVENT_RESOLUTION_CHANGE        5
 
@@ -80,27 +93,27 @@
 /** @endcond */
 
 /**
- * Control ID to set the H.265 encoder profile.
+ * Defines the control ID to set the H.265 encoder profile.
  *
- * One of #v4l2_mpeg_video_h265_profile should be passed.
+ * A v4l2_mpeg_video_h265_profile must be passed.
  */
 #define V4L2_CID_MPEG_VIDEO_H265_PROFILE        (V4L2_CID_MPEG_BASE+513)
 
 /**
- * Enum containing the possible profiles for H.265 encoder.
+ * Defines the possible profiles for H.265 encoder.
  */
 enum v4l2_mpeg_video_h265_profile {
-    /** H.265 Main profile */
+    /** H.265 Main profile. */
     V4L2_MPEG_VIDEO_H265_PROFILE_MAIN = 0,
-    /** H.265 Main10 profile */
+    /** H.265 Main10 profile. */
     V4L2_MPEG_VIDEO_H265_PROFILE_MAIN10 = 1,
-    /** H.265 MainStillPicture profile */
+    /** H.265 MainStillPicture profile. */
     V4L2_MPEG_VIDEO_H265_PROFILE_MAINSTILLPICTURE = 2,
 };
 
 /**
- * Control ID to set the encoder IDR frame interval.
- * Should be used with VIDIOC_S_EXT_CTRLS ioctl.
+ * Defines the control ID to set the encoder IDR frame interval.
+ * Must be used with \c VIDIOC_S_EXT_CTRLS IOCTL.
  */
 #define V4L2_CID_MPEG_VIDEO_IDR_INTERVAL        (V4L2_CID_MPEG_BASE+514)
 
@@ -188,9 +201,9 @@ struct v4l2_h264_pred_weight_table {
 #define V4L2_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED  0x04
 #define V4L2_SLICE_FLAG_SP_FOR_SWITCH       0x08
 struct v4l2_ctrl_h264_slice_param {
-    /* Size in bytes, including header */
+    /** Holds the size in bytes, including the header. */
     __u32 size;
-    /* Offset in bits to slice_data() from the beginning of this slice. */
+    /** Holds the offset in bits to slice_data() from the beginning of this slice. */
     __u32 header_bit_size;
 
     __u16 first_mb_in_slice;
@@ -229,14 +242,15 @@ struct v4l2_ctrl_h264_slice_param {
     __u8 flags;
 };
 
-/* If not set, this entry is unused for reference. */
+/** Defines whether the v4l2_h264_dpb_entry structure is used.
+If not set, this entry is unused for reference. */
 #define V4L2_H264_DPB_ENTRY_FLAG_ACTIVE     0x01
 #define V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM  0x02
 struct v4l2_h264_dpb_entry {
-    __u32 buf_index; /* v4l2_buffer index */
+    __u32 buf_index; /**< v4l2_buffer index. */
     __u16 frame_num;
     __u16 pic_num;
-    /* Note that field is indicated by v4l2_buffer.field */
+    /** @note `v4l2_buffer.field` specifies this field. */
     __s32 top_field_order_cnt;
     __s32 bottom_field_order_cnt;
     __u8 flags; /* V4L2_H264_DPB_ENTRY_FLAG_* */
@@ -300,11 +314,11 @@ struct v4l2_vp8_entropy_hdr {
 #define V4L2_VP8_FRAME_HDR_FLAG_SHOW_FRAME      0x02
 #define V4L2_VP8_FRAME_HDR_FLAG_MB_NO_SKIP_COEFF    0x04
 struct v4l2_ctrl_vp8_frame_hdr {
-    /* 0: keyframe, 1: not a keyframe */
+    /** 0: keyframe, 1: not a keyframe. */
     __u8 key_frame;
     __u8 version;
 
-    /* Populated also if not a key frame */
+    /** Populated also if not a key frame. */
     __u16 width;
     __u8 horizontal_scale;
     __u16 height;
@@ -324,11 +338,11 @@ struct v4l2_ctrl_vp8_frame_hdr {
     __u8 prob_gf;
 
     __u32 first_part_size;
-    __u32 first_part_offset;
-    /*
-     * Offset in bits of MB data in first partition,
+    /**
+     * Holds the offset in bits of the MB data in the first partition,
      * i.e. bit offset starting from first_part_offset.
      */
+    __u32 first_part_offset;
     __u32 macroblock_bit_offset;
 
     __u8 num_dct_parts;
@@ -338,9 +352,11 @@ struct v4l2_ctrl_vp8_frame_hdr {
     __u8 bool_dec_value;
     __u8 bool_dec_count;
 
-    /* v4l2_buffer indices of reference frames */
+    /** Holds the v4l2_buffer index of the last reference frame. */
     __u32 last_frame;
-    __u32 golden_frame;
+     /** Holds the v4l2_buffer index of the golden reference frame. */
+   __u32 golden_frame;
+    /** Holds the v4l2_buffer index of the alt reference frame. */
     __u32 alt_frame;
 
     __u8 flags;
@@ -355,22 +371,24 @@ struct v4l2_ctrl_vp8_frame_hdr {
  *
  * @brief NVIDIA Tegra V4L2 Video Decoder Description and Extensions
  *
- * The video decoder device node is \b "/dev/nvhost-nvdec".
+ * The video decoder device node is
  *
- * ### Supported pixelformats:
+ *     /dev/nvhost-nvdec
+ *
+ * ### Supported Pixel Formats
  * OUTPUT PLANE       | CAPTURE PLANE
  * :----------------: | :----------------:
  * V4L2_PIX_FMT_H264  | V4L2_PIX_FMT_NV12M
  * V4L2_PIX_FMT_H265  | V4L2_PIX_FMT_NV12M
  *
- * ### Supported memory types:
+ * ### Supported Memory Types
  * MEMORY               | OUTPUT PLANE | CAPTURE PLANE
  * :------------------: | :----------: | :-----------:
  * V4L2_MEMORY_MMAP     | Y            | Y
  * V4L2_MEMORY_DMABUF   | N            | N
  * V4L2_MEMORY_USERPTR  | N            | N
  *
- * ### Supported controls:
+ * ### Supported Controls
  * - #V4L2_CID_MPEG_VIDEO_DISABLE_COMPLETE_FRAME_INPUT
  * - #V4L2_CID_MPEG_VIDEO_DISABLE_DPB
  * - #V4L2_CID_MPEG_VIDEO_ERROR_REPORTING
@@ -379,97 +397,99 @@ struct v4l2_ctrl_vp8_frame_hdr {
  * Read only. Valid after #V4L2_EVENT_RESOLUTION_CHANGE)
  * - #V4L2_CID_MPEG_VIDEODEC_METADATA
  *
- * ### Supported events:
+ * ### Supported Events
  * Event                         | Purpose
  * ----------------------------- | :----------------------------:
  * #V4L2_EVENT_RESOLUTION_CHANGE | Resolution of the stream has changed.
  *
- *
- * ### Handling resolution change events:
- * When the decoder generates a V4L2_EVENT_RESOLUTION_CHANGE event, the
- * application should call STREAMOFF on the capture plane, tell decoder to
- * deallocate the current buffers by calling REQBUF with \a count zero, get
+ * ### Handling Resolution Change Events
+ * When the decoder generates a \c V4L2_EVENT_RESOLUTION_CHANGE event, the
+ * application calls \c STREAMOFF on the capture plane to tell the decoder to
+ * deallocate the current buffers by calling REQBUF with count zero, get
  * the new capture plane format, and then proceed with setting up the buffers
  * for the capture plane.
  *
- * In case of decoder, the buffer format might differ from the Display resolution.
- * The application should use \b VIDIOC_G_CROP to get the display resolution.
+ * In case of decoder, the buffer format might differ from the display resolution.
+ * The application must use \c VIDIOC_G_CROP to get the display resolution.
  *
- * ### EOS Handling:
- * Following sequence should be followed for sending EOS and recieving EOS
+ * ### EOS Handling
+ * The following sequence must be followed for sending EOS and recieving EOS
  * from the decoder.
  * -# Send EOS to decoder by queueing on the output plane a buffer with
  * bytesused = 0 for the 0th plane (`v4l2_buffer.m.planes[0].bytesused = 0`).
- * -# Dequeue buffers on the output plane, till it gets a buffer with bytesused = 0
+ * -# Dequeues buffers on the output plane until it gets a buffer with bytesused = 0
  * for the 0th plane (`v4l2_buffer.m.planes[0].bytesused == 0`)
- * -# Dequeue buffers on the capture plane, till it gets a buffer with bytesused = 0
+ * -# Dequeues buffers on the capture plane until it gets a buffer with bytesused = 0
  * for the 0th plane.
  *
- * ### Decoder output frame metadata:
- * Decoder supports reporting frame related metadata including error reports and
- * DPB info. See #V4L2_CID_MPEG_VIDEO_ERROR_REPORTING, #V4L2_CID_MPEG_VIDEODEC_METADATA
- * and #v4l2_ctrl_video_metadata for more information.
+ * ### Decoder Output Frame Metadata
+ * Decoder supports reporting frame related metadata, including error reports and
+ * DPB info. See \c V4L2_CID_MPEG_VIDEO_ERROR_REPORTING, \c V4L2_CID_MPEG_VIDEODEC_METADATA
+ * and \c v4l2_ctrl_video_metadata for more information.
+ *
+ * @note Currently, V4L2 plugins do not support odd resolution.
+ * @{
+ * @ingroup ee_extensions_group
  */
-/** @{ */
 
 /**
- * Control ID to indicate to the decoder that the input buffers will not contain
- * complete buffers.
+ * Defines the Control ID to indicate to the decoder that the input
+ * buffers do not contain complete buffers.
  *
- * @note This control should be set in case of frames containing multiple slices
+ * @note This control must be set in case of frames containing multiple slices
  * when the input buffers do not contain all the slices of the frame.
  *
- * A boolean value should be supplied with this control.
+ * A boolean value must be supplied with this control.
  *
- * @attention This control should be set before setting formats on either plane.
+ * @attention This control must be set before setting formats on either plane.
  */
 #define V4L2_CID_MPEG_VIDEO_DISABLE_COMPLETE_FRAME_INPUT (V4L2_CID_MPEG_BASE+515)
 
 /**
- * Control ID to disable decoder DPB management.
+ * Defines the Control ID to disable decoder DPB management.
  *
- * @note This will only work for streams having a single reference frame.
+ * @note This only works for streams having a single reference frame.
  *
- * A boolean value should be supplied with this control.
+ * A boolean value must be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEO_DISABLE_DPB (V4L2_CID_MPEG_BASE+516)
 
 /**
- * Control ID to enable decoder error and metadata reporting.
+ * Defines the Control ID to enable decoder error and metadata reporting.
  *
- * A boolean value should be supplied with this control.
+ * A boolean value must be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEO_ERROR_REPORTING (V4L2_CID_MPEG_BASE+517)
 
 /**
- * Control ID to set the skip frames property of the decoder.
+ * Defines the Control ID to set the skip frames property of the decoder.
  *
- * Decoder can be configured to skip certain types of frames. One of
- * #v4l2_skip_frames_type should be passed.
+ * Decoder must be configured to skip certain types of frames. One
+ * \c v4l2_skip_frames_type must be passed.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  * This control ID is supported only for H264.
  */
 #define V4L2_CID_MPEG_VIDEO_SKIP_FRAMES (V4L2_CID_MPEG_BASE+518)
 
 /**
- * Control ID to get the decoder output metadata.
+ * Defines the Control ID to get the decoder output metadata.
  *
- * @note Metadata reporting should be enabled using
- * #V4L2_CID_MPEG_VIDEO_ERROR_REPORTING ioctl for this.
+ * @note Metadata reporting must be enabled using
+ * #V4L2_CID_MPEG_VIDEO_ERROR_REPORTING IOCTL for this.
  *
- * A pointer to a valid #v4l2_ctrl_video_metadata structure should be supplied
+ * A pointer to a valid \c v4l2_ctrl_video_metadata structure must be supplied
  * with this control.
  *
- * @attention This control should be read after dequeueing a buffer successfully from
- * the capture plane. The values in the structure are valid till the buffer is queued
+ * @attention This control must be read after dequeueing a buffer successfully from
+ * the capture plane. The values in the structure are valid until the buffer is queued
  * again.
  */
 #define V4L2_CID_MPEG_VIDEODEC_METADATA (V4L2_CID_MPEG_BASE+519)
@@ -481,14 +501,14 @@ struct v4l2_ctrl_vp8_frame_hdr {
  *
  * @brief NVIDIA Tegra V4L2 Video Converter Description and Extensions
  *
- * Video converter can be used for color space conversion, scaling and
- * conversion between hardware buffer memory (V4L2_MEMORY_MMAP/
- * V4L2_MEMORY_DMABUF) and software buffer memory (V4L2_MEMORY_USERPTR) and
- * other operations such as cropping, flipping/rotating and
+ * Use the video converter for color space conversion, scaling, and
+ * conversion between hardware buffer memory (\c V4L2_MEMORY_MMAP/\c
+ * V4L2_MEMORY_DMABUF), software buffer memory (\c V4L2_MEMORY_USERPTR), and
+ * other operations such as cropping, flipping/rotating, and
  * temporal noise reduction (TNR).
- * The video converter device node is \b "/dev/nvhost-vic".
+ * The video converter device node is \c "/dev/nvhost-vic".
  *
- * ### Supported pixelformats:
+ * ### Supported Pixelformats
  *  PIXEL FORMAT           | PIXEL FORMAT
  * :---------------------: | :--------------:
  * V4L2_PIX_FMT_YUV444M    | V4L2_PIX_FMT_YVU422M
@@ -498,83 +518,86 @@ struct v4l2_ctrl_vp8_frame_hdr {
  * V4L2_PIX_FMT_UYVY       | V4L2_PIX_FMT_VYUY
  * V4L2_PIX_FMT_ABGR32     | V4L2_PIX_FMT_XBGR32
  *
- * ### Supported pixelformats for TNR:
+ * ### Supported Pixel Formats for TNR
  *  PIXEL FORMAT           | PIXEL FORMAT
  * :---------------------: | :--------------:
  * V4L2_PIX_FMT_YUV420M    | V4L2_PIX_FMT_NV12M
  * V4L2_PIX_FMT_UYVY       | V4L2_PIX_FMT_YUYV
  *
- * ### Supported memory types:
+ * ### Supported Memory Types
  * MEMORY               | OUTPUT PLANE | CAPTURE PLANE
  * :------------------: | :----------: | :-----------:
  * V4L2_MEMORY_MMAP     | Y            | Y
  * V4L2_MEMORY_DMABUF   | Y            | Y
  * V4L2_MEMORY_USERPTR  | Y            | Y
  *
- * ### Supported controls:
+ * ### Supported Controls
  * - #V4L2_CID_VIDEO_CONVERT_OUTPUT_PLANE_LAYOUT
  * - #V4L2_CID_VIDEO_CONVERT_CAPTURE_PLANE_LAYOUT
  * - #V4L2_CID_VIDEO_CONVERT_FLIP_METHOD
  * - #V4L2_CID_VIDEO_CONVERT_INTERPOLATION_METHOD
  * - #V4L2_CID_VIDEO_CONVERT_TNR_ALGORITHM
  *
- * ### Cropping:
- * Video converter supports cropping using VIDIOC_S_SELECTION ioctl with type
- * @a V4L2_BUF_TYPE_VIDEO_CAPTURE and target @a V4L2_SEL_TGT_CROP. This should
+ * ### Cropping
+ * Video converter supports cropping using \c VIDIOC_S_SELECTION IOCTL with type
+ * \c V4L2_BUF_TYPE_VIDEO_CAPTURE and target \c V4L2_SEL_TGT_CROP. This must
  * be set before requesting buffers on either plane.
  *
- * ### EOS Handling:
- * Following sequence should be followed for sending EOS and recieving EOS
+ * ### EOS Handling
+ * The following sequence must be followed for sending EOS and recieving EOS
  * from the converter.
  * -# Send EOS to converter by queueing on the output plane a buffer with
  * bytesused = 0 for the 0th plane (`v4l2_buffer.m.planes[0].bytesused = 0`).
- * -# Dequeue buffers on the capture plane, till it gets a buffer with bytesused = 0
+ * -# Dequeues buffers on the capture plane until it gets a buffer with bytesused = 0
  * for the 0th plane.
+ *
+ * @note Currently, V4L2 plugins do not support odd resolution.
+ * @{
+ * @ingroup ee_extensions_group
  */
-/** @{ */
 
 /**
- * Control ID to set converter output plane buffer layout.
+ * Defines the Control ID to set converter output plane buffer layout.
  *
- * A value of type #v4l2_nv_buffer_layout should be supplied with this control.
+ * A value of type \c v4l2_nv_buffer_layout must be supplied with this control.
  *
- * @attention This control should be set before requesting buffers on the output plane.
+ * @attention This control must be set before requesting buffers on the output plane.
  */
 #define V4L2_CID_VIDEO_CONVERT_OUTPUT_PLANE_LAYOUT   (V4L2_CID_MPEG_BASE+520)
 
 /**
- * Control ID to set converter capture plane buffer layout.
+ * Defines the Control ID to set converter capture plane buffer layout.
  *
- * A value of type #v4l2_nv_buffer_layout should be supplied with this control.
+ * A value of type \c v4l2_nv_buffer_layout must be supplied with this control.
  *
- * @attention This control should be set before requesting buffers on the capture plane.
+ * @attention This control must be set before requesting buffers on the capture plane.
  */
 #define V4L2_CID_VIDEO_CONVERT_CAPTURE_PLANE_LAYOUT  (V4L2_CID_MPEG_BASE+521)
 
 /**
- * Control ID to set the converter flip/rotation method.
+ * Defines the Control ID to set the converter flip/rotation method.
  *
- * A value of type #v4l2_flip_method should be supplied with this control.
+ * A value of type \c v4l2_flip_method must be supplied with this control.
  *
- * @attention This control should be set before requesting buffers on either plane.
+ * @attention This control must be set before requesting buffers on either plane.
  */
 #define V4L2_CID_VIDEO_CONVERT_FLIP_METHOD           (V4L2_CID_MPEG_BASE+522)
 
 /**
- * Control ID to set the converter interpolation method.
+ * Defines the Control ID to set the converter interpolation method.
  *
- * A value of type #v4l2_interpolation_method should be supplied with this control.
+ * A value of type \c v4l2_interpolation_method must be supplied with this control.
  *
- * @attention This control should be set before requesting buffers on either plane.
+ * @attention This control must be set before requesting buffers on either plane.
  */
 #define V4L2_CID_VIDEO_CONVERT_INTERPOLATION_METHOD  (V4L2_CID_MPEG_BASE+523)
 
 /**
- * Control ID to set the converter Temporal Noise Reduction (TNR) Algorithm.
+ * Defines the Control ID to set the converter Temporal Noise Reduction (TNR) algorithm.
  *
- * A value of type #v4l2_tnr_algorithm should be supplied with this control.
+ * A value of type \c v4l2_tnr_algorithm must be supplied with this control.
  *
- * @attention This control should be set before requesting buffers on either plane.
+ * @attention This control must be set before requesting buffers on either plane.
  * @attention TNR algorithms are not supported with YUV422 and YUV444 capture
  *            plane formats.
  */
@@ -586,17 +609,15 @@ struct v4l2_ctrl_vp8_frame_hdr {
  *
  * @brief NVIDIA Tegra V4L2 Video Encoder Description and Extensions
  *
- * The video encoder device node is \b "/dev/nvhost-msenc".
+ * The video encoder device node is \c "/dev/nvhost-msenc".
  *
- * ### Supported pixelformats:
-
+ * ### Supported Pixelformats
  * OUTPUT PLANE            | CAPTURE PLANE
  * :---------------------: | :--------------
  * V4L2_PIX_FMT_YUV420M    | V4L2_PIX_FMT_H264
  *           -             | V4L2_PIX_FMT_H265
  *
- * ### Supported memory types:
-
+ * ### Supported Memory Types
  * MEMORY               | OUTPUT PLANE | CAPTURE PLANE
  * :------------------: | :----------: | :-----------:
  * V4L2_MEMORY_MMAP     | Y            | Y
@@ -606,10 +627,11 @@ struct v4l2_ctrl_vp8_frame_hdr {
  *  format be set before the output plane format and only then request buffers on
  *  any of the planes.
  *
- * ### Supported controls:
-
- * #### Controls from the open souce v4l2-controls header:
- * Control Id                       | Purpose              | Runtime Configurable
+ * ### Supported Controls
+ * The following sections describe the supported controls.
+ *
+ * #### Controls From the Open Source V4L2-Controls Header
+ * Control ID                       | Purpose              | Runtime Configurable
  * -------------------------------- | -------------------- | :------------------:
  * V4L2_CID_MPEG_VIDEO_BITRATE      | Bitrate              | Y
  * V4L2_CID_MPEG_VIDEO_H264_PROFILE | H.264 Encode Profile | N
@@ -618,13 +640,13 @@ struct v4l2_ctrl_vp8_frame_hdr {
  * V4L2_CID_MPEG_VIDEO_H264_LEVEL   | Encode Level         | N
  * V4L2_CID_MPEG_MFC51_VIDEO_FORCE_FRAME_TYPE | Force I-frame on one of queued output plane buffer | Y
  *
- * All non-runtime configurable options should be set after setting formats on
+ * All non-runtime configurable options must be set after setting formats on
  * both the planes and before requesting buffers on either plane.
  *
  * The runtime configurable parameters can be called anytime after setting
  * formats on both the planes.
  *
- * #### NVidia specific controls:
+ * #### NVIDIA-Specific Controls
  * - #V4L2_CID_MPEG_VIDEO_H265_PROFILE
  * - #V4L2_CID_MPEG_VIDEO_IDR_INTERVAL
  * - #V4L2_CID_MPEG_VIDEOENC_TEMPORAL_TRADEOFF_LEVEL
@@ -645,12 +667,14 @@ struct v4l2_ctrl_vp8_frame_hdr {
  * - #V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RATE_CONTROL
  * - #V4L2_CID_MPEG_VIDEOENC_ENABLE_ROI_PARAM
  * - #V4L2_CID_MPEG_VIDEOENC_ENABLE_RECONCRC_PARAM
+ * - #V4L2_CID_MPEG_VIDEOENC_INSERT_VUI
+ * - #V4L2_CID_MPEG_VIDEOENC_INSERT_AUD
  *
- * #### Setting Framerate:
- * Encoder framerate can be set with VIDIOC_S_PARM ioctl by setting the numerator
+ * #### Setting Framerate
+ * The encoder framerate can be set with \c VIDIOC_S_PARM IOCTL by setting the numerator
  * and denominator in `v4l2_streamparm.parm.output.timeperframe`.
  *
- * ### Supported Encoder Profiles:
+ * ### Supported Encoder Profiles
  * #### H.264
  * - V4L2_MPEG_VIDEO_H264_PROFILE_MAIN
  * - V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE
@@ -659,173 +683,176 @@ struct v4l2_ctrl_vp8_frame_hdr {
  * #### H.265
  * - V4L2_MPEG_VIDEO_H265_PROFILE_MAIN
  *
- * ### Encoder output metadata:
- * Encoder supports reporting frame related metadata including motion vectors
- * for that frame. See #V4L2_CID_MPEG_VIDEOENC_METADATA,
- * #V4L2_CID_MPEG_VIDEOENC_METADATA_MV and #V4L2_CID_MPEG_VIDEOENC_ENABLE_METADATA_MV
+ * ### Encoder Output Metadata
+ * The encoder supports reporting frame related metadata, including motion vectors
+ * for that frame. See \c V4L2_CID_MPEG_VIDEOENC_METADATA,
+ * \c V4L2_CID_MPEG_VIDEOENC_METADATA_MV and \c V4L2_CID_MPEG_VIDEOENC_ENABLE_METADATA_MV
  * for more information.
  *
- * ### EOS Handling:
- * Following sequence should be followed for sending EOS and recieving EOS
+ * ### EOS Handling
+ * The following sequence must be followed for sending EOS and recieving EOS
  * from the encoder.
  * -# Send EOS to encoder by queueing on the output plane a buffer with
  * bytesused = 0 for the 0th plane (`v4l2_buffer.m.planes[0].bytesused = 0`).
- * -# Dequeue buffers on the capture plane, till it gets a buffer with bytesused = 0
+ * -# Dequeues buffers on the capture plane until it gets a buffer with bytesused = 0
  * for the 0th plane.
+ *
+ * @note Currently, V4L2 plugins do not support odd resolution.
+ * @{
+ * @ingroup ee_extensions_group
  */
-/** @{ */
+
 
 /**
- * Control ID to configure encoder to drop frames while encoding.
+ * Defines the Control ID to configure encoder to drop frames while encoding.
  *
- * A value of type #v4l2_enc_temporal_tradeoff_level_type should be supplied
+ * A value of type \c v4l2_enc_temporal_tradeoff_level_type must be supplied
  * with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_TEMPORAL_TRADEOFF_LEVEL (V4L2_CID_MPEG_BASE+525)
 
 /**
- * Control ID to configure encoder slice length either in terms of MBs or bits.
+ * Defines the Control ID to configure encoder slice length either in terms of MBs or bits.
  *
- * A pointer to a valid #v4l2_enc_slice_length_param structure should be supplied
+ * A pointer to a valid \c v4l2_enc_slice_length_param structure must be supplied
  * with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_SLICE_LENGTH_PARAM (V4L2_CID_MPEG_BASE+526)
 
 /**
- * Control ID to configure encoder to encode particular region of frame in high
+ * Defines the Control ID to configure encoder to encode particular region of frame in high
  * quality.
  *
- * A pointer to a valid #v4l2_enc_frame_ROI_params structure should be supplied
- * with this control. This control will soon be deprecated instead use the
- * CID V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA for sending the ROI parameters
+ * A pointer to a valid \c v4l2_enc_frame_ROI_params structure must be supplied
+ * with this control.
  *
- * @attention This control should be set after requesting buffers on both the
+ * @attention This control must be set after requesting buffers on both the
  * planes.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ROI_PARAMS (V4L2_CID_MPEG_BASE+527)
 
 /**
- * Control ID to specify virtual buffer size in bits for encoder.
+ * Defines the Control ID to specify virtual buffer size in bits for encoder.
  *
- * A pointer to a valid #v4l2_enc_virtual_buffer_size structure should be
+ * A pointer to a valid \c v4l2_enc_virtual_buffer_size structure must be
  * supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_VIRTUALBUFFER_SIZE (V4L2_CID_MPEG_BASE+528)
 
 /**
- * Control ID to specify maximum number of reference frames that can be used.
+ * Defines the Control ID to specify maximum number of reference frames that can be used.
  *
- * An integer value should be supplied with this control.
+ * An integer value must be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_NUM_REFERENCE_FRAMES (V4L2_CID_MPEG_BASE+529)
 
 /**
- * Control ID to specify the encoder slice intra refresh interval.
+ * Defines the Control ID to specify the encoder slice intra refresh interval.
  *
- * A pointer to a valid #v4l2_enc_slice_intrarefresh_param structure should be
+ * A pointer to a valid \c v4l2_enc_slice_intrarefresh_param structure must be
  * supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_SLICE_INTRAREFRESH_PARAM (V4L2_CID_MPEG_BASE+530)
 
 /**
- * Control ID to set number of B frames to be encoded between two P frames.
+ * Defines the Control ID to set number of B frames to be encoded between two P frames.
  *
- * Works only with H.264 encoder. An integer value should be supplied with this
+ * This works only with H.264 encoder. An integer value must be supplied with this
  * control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_NUM_BFRAMES (V4L2_CID_MPEG_BASE+531)
 
 /**
- * Control ID to enable/disable inserting SPS and PPS explicitly at IDR interval.
+ * Defines the Control ID to enable/disable inserting SPS and PPS explicitly at IDR interval.
  *
- * A boolean value should be supplied with this control.
+ * A boolean value must be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_INSERT_SPS_PPS_AT_IDR (V4L2_CID_MPEG_BASE+532)
 
 /**
- * Control ID to get encoder output metadata.
+ * Defines the Control ID to get encoder output metadata.
  *
- * A pointer to valid #v4l2_ctrl_video_metadata structure should be supplied with
+ * A pointer to valid #v4l2_ctrl_video_metadata structure must be supplied with
  * this control.
  *
- * @attention This control should be read after dequeueing a buffer successfully from
- * the capture plane. The values in the structure are valid till the buffer is queued
+ * @attention This control must be read after dequeueing a buffer successfully from
+ * the capture plane. The values in the structure are valid until the buffer is queued
  * again.
  */
 #define V4L2_CID_MPEG_VIDEOENC_METADATA               (V4L2_CID_MPEG_BASE+533)
 
 /**
- * Control ID to enable/disable encoder Motion Vector reporting.
+ * Defines the Control ID to enable/disable encoder motion vector reporting.
  *
- * A boolean value should be supplied with this control.
+ * A boolean value must be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ENABLE_METADATA_MV     (V4L2_CID_MPEG_BASE+534)
 
 /**
- * Control ID to get encoder output motion vector metadata.
+ * Defines the Control ID to get encoder output motion vector metadata.
  *
- * A pointer to valid #v4l2_ctrl_videoenc_outputbuf_metadata_MV structure should
+ * A pointer to valid \c v4l2_ctrl_videoenc_outputbuf_metadata_MV structure must
  * be supplied with this control.
  *
- * @attention This control should be read after dequeueing a buffer successfully from
- * the capture plane. The values in the structure are valid till the buffer is queued
+ * @attention This control must be read after dequeueing a buffer successfully from
+ * the capture plane. The values in the structure are valid until the buffer is queued
  * again.
  */
 #define V4L2_CID_MPEG_VIDEOENC_METADATA_MV            (V4L2_CID_MPEG_BASE+535)
 
 /**
- * Control ID to set QP range for I/P/B frames
+ * Defines the Control ID to set QP range for I/P/B frames.
  *
- * A pointer to valid #v4l2_ctrl_video_qp_range structure should
+ * A pointer to a valid \c v4l2_ctrl_video_qp_range structure must
  * be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_QP_RANGE               (V4L2_CID_MPEG_BASE+536)
 
 /**
- * Control ID to set encoder HW Preset type
+ * Defines the Control ID to set encoder HW Preset type.
  *
- * A pointer to valid #v4l2_enc_hw_preset_type_param structure should
+ * A pointer to valid #v4l2_enc_hw_preset_type_param structure must
  * be supplied with this control.
  *
- * @attention This control should be set after setting formats on both the planes
+ * @attention This control must be set after setting formats on both the planes
  * and before requesting buffers on either plane.
  */
 #define V4L2_CID_MPEG_VIDEOENC_HW_PRESET_TYPE_PARAM   (V4L2_CID_MPEG_BASE+537)
 
 /**
- * Control ID to provide input metadata for encoder buffer.
+ * Defines the Control ID to provide input metadata for encoder buffer.
  *
- * A pointer to valid #v4l2_ctrl_videoenc_input_metadata structure should be
+ * A pointer to valid #v4l2_ctrl_videoenc_input_metadata structure must be
  * supplied with this control.
  *
- * @attention This control should be called before queueing a buffer on the output
+ * @attention This control must be called before queueing a buffer on the output
  * plane. Use the bitwise OR of v4l2_enc_input_metadata_param in the
  * v4l2_ctrl_videoenc_input_metadata.metadata_flag to provide different input
  * metadata parameters in one s_ctrl call.
@@ -833,48 +860,68 @@ struct v4l2_ctrl_vp8_frame_hdr {
 #define V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA         (V4L2_CID_MPEG_BASE+538)
 
 /**
- * Control ID to configure encoder for external RPS control.
+ * Defines the Control ID to configure encoder for external RPS control.
  *
- * A pointer to a valid #v4l2_enc_enable_ext_rps_ctr structure should be supplied
+ * A pointer to a valid #v4l2_enc_enable_ext_rps_ctr structure must be supplied
  * with this control.
  *
- * @attention This control should be set after requesting buffers on both the
+ * @attention This control must be set after requesting buffers on both the
  * planes.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RPS_CONTROL (V4L2_CID_MPEG_BASE+539)
 
 /**
- * Control ID to configure encoder for external rate control.
+ * Defines the Control ID to configure encoder for external rate control.
  *
- * A pointer to a valid #v4l2_enc_enable_ext_rate_ctr structure should be supplied
+ * A pointer to a valid #v4l2_enc_enable_ext_rate_ctr structure must be supplied
  * with this control.
  *
- * @attention This control should be set after requesting buffers on both the
+ * @attention This control must be set after requesting buffers on both the
  * planes.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RATE_CONTROL (V4L2_CID_MPEG_BASE+540)
 
 /**
- * Control ID to configure ROI encoding for a session
+ * Defines the Control ID to configure ROI encoding for a session.
  *
- * A pointer to a valid #v4l2_enc_enable_roi_param structure should be supplied
+ * A pointer to a valid #v4l2_enc_enable_roi_param structure must be supplied
  * with this control.
  *
- * @attention This control should be set after requesting buffers on both the
+ * @attention This control must be set after requesting buffers on both the
  * planes.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ENABLE_ROI_PARAM (V4L2_CID_MPEG_BASE+541)
 
 /**
- * Control ID to configure Reconstructed CRC for a session
+ * Defines the Control ID to configure Reconstructed CRC for a session.
  *
- * A pointer to a valid #v4l2_enc_enable_reconcrc_param structure should be supplied
+ * A pointer to a valid #v4l2_enc_enable_reconcrc_param structure must be supplied
  * with this control.
  *
- * @attention This control should be set after requesting buffers on both the
+ * @attention This control must be set after requesting buffers on both the
  * planes.
  */
 #define V4L2_CID_MPEG_VIDEOENC_ENABLE_RECONCRC_PARAM  (V4L2_CID_MPEG_BASE+542)
+
+/**
+ * Control ID to enable/disable inserting VUI in SPS.
+ *
+ * A boolean value should be supplied with this control.
+ *
+ * @attention This control should be set after setting formats on both the planes
+ * and before requesting buffers on either plane.
+ */
+#define V4L2_CID_MPEG_VIDEOENC_INSERT_VUI (V4L2_CID_MPEG_BASE+543)
+
+/**
+ * Control ID to enable/disable inserting AUD(Access Unit Delimiter).
+ *
+ * A boolean value should be supplied with this control.
+ *
+ * @attention This control should be set after setting formats on both the planes
+ * and before requesting buffers on either plane.
+ */
+#define V4L2_CID_MPEG_VIDEOENC_INSERT_AUD (V4L2_CID_MPEG_BASE+544)
 
 /** @} */
 
@@ -883,9 +930,9 @@ struct v4l2_ctrl_vp8_frame_hdr {
 /**
  * Enum v4l2_skip_frames_type, possible methods for decoder skip frames. */
 enum v4l2_skip_frames_type {
-    /** Do not skip any frame */
+    /** Do not skip any frame. */
     V4L2_SKIP_FRAMES_TYPE_NONE = 0,
-    /** Skip all non-reference frames */
+    /** Skip all non-reference frames. */
     V4L2_SKIP_FRAMES_TYPE_NONREF = 1,
     /** Skip all frames except IDR */
     V4L2_SKIP_FRAMES_TYPE_DECODE_IDR_ONLY = 2,
@@ -902,13 +949,13 @@ typedef struct v4l2_ctrl_videodec_statusmetadata_
      *  bit 2: Missing Slice(s)
      *  bit 3: PrevFrameLostFlag */
     __u32  DecodeError;
-    /** Number of Macro blocks decoded without error */
+    /** Number of macro blocks decoded without error. */
     __u32  DecodedMBs;
-    /** Number of Macro blocks where error was concealed */
+    /** Number of macro blocks where error was concealed. */
     __u32  ConcealedMBs;
-    /** POC of the reference frame used for concealment */
+    /** POC of the reference frame used for concealment. */
     __u32  nConcealedFromPOC;
-    /** Time required to decode the frame, in microseconds */
+    /** Time required to decode the frame, in microseconds. */
     __u32  FrameDecodeTime;
 }v4l2_ctrl_videodec_statusmetadata;
 
@@ -917,19 +964,19 @@ typedef struct v4l2_ctrl_videodec_statusmetadata_
  */
 typedef struct v4l2_ctrl_videodec_refframe_metadata_
 {
-    /** Boolean value indicating if the frame is present in DPB */
+    /** Boolean value indicating if the frame is present in DPB. */
     __u32 bPresent;
-    /** Boolean value indicating if the frame is an IDR */
+    /** Boolean value indicating if the frame is an IDR. */
     __u32 bIdrFrame;
-    /** Boolean value indicating if the frame is a long term reference frame */
+    /** Boolean value indicating if the frame is a long term reference frame. */
     __u32 bLTRefFrame;
-    /** Boolean value indicating if it is a predicted frame */
+    /** Boolean value indicating if it is a predicted frame. */
     __u32 bPredicted;
-    /** Picture order count of the frame */
+    /** Picture order count of the frame. */
     __u32 nPictureOrderCnt;
-    /** Frame number. Resets to zero for an IDR frame */
+    /** Frame number. Resets to zero for an IDR frame. */
     __u32 nFrameNum;
-    /** Long Term Frame Index of the frame */
+    /** Long Term Frame Index of the frame. */
     __u32 nLTRFrameIdx;
 } v4l2_ctrl_videodec_refframe_metadata;
 
@@ -938,17 +985,17 @@ typedef struct v4l2_ctrl_videodec_refframe_metadata_
  */
 typedef struct v4l2_ctrl_videodec_currentframe_metadata_
 {
-    /** Boolean value indicating if the current frame is a reference frame */
+    /** Boolean value indicating if the current frame is a reference frame. */
     __u32 bRefFrame;
-    /** Boolean value indicating if the current frame is an IDR */
+    /** Boolean value indicating if the current frame is an IDR. */
     __u32 bIdrFrame;
-    /** Boolean value indicating if the current frame is a long term reference frame */
+    /** Boolean value indicating if the current frame is a long term reference frame. */
     __u32 bLTRefFrame;
-    /** Picture order count of the current frame */
+    /** Picture order count of the current frame. */
     __u32 nPictureOrderCnt;
-    /** Frame number. Resets to zero for an IDR frame */
+    /** Frame number. Resets to zero for an IDR frame. */
     __u32 nFrameNum;
-    /** Long Term Frame Index of the current frame */
+    /** Long Term Frame Index of the current frame. */
     __u32 nLTRFrameIdx;
 } v4l2_ctrl_videodec_currentframe_metadata;
 
@@ -957,12 +1004,12 @@ typedef struct v4l2_ctrl_videodec_currentframe_metadata_
  */
 typedef struct v4l2_ctrl_videodec_dpbinfometadata_
 {
-    /** Metadata for the current decoded frame */
+    /** Metadata for the current decoded frame. */
     v4l2_ctrl_videodec_currentframe_metadata currentFrame;
-    /** Number of active frames present in the DPB */
+    /** Number of active frames present in the DPB. */
     __u32 nActiveRefFrames;
-    /** An array of metadatas for the active frames in the DPB. Only @a
-     *  nActiveRefFrames elements in the array are valid */
+    /** An array of metadatas for the active frames in the DPB. Only
+     *  nActiveRefFrames elements in the array are valid. */
     v4l2_ctrl_videodec_refframe_metadata RPSList[16];
 } v4l2_ctrl_videodec_dpbinfometadata;
 
@@ -971,14 +1018,14 @@ typedef struct v4l2_ctrl_videodec_dpbinfometadata_
  */
 typedef struct v4l2_ctrl_h264dec_bufmetadata_
 {
-    /** Number of bits in the frame */
+    /** Holds the number of bits in the frame. */
     __u32 nFrameNumBits;
     /** Type of frame:
      *  0 = B
      *  1 = P
      *  2 = I */
     __u32  FrameType;
-    /** Current DPB info of the decoder */
+    /** Holds the current DPB information of the decoder. */
     v4l2_ctrl_videodec_dpbinfometadata dpbInfo;
 }v4l2_ctrl_h264dec_bufmetadata;
 
@@ -987,14 +1034,14 @@ typedef struct v4l2_ctrl_h264dec_bufmetadata_
  */
 typedef struct v4l2_ctrl_hevcdec_bufmetadata_
 {
-    /** Number of bits in the frame */
+    /** Holds the number of bits in the frame. */
     __u32 nPocLsbBits;
     /** Type of frame:
      *  0 = B
      *  1 = P
      *  2 = I */
     __u32  FrameType;
-    /** Current DPB info of the decoder */
+    /** Holds the current DPB information of the decoder. */
     v4l2_ctrl_videodec_dpbinfometadata dpbInfo;
 }v4l2_ctrl_hevcdec_bufmetadata;
 
@@ -1003,21 +1050,21 @@ typedef struct v4l2_ctrl_hevcdec_bufmetadata_
  */
 typedef struct v4l2_ctrl_videodec_outputbuf_metadata_
 {
-    /** Color primaries */
+    /** Color primaries. */
     __u8 ucColorPrimaries;
-    /** Transfer Characteristics */
+    /** Transfer characteristics. */
     __u8 ucTransferCharacteristics;
-    /** Matrix Coefficients */
+    /** Matrix coefficients. */
     __u8 ucMatrixCoefficients;
-    /** Boolean value indicating if @a FrameDecStats has valid contents */
+    /** Boolean value indicating if \c FrameDecStats has valid contents. */
     __u32 bValidFrameStatus;
-    /** Frame decode statistics */
+    /** Frame decode statistics. */
     v4l2_ctrl_videodec_statusmetadata    FrameDecStats;
-    /** Codec specific metadata for the frame */
+    /** Codec specific metadata for the frame. */
     union {
-        /** H.264 specific metadata */
+        /** H.264 specific metadata. */
         v4l2_ctrl_h264dec_bufmetadata H264DecParams;
-        /** H.265 specific metadata */
+        /** H.265 specific metadata. */
         v4l2_ctrl_hevcdec_bufmetadata HEVCDecParams;
     }CodecParams;
 } v4l2_ctrl_videodec_outputbuf_metadata;
@@ -1027,39 +1074,38 @@ typedef struct v4l2_ctrl_videodec_outputbuf_metadata_
 /** @{ */
 
 /**
- * Enum specifying the types of encoder temporal tradeoff levels
+ * Specifies the types of encoder temporal tradeoff levels
  */
 enum v4l2_enc_temporal_tradeoff_level_type {
-    /** Do not drop any buffers */
+    /** Do not drop any buffers. */
     V4L2_ENC_TEMPORAL_TRADEOFF_LEVEL_DROPNONE = 0,
-    /** Drop 1 in every 5 buffers */
+    /** Drop 1 in every 5 buffers. */
     V4L2_ENC_TEMPORAL_TRADEOFF_LEVEL_DROP1IN5,
-    /** Drop 1 in every 3 buffers */
+    /** Drop 1 in every 3 buffers. */
     V4L2_ENC_TEMPORAL_TRADEOFF_LEVEL_DROP1IN3,
-    /** Drop 1 in every 2 buffers */
+    /** Drop 1 in every 2 buffers. */
     V4L2_ENC_TEMPORAL_TRADEOFF_LEVEL_DROP1IN2,
-    /** Drop 2 in every 3 buffers */
+    /** Drop 2 in every 3 buffers. */
     V4L2_ENC_TEMPORAL_TRADEOFF_LEVEL_DROP2IN3,
 };
 
 /**
- * Enum specifying the encoder HW Preset type.
+ * Specifies the encoder HW Preset type.
  */
 enum v4l2_enc_hw_preset_type {
-    /** Encoder HWPreset with per frame encode time UltraFast */
+    /** Encoder HWPreset with per frame encode time UltraFast. */
     V4L2_ENC_HW_PRESET_ULTRAFAST = 1,
-    /** Encoder HWPreset with per frame encode time Fast */
+    /** Encoder HWPreset with per frame encode time Fast. */
     V4L2_ENC_HW_PRESET_FAST,
-    /** Encoder HWPreset with per frame encode time Medium */
+    /** Encoder HWPreset with per frame encode time Medium. */
     V4L2_ENC_HW_PRESET_MEDIUM,
-    /** Encoder HWPreset with per frame encode time Slow */
+    /** Encoder HWPreset with per frame encode time Slow. */
     V4L2_ENC_HW_PRESET_SLOW,
 };
 
 /**
- * Holds encoder HW Preset type parameters.
- *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_HW_PRESET_TYPE_PARAM ioctl.
+ * Holds encoder HW Preset type parameters
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_HW_PRESET_TYPE_PARAM IOCTL.
  */
 typedef struct v4l2_enc_hw_preset_type_param_
 {
@@ -1073,78 +1119,74 @@ typedef struct v4l2_enc_hw_preset_type_param_
  * Enum specifying the type of slice length.
  */
 enum v4l2_enc_slice_length_type {
-    /** Slice size is specified in terms of number of bytes */
+    /** Slice size is specified in terms of number of bytes. */
     V4L2_ENC_SLICE_LENGTH_TYPE_BITS = 0,
-    /** Slice size is specified in terms of number of macroblocks */
+    /** Slice size is specified in terms of number of macroblocks. */
     V4L2_ENC_SLICE_LENGTH_TYPE_MBLK,
 };
 
 /**
- * Enum specifying the input buffer metadata flag
+ * Specifies the input buffer metadata flag.
  */
 enum v4l2_enc_input_metadata_param {
-    /** Input metadata structure contains ROI parameters  */
+    /** Input metadata structure contains ROI parameters.  */
     V4L2_ENC_INPUT_ROI_PARAM_FLAG = 1,
-    /** Input metadata structure contains GDR parameters  */
+    /** Input metadata structure contains GDR parameters.  */
     V4L2_ENC_INPUT_GDR_PARAM_FLAG = 1 << 1,
-    /** Input metadata structure contains External RPS parameters  */
+    /** Input metadata structure contains External RPS parameters.  */
     V4L2_ENC_INPUT_RPS_PARAM_FLAG = 1 << 2,
-    /** Input metadata structure contains External RC parameters  */
+    /** Input metadata structure contains External RC parameters.  */
     V4L2_ENC_INPUT_RC_PARAM_FLAG = 1 << 3,
-    /** Input metadata structure contains ReconCRC parameters  */
+    /** Input metadata structure contains ReconCRC parameters.  */
     V4L2_ENC_INPUT_RECONCRC_PARAM_FLAG = 1 << 4,
 };
 
 /**
- * Holds encoder slice length parameters.
- *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_SLICE_LENGTH_PARAM ioctl.
+ * Holds encoder slice length parameters, to be used with
+ * \c V4L2_CID_MPEG_VIDEOENC_SLICE_LENGTH_PARAM IOCTL.
  */
 typedef struct v4l2_enc_slice_length_param_
 {
-    /** Type in which the slice length is specified, one of type #v4l2_enc_slice_length_type. */
+    /** Type in which the slice length is specified, one of type \c v4l2_enc_slice_length_type. */
     enum v4l2_enc_slice_length_type slice_length_type;
-    /** Size of the slice in either number of bytes or number of macro blocks */
+    /** Size of the slice in either number of bytes or number of macro blocks. */
     __u32   slice_length;
 }v4l2_enc_slice_length_param;
 
 /**
- * Holds encoder virtual buffer size parameters.
- *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_VIRTUALBUFFER_SIZE ioctl.
+ * Holds encoder virtual buffer size parameters, to be used with
+ * \c V4L2_CID_MPEG_VIDEOENC_VIRTUALBUFFER_SIZE IOCTL.
  */
 typedef struct v4l2_enc_virtual_buffer_size_
 {
-    /** Size of the virtual buffer, in bits */
+    /** Size of the virtual buffer, in bits. */
     __u32   size;
 }v4l2_enc_virtual_buffer_size;
 
 /**
- * Holds encoder number of reference frame parameters.
+ * Holds encoder number of reference frame parameters, to be used with
+ * \c V4L2_CID_MPEG_VIDEOENC_NUM_REFERENCE_FRAMES IOCTL.
  *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_NUM_REFERENCE_FRAMES ioctl.
- *
- * This is not supported for H265
+ * This is not supported for H.265.
  */
 typedef struct v4l2_enc_num_ref_frames_
 {
-    /** Number of reference frames */
+    /** Number of reference frames. */
     __u32   frames;
 }v4l2_enc_num_ref_frames;
 
 /**
- * Holds encoder slice intrareferesh parameters.
- *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_SLICE_INTRAREFRESH_PARAM ioctl.
+ * Holds encoder slice intrareferesh parameters, to be used with
+ * \c V4L2_CID_MPEG_VIDEOENC_SLICE_INTRAREFRESH_PARAM IOCTL.
  */
 typedef struct v4l2_enc_slice_intrarefresh_param_
 {
-    /** Slice intrarefresh interval, in number of slices */
+    /** Slice intrarefresh interval, in number of slices. */
     __u32   interval;
 }v4l2_enc_slice_intrarefresh_param;
 
 /**
- * Maximum number of ROI regions supported by the encoder.
+ * Defines the maximum number of ROI regions supported by the encoder.
  */
 #define V4L2_MAX_ROI_REGIONS 8
 
@@ -1153,26 +1195,25 @@ typedef struct v4l2_enc_slice_intrarefresh_param_
  */
 typedef struct v4l2_enc_ROI_param_
 {
-    /** Region of interest rectangle */
+    /** Region of interest rectangle. */
     struct v4l2_rect  ROIRect;
-    /** QP delta for the region */
+    /** QP delta for the region. */
     __s32   QPdelta;
 } v4l2_enc_ROI_param;
 
 /**
- * Holds the encoder frame ROI parameters.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_ROI_PARAMS ioctl.
+ * Holds the encoder frame ROI parameters
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_ROI_PARAMS IOCTL.
  */
 typedef struct v4l2_enc_frame_ROI_params_
 {
-    /** Number of regions */
+    /** Number of regions. */
     __u32 num_ROI_regions;
-    /** Array of indiviudal ROI parameters */
+    /** Array of indiviudal ROI parameters. */
     v4l2_enc_ROI_param ROI_params[V4L2_MAX_ROI_REGIONS];
     /** Config store integer to which this control is to be applied.
-     *  This should be same as the value of config store of v4l2_buffer to which
-     *  the ROI params should be applied. */
+     *  This must be same as the value of config store of \c v4l2_buffer to which
+     *  the ROI params is applied. */
     __u32   config_store;
 }v4l2_enc_frame_ROI_params;
 
@@ -1180,11 +1221,11 @@ typedef struct v4l2_enc_frame_ROI_params_
  * Holds the motion vector parameters for a single macro block.
  */
 typedef struct MVInfo_ {
-    /** Number of pixels the macro block has moved in horizontal direction */
+    /** Number of pixels the macro block moved in horizontal direction. */
     __s32 mv_x   : 16;
-    /** Number of pixels the macro block has moved in vertical direction */
+    /** Number of pixels the macro block moved in vertical direction. */
     __s32 mv_y   : 14;
-    /** Temporal hints used by hardware for Motion Estimation */
+    /** Temporal hints used by hardware for Motion Estimation. */
     __u32 weight : 2;
 } MVInfo;
 
@@ -1192,9 +1233,9 @@ typedef struct MVInfo_ {
  * Holds the motion vector parameters for one complete frame.
  */
 typedef struct v4l2_ctrl_videoenc_outputbuf_metadata_MV_ {
-    /** Size of the pMVInfo buffer, in bytes */
+    /** Size of the pMVInfo buffer, in bytes. */
     __u32 bufSize;
-    /** Pointer to the buffer containing the motion vectors */
+    /** Pointer to the buffer containing the motion vectors. */
     MVInfo *pMVInfo;
 } v4l2_ctrl_videoenc_outputbuf_metadata_MV;
 
@@ -1208,36 +1249,35 @@ typedef struct v4l2_ctrl_videoenc_outputbuf_metadata_MV_ {
  */
 typedef struct v4l2_enc_frame_full_prop_
 {
-    /** Unique frame Id */
+    /** Unique frame ID. */
     __u32  nFrameId;
-    /** Boolean value indicating if current frame is an IDR */
+    /** Boolean value indicating if current frame is an IDR. */
     __u8   bIdrFrame;
-    /** Boolean value indicating if set Long Term Ref Flag */
+    /** Boolean value indicating if set Long Term Ref Flag. */
     __u8   bLTRefFrame;
-    /** Picture Order Count */
+    /** Picture Order Count. */
     __u32  nPictureOrderCnt;
-    /** FrameNum */
+    /** FrameNum. */
     __u32  nFrameNum;
-    /** LongTermFrameIdx of a picture */
+    /** LongTermFrameIdx of a picture. */
     __u32  nLTRFrameIdx;
 } v4l2_enc_frame_full_prop;
 
 /**
- * Holds the encoder output metadata for a frame.
- *
- * To be used with #V4L2_CID_MPEG_VIDEOENC_METADATA ioctl.
+ * Holds the encoder output metadata for a frame, to be used with
+ * \c V4L2_CID_MPEG_VIDEOENC_METADATA IOCTL.
  */
 typedef struct v4l2_ctrl_videoenc_outputbuf_metadata_
 {
-    /** Boolean value indicating if current frame is a key frame */
+    /** Boolean value indicating if current frame is a key frame. */
     __u8 KeyFrame;
-    /** Boolean value indicating end of frame in case of multi slice encoding */
+    /** Boolean value indicating end of frame in case of multi slice encoding. */
     __u8 EndofFrame;
-    /** Average QP value of the frame */
+    /** Average QP value of the frame. */
     __u16 AvgQP;
-    /** Boolean value indicating if current frame is a golden or alternate frame */
+    /** Boolean value indicating if current frame is a golden or alternate frame. */
     __u8 bIsGoldenOrAlternateFrame;
-    /** CRC for Reconstructed frame */
+    /** CRC for Reconstructed frame. */
     __u8 bValidReconCRC;
     /** Recon Y-frame CRC */
     __u32 ReconFrame_Y_CRC;
@@ -1245,42 +1285,42 @@ typedef struct v4l2_ctrl_videoenc_outputbuf_metadata_
     __u32 ReconFrame_U_CRC;
     /** Recon V-frame CRC */
     __u32 ReconFrame_V_CRC;
-    /** Number of bits needed to encode the frame */
+    /** Number of bits needed to encode the frame. */
     __u32 EncodedFrameBits;
-    /** Minumum QP value in the frame */
+    /** Minumum QP value in the frame. */
     __u32 FrameMinQP;
-    /** Maximum QP value in the frame */
+    /** Maximum QP value in the frame. */
     __u32 FrameMaxQP;
-    /** RPS Feedback */
+    /** RPS Feedback. */
     __u32 bRPSFeedback_status;
-    /**  Reference frame id used for Motion Estimation of current frame,
+    /**  Reference frame ID used for Motion Estimation of current frame,
          ignored for IDR */
     __u32 nCurrentRefFrameId;
-    /** Number of active reference frames */
+    /** Number of active reference frames. */
     __u32 nActiveRefFrames;
-    /** RPS List including most recent frame if it is reference frame */
+    /** RPS List including most recent frame if it is reference frame. */
     v4l2_enc_frame_full_prop RPSList[V4L2_MAX_REF_FRAMES];
 } v4l2_ctrl_videoenc_outputbuf_metadata;
 
 /**
  * Holds the metadata parameters for video encoder and decoder.
  *
- * The metadata is valid for the buffer with index @a buffer_index after the
- * buffer is dequeued till it is queued again.
+ * The metadata is valid for the buffer with index \c buffer_index after the
+ * buffer is dequeued until it is queued again.
  */
 typedef struct v4l2_ctrl_video_metadata_
 {
     /** A pointer to #v4l2_ctrl_videodec_outputbuf_metadata structure.
-     * Should be a valid pointer when used with #V4L2_CID_MPEG_VIDEODEC_METADATA
-     * ioctl. */
+     * This must be a valid pointer when used with #V4L2_CID_MPEG_VIDEODEC_METADATA
+     * IOCTL. */
     v4l2_ctrl_videodec_outputbuf_metadata *VideoDecMetadata;
     /** A pointer to #v4l2_ctrl_videoenc_outputbuf_metadata structure.
-     * Should be a valid pointer when used with #V4L2_CID_MPEG_VIDEOENC_METADATA
-     * ioctl. */
+     * This must be a valid pointer when used with #V4L2_CID_MPEG_VIDEOENC_METADATA
+     * IOCTL. */
     v4l2_ctrl_videoenc_outputbuf_metadata *VideoEncMetadata;
     /** A pointer to #v4l2_ctrl_videoenc_outputbuf_metadata_MV structure.
-     * Should be a valid pointer when used with #V4L2_CID_MPEG_VIDEOENC_METADATA_MV
-     * ioctl. */
+     * This must be a valid pointer when used with #V4L2_CID_MPEG_VIDEOENC_METADATA_MV
+     * IOCTL. */
     v4l2_ctrl_videoenc_outputbuf_metadata_MV *VideoEncMetadataMV;
     /** Index of the buffer whose metadata is required. */
     __u32 buffer_index;
@@ -1288,30 +1328,28 @@ typedef struct v4l2_ctrl_video_metadata_
 
 
 /**
- * Holds the encoder GDR parameters.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
+ * Holds the encoder GDR parameters
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA IOCTL.
  */
 typedef struct v4l2_enc_gdr_params_
 {
-    /** Parameter for GDR (Intra Refresh) for specified number of frames */
+    /** Parameter for GDR (Intra Refresh) for specified number of frames. */
     __u32 nGDRFrames;
 } v4l2_enc_gdr_params;
 
 /**
- * Holds the params to configure encoder for external rps control.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RPS_CONTROL ioctl.
+ * Holds the params to configure encoder for external rps control
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RPS_CONTROL IOCTL.
  */
 typedef struct v4l2_enc_enable_ext_rps_ctrl_
 {
-    /** Boolean value indicating if enabled External RPS control */
+    /** Boolean value indicating if enabled External RPS control. */
     __u8 bEnableExternalRPS;
-    /** Boolean value indicating if allowed gap in frame number */
+    /** Boolean value indicating if allowed gap in frame number. */
     __u8 bGapsInFrameNumAllowed;
-    /** TODO : Check for field details */
+    /* TODO : Check for field details. */
     __u32 nH264FrameNumBits;
-    /** TODO : Check for field details */
+    /* TODO : Check for field details. */
     __u32 nH265PocLsbBits;
 }v4l2_enc_enable_ext_rps_ctr;
 
@@ -1321,30 +1359,29 @@ typedef struct v4l2_enc_enable_ext_rps_ctrl_
  */
 typedef struct _v4l2_enc_frame_prop
 {
-    /** unique Id */
+    /** unique Id. */
     __u32 nFrameId;
-    /** Long Term Ref Flag */
+    /** Long Term Ref Flag. */
     __u8 bLTRefFrame;
 } v4l2_enc_frame_prop;
 
 /**
- * Holds the encoder frame external rps control parameters.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
+ * Holds the encoder frame external rps control parameters
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA IOCTL.
  */
 typedef struct v4l2_enc_frame_ext_rps_ctrl_params_
 {
-    /** unique Id of current frame */
+    /** unique Id of current frame. */
     __u32 nFrameId;
-    /** Boolean value indicating if current frame referenced or non-referenced */
+    /** Boolean value indicating if current frame referenced or non-referenced. */
     __u8 bRefFrame;
-    /** Boolean value indicating if current frame long Term Ref Flag */
+    /** Boolean value indicating if current frame long Term Ref Flag. */
     __u8 bLTRefFrame;
-   /** Max Number of reference frames to use for inter-motion search */
+   /** Max Number of reference frames to use for inter-motion search. */
     __u32 nMaxRefFrames;
-    /** # of valid entries in RPS, 0 means IDR */
+    /** # of valid entries in RPS, 0 means IDR. */
     __u32 nActiveRefFrames;;
-    /**  frame id of reference frame to be used for motion search, ignored for IDR */
+    /**  frame id of reference frame to be used for motion search, ignored for IDR. */
     __u32 nCurrentRefFrameId;
     /** Array of RPS */
     v4l2_enc_frame_prop RPSList[V4L2_MAX_REF_FRAMES];
@@ -1352,75 +1389,73 @@ typedef struct v4l2_enc_frame_ext_rps_ctrl_params_
 
 
 /**
- * Holds the params to configure encoder for external rate control mode.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RATE_CONTROL ioctl.
+ * Holds the params to configure encoder for external rate control mode
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_EXTERNAL_RATE_CONTROL IOCTL.
  */
 typedef struct v4l2_enc_enable_ext_rate_ctrl_
 {
-    /** Boolean value indicating if enabled External Picture RC */
+    /** Boolean value indicating if enabled External Picture RC. */
     __u8 bEnableExternalPictureRC;
-    /** Max QP per session when external picture RC enabled */
+    /** Max QP per session when external picture RC enabled. */
     __u32 nsessionMaxQP;
 }v4l2_enc_enable_ext_rate_ctr;
 
 /**
- * Holds the encoder frame external rate control parameters.
- *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
+ * Holds the encoder frame external rate control parameters
+ * to be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
  */
 typedef struct v4l2_enc_frame_ext_rate_ctrl_params_
 {
-    /** Target frame bits */
+    /** Target frame bits. */
     __u32 nTargetFrameBits;
-    /** Frame start QP */
+    /** Frame start QP. */
     __u32 nFrameQP;
-    /** Frame min QP */
+    /** Frame min QP. */
     __u32 nFrameMinQp;
-    /** Frame max QP */
+    /** Frame max QP. */
     __u32 nFrameMaxQp;
-    /** Frame min QP deviation */
+    /** Frame min QP deviation. */
     __u32 nMaxQPDeviation;
 }v4l2_enc_frame_ext_rate_ctrl_params;
 
 /**
  * Holds the params to configure encoder for ROI parameters encoding
  *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_ROI_PARAM ioctl.
+ * Must be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_ROI_PARAM IOCTL.
  */
 typedef struct v4l2_enc_enable_roi_param_
 {
-    /** Boolean value to indicating ROI param encoding */
+    /** Boolean value to indicating ROI param encoding. */
     __u8 bEnableROI;
 }v4l2_enc_enable_roi_param;
 
 /**
  * Holds the params to configure encoder for Reconstructed CRC encoding
  *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_RECONCRC_PARAM ioctl.
+ * Must be used with #V4L2_CID_MPEG_VIDEOENC_ENABLE_RECONCRC_PARAM IOCTL.
  */
 typedef struct v4l2_enc_enable_reconcrc_param_
 {
-    /** Boolean value to indicating Reconstructed CRC encoding */
+    /** Boolean value to indicating Reconstructed CRC encoding. */
     __u8 bEnableReconCRC;
 }v4l2_enc_enable_reconcrc_param;
 
 /**
  * Holds the encoder frame Reconstructed CRC parameters.
  *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
+ * Must be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA IOCTL.
  */
 typedef struct v4l2_enc_frame_ReconCRC_params_
 {
     /** Rectangle to specify the co-ordinates of the input frame
-    * used to calculate reconstructed picture CRC */
+    * used to calculate reconstructed picture CRC. */
     struct v4l2_rect  ReconCRCRect;
 }v4l2_enc_frame_ReconCRC_params;
 
 /**
  * Holds the encoder frame input metadata parameters.
  *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA ioctl.
+ * Must be used with #V4L2_CID_MPEG_VIDEOENC_INPUT_METADATA IOCTL.
  */
 typedef struct v4l2_ctrl_videoenc_input_metadata_
 {
@@ -1429,46 +1464,46 @@ typedef struct v4l2_ctrl_videoenc_input_metadata_
     /** Pointer to the ROI params structure when ROI param is in metadata_flag. */
     v4l2_enc_frame_ROI_params *VideoEncROIParams;
     /** Pointer to the Reconstructed CRC parameter structure when ReconCRC param is in
-    * metadata flag */
+    * metadata flag. */
     v4l2_enc_frame_ReconCRC_params *VideoReconCRCParams;
     /** Pointer to the GDR params structure when GDR param is in metadata_flag. */
     v4l2_enc_gdr_params   *VideoEncGDRParams;
     /** Pointer to the External RPL control parameter structure when RPS param is in
-    * metadata flag */
+    * metadata flag. */
     v4l2_enc_frame_ext_rps_ctrl_params *VideoEncRPSParams;
     /** Pointer to the External Rate control parameter structure when RC param is in
-    * metadata flag */
+    * metadata flag. */
     v4l2_enc_frame_ext_rate_ctrl_params *VideoEncExtRCParams;
     /** Config store integer to which these parameters are to be applied.
-     *  This should be same as the value of config store of queued v4l2_buffer
+     *  This must be same as the value of config store of queued v4l2_buffer
      *   for which these parameters are valid. */
     __u32    config_store;
 } v4l2_ctrl_videoenc_input_metadata;
 
 /**
  * Setting Qp values in #v4l2_ctrl_video_qp_range to QP_RETAIN_VAL
- * will retain default or previously set QP values.
+ * retains default or previously set QP values.
  */
 #define QP_RETAIN_VAL -1
 
 /**
  * Holds the encoder frame min/max QP parameters.
  *
- * Should be used with #V4L2_CID_MPEG_VIDEOENC_QP_RANGE ioctl.
+ * Must be used with #V4L2_CID_MPEG_VIDEOENC_QP_RANGE IOCTL.
  */
 typedef struct _v4l2_ctrl_video_qp_range
 {
-    /** Minimum QP value for I frame */
+    /** Minimum QP value for I frame. */
     __u32 MinQpI;
-    /** Maximum QP value for I frame */
+    /** Maximum QP value for I frame. */
     __u32 MaxQpI;
-    /** Minimum QP value for P frame */
+    /** Minimum QP value for P frame. */
     __u32 MinQpP;
-    /** Maximum QP value for P frame */
+    /** Maximum QP value for P frame. */
     __u32 MaxQpP;
-    /** Minimum QP value for B frame */
+    /** Minimum QP value for B frame. */
     __u32 MinQpB;
-    /** Maximum QP value for B frame */
+    /** Maximum QP value for B frame. */
     __u32 MaxQpB;
 } v4l2_ctrl_video_qp_range;
 /** @} */
@@ -1480,45 +1515,45 @@ typedef struct _v4l2_ctrl_video_qp_range
  * Enum specifying types of buffer layouts.
  */
 enum v4l2_nv_buffer_layout {
-    V4L2_NV_BUFFER_LAYOUT_PITCH = 0,  /**< Pitch Linear Layout */
-    V4L2_NV_BUFFER_LAYOUT_BLOCKLINEAR = 1, /**< Block Linear Layout */
+    V4L2_NV_BUFFER_LAYOUT_PITCH = 0,  /**< Pitch Linear Layout. */
+    V4L2_NV_BUFFER_LAYOUT_BLOCKLINEAR = 1, /**< Block Linear Layout. */
 };
 
 /**
- * Enum specifying types of rotation/flip algorithms.
+ * Specifies the types of rotation/flip algorithms.
  */
 enum v4l2_flip_method {
-    V4L2_FLIP_METHOD_IDENTITY = 0, /**< Identity (no rotation) */
-    V4L2_FLIP_METHOD_90L = 1,      /**< Rotate counter-clockwise 90 degrees */
-    V4L2_FLIP_METHOD_180 = 2,      /**< Rotate 180 degrees */
-    V4L2_FLIP_METHOD_90R = 3,      /**< Rotate clockwise 90 degrees */
-    V4L2_FLIP_METHOD_HORIZ = 4,    /**< Flip horizontally */
-    V4L2_FLIP_METHOD_INVTRANS = 5, /**< Flip across upper right/lower left diagonal */
-    V4L2_FLIP_METHOD_VERT = 6,     /**< Flip vertically */
-    V4L2_FLIP_METHOD_TRANS = 7,    /**< Flip across upper left/lower right diagonal */
+    V4L2_FLIP_METHOD_IDENTITY = 0, /**< Identity (no rotation). */
+    V4L2_FLIP_METHOD_90L = 1,      /**< Rotate counter-clockwise 90 degrees. */
+    V4L2_FLIP_METHOD_180 = 2,      /**< Rotate 180 degrees. */
+    V4L2_FLIP_METHOD_90R = 3,      /**< Rotate clockwise 90 degrees. */
+    V4L2_FLIP_METHOD_HORIZ = 4,    /**< Flip horizontally. */
+    V4L2_FLIP_METHOD_INVTRANS = 5, /**< Flip across upper right/lower left diagonal. */
+    V4L2_FLIP_METHOD_VERT = 6,     /**< Flip vertically. */
+    V4L2_FLIP_METHOD_TRANS = 7,    /**< Flip across upper left/lower right diagonal. */
 };
 
 /**
- * Enum specifying types of interpolation methods.
+ * Specifies the types of interpolation methods.
  */
 enum v4l2_interpolation_method {
-  V4L2_INTERPOLATION_NEAREST = 1,   /**< Nearest interpolation method */
-  V4L2_INTERPOLATION_LINEAR = 2,    /**< Linear interpolation method */
-  V4L2_INTERPOLATION_SMART = 3,     /**< Smart interpolation method */
-  V4L2_INTERPOLATION_BILINEAR = 4,  /**< Bi-Linear interpolation method */
+  V4L2_INTERPOLATION_NEAREST = 1,   /**< Nearest interpolation method. */
+  V4L2_INTERPOLATION_LINEAR = 2,    /**< Linear interpolation method. */
+  V4L2_INTERPOLATION_SMART = 3,     /**< Smart interpolation method. */
+  V4L2_INTERPOLATION_BILINEAR = 4,  /**< Bi-Linear interpolation method. */
 };
 
 /**
- * Enum specifying types of TNR algorithms.
+ * Specifies the types of TNR algorithms.
  */
 enum v4l2_tnr_algorithm {
-  V4L2_TNR_ALGO_ORIGINAL = 0,           /**< Default TNR Algorithm */
-  V4L2_TNR_ALGO_OUTDOOR_LOW_LIGHT = 1,  /**< Outdoor Low Light TNR Algorithm */
-  V4L2_TNR_ALGO_OUTDOOR_MEDIUM_LIGHT = 2, /**< Outdoor Medium Light TNR Algorithm */
-  V4L2_TNR_ALGO_OUTDOOR_HIGH_LIGHT = 3, /**< Outdoor High Light TNR Algorithm */
-  V4L2_TNR_ALGO_INDOOR_LOW_LIGHT = 4, /**< Indoor Low Light TNR Algorithm */
-  V4L2_TNR_ALGO_INDOOR_MEDIUM_LIGHT = 5, /**< Indoor Medium Light TNR Algorithm */
-  V4L2_TNR_ALGO_INDOOR_HIGH_LIGHT = 6, /**< Indoor High Light TNR Algorithm */
+  V4L2_TNR_ALGO_ORIGINAL = 0,           /**< Default TNR algorithm. */
+  V4L2_TNR_ALGO_OUTDOOR_LOW_LIGHT = 1,  /**< Outdoor Low Light TNR algorithm. */
+  V4L2_TNR_ALGO_OUTDOOR_MEDIUM_LIGHT = 2, /**< Outdoor Medium Light TNR algorithm. */
+  V4L2_TNR_ALGO_OUTDOOR_HIGH_LIGHT = 3, /**< Outdoor High Light TNR algorithm. */
+  V4L2_TNR_ALGO_INDOOR_LOW_LIGHT = 4, /**< Indoor Low Light TNR algorithm. */
+  V4L2_TNR_ALGO_INDOOR_MEDIUM_LIGHT = 5, /**< Indoor Medium Light TNR algorithm. */
+  V4L2_TNR_ALGO_INDOOR_HIGH_LIGHT = 6, /**< Indoor High Light TNR algorithm. */
 };
 /** @} */
 #endif /*__V4L2_NV_EXTENSIONS_H__*/

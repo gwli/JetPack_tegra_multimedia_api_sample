@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus Extension: Face Detect API</b>
+ *
+ * @b Description: This file defines the FaceDetect extension.
+ */
+
 #ifndef _ARGUS_FACE_DETECT_H
 #define _ARGUS_FACE_DETECT_H
 
@@ -33,14 +40,16 @@ namespace Argus
 {
 
 /**
- * The Ext::FaceDetect extension adds internal face-detection algorithms to
- * the Argus driver. It introduces four new interfaces:
+ * Adds internal face-detection algorithms. It introduces four new interfaces:
  *   - IFaceDetectCaps; exposes the face detection capabilities of a CaptureSession.
  *   - IFaceDetectSettings; used to enable face detection for a Request.
  *   - IFaceDetectMetadata; returns a list of FaceDetectResult objects from a
  *                          completed capture's CaptureMetadata.
  *   - IFaceDetectResult; exposes the image rect and confidence level of a result object
  *                        returned by getFaceDetectResults.
+ *
+ * @defgroup ArgusExtFaceDetect Ext::FaceDetect
+ * @ingroup ArgusExtensions
  */
 DEFINE_UUID(ExtensionName, EXT_FACE_DETECT, 40412bb0,ba24,11e5,a837,08,00,20,0c,9a,66);
 
@@ -50,10 +59,11 @@ namespace Ext
 /**
  * @class IFaceDetectCaps
  *
- * Exposes the face detect capabilities of a CaptureSession.
+ * Interface to expose the face detection capabilities of a CaptureSession.
+ *
+ * @ingroup ArgusCaptureSession ArgusExtFaceDetect
  */
 DEFINE_UUID(InterfaceID, IID_FACE_DETECT_CAPS, 40412bb0,ba24,11e5,a837,08,00,20,0c,9a,66);
-
 class IFaceDetectCaps : public Interface
 {
 public:
@@ -72,10 +82,11 @@ protected:
 /**
  * @class IFaceDetectSettings
  *
- * Request settings used to configure face detection.
+ * Interface to face detection settings.
+ *
+ * @ingroup ArgusRequest ArgusExtFaceDetect
  */
 DEFINE_UUID(InterfaceID, IID_FACE_DETECT_SETTINGS, 40412bb1,ba24,11e5,a837,08,00,20,0c,9a,66);
-
 class IFaceDetectSettings : public Interface
 {
 public:
@@ -101,11 +112,16 @@ protected:
 /**
  * @class IFaceDetectMetadata
  *
- * Exposes the face detect result objects in a CaptureMetadata object.
- * These results objects must support at least IFaceDetectResult.
+ * Interface to overall face detection results metadata.
+ *
+ * @ingroup ArgusCaptureMetadata ArgusExtFaceDetect
+ *
+ * @defgroup ArgusFaceDetectResult FaceDetectResult
+ * Metadata for a single face detection result, returned by
+ *   Ext::IFaceDetectMetadata::getFaceDetectResults
+ * @ingroup ArgusCaptureMetadata
  */
 DEFINE_UUID(InterfaceID, IID_FACE_DETECT_METADATA, 40412bb2,ba24,11e5,a837,08,00,20,0c,9a,66);
-
 class IFaceDetectMetadata : public Interface
 {
 public:
@@ -113,7 +129,7 @@ public:
 
     /**
      * @returns the face detection results.
-     * @param[out] results, a vector that will be populated with the face detect results.
+     * @param[out] results A vector that will be populated with the face detect results.
      *
      * @returns success/status of the call.
      */
@@ -126,11 +142,11 @@ protected:
 /**
  * @class IFaceDetectResult
  *
- * Exposes the image rect and confidence level of face detect result object returned
- * by IFaceDetectMetadata.
+ * Interface to the properties of a single face detection result.
+ *
+ * @ingroup ArgusFaceDetectResult ArgusExtFaceDetect
  */
 DEFINE_UUID(InterfaceID, IID_FACE_DETECT_RESULT, 40412bb3,ba24,11e5,a837,08,00,20,0c,9a,66);
-
 class IFaceDetectResult : public Interface
 {
 public:

@@ -32,19 +32,12 @@ include ../Rules.mk
 
 APP := video_convert
 
-CLASS_DIR:= ../common/classes
-
 SRCS := \
 	video_convert_csvparser.cpp \
 	video_convert_main.cpp \
 	$(wildcard $(CLASS_DIR)/*.cpp)
 
 OBJS := $(SRCS:.cpp=.o)
-
-LDFLAGS += \
-	-lpthread \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg
 
 all: $(APP)
 
@@ -58,5 +51,4 @@ $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

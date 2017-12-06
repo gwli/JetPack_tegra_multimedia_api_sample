@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,13 +39,13 @@
 #include "UniquePointer.h"
 #include "Error.h"
 #include "Util.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Validator.h"
 #include <Argus/Ext/BayerSharpnessMap.h>
-#include <Argus/Ext/DebugCaptureMetadata.h>
 #include <Argus/Ext/DebugCaptureSession.h>
 #include <Argus/Ext/DeFog.h>
 #include <Argus/Ext/FaceDetect.h>
+#include <Argus/Ext/InternalFrameCount.h>
 #include <Argus/Ext/SensorPrivateMetadata.h>
 #include <Argus/Ext/DebugCaptureSession.h>
 #include <Argus/Ext/PwlWdrSensorMode.h>
@@ -92,12 +92,12 @@ public:
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
 
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_denoiseMode.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &DenoiseSettingsObserver::onDenoiseModeChanged)));
         PROPAGATE_ERROR_CONTINUE(dispatcher.m_denoiseStrength.unregisterObserver(this,
             static_cast<IObserver::CallbackFunction>(
                 &DenoiseSettingsObserver::onDenoiseStrengthChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_denoiseMode.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &DenoiseSettingsObserver::onDenoiseModeChanged)));
     }
 
     virtual bool isInterface(Argus::Interface *interface) const
@@ -163,12 +163,12 @@ public:
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
 
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_edgeEnhanceMode.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &EdgeEnhanceSettingsObserver::onEdgeEnhanceModeChanged)));
         PROPAGATE_ERROR_CONTINUE(dispatcher.m_edgeEnhanceStrength.unregisterObserver(this,
             static_cast<IObserver::CallbackFunction>(
                 &EdgeEnhanceSettingsObserver::onEdgeEnhanceStrengthChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_edgeEnhanceMode.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &EdgeEnhanceSettingsObserver::onEdgeEnhanceModeChanged)));
     }
 
     virtual bool isInterface(Argus::Interface *interface) const
@@ -298,21 +298,21 @@ public:
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
 
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_exposureTimeRange.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &SourceSettingsObserver::onExposureTimeRangeChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_gainRange.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &SourceSettingsObserver::onGainRangeChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &SourceSettingsObserver::onSensorModeChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_frameRate.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &SourceSettingsObserver::onFrameRateChanged)));
         PROPAGATE_ERROR_CONTINUE(dispatcher.m_focusPosition.unregisterObserver(this,
             static_cast<IObserver::CallbackFunction>(
                 &SourceSettingsObserver::onFocusPositionChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_frameRate.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &SourceSettingsObserver::onFrameRateChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &SourceSettingsObserver::onSensorModeChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_gainRange.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &SourceSettingsObserver::onGainRangeChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_exposureTimeRange.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &SourceSettingsObserver::onExposureTimeRangeChanged)));
     }
 
     virtual bool isInterface(Argus::Interface *interface) const
@@ -462,25 +462,24 @@ public:
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
 
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_aeAntibandingMode.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &AutoControlSettingsObserver::onAeAntibandingModeChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_aeLock.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &AutoControlSettingsObserver::onAeLockChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_awbLock.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &AutoControlSettingsObserver::onAwbLockChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_awbMode.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &AutoControlSettingsObserver::onAwbModeChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_exposureCompensation.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(
-                &AutoControlSettingsObserver::onExposureCompensationChanged)));
         PROPAGATE_ERROR_CONTINUE(dispatcher.m_ispDigitalGainRange.unregisterObserver(this,
             static_cast<IObserver::CallbackFunction>(
                 &AutoControlSettingsObserver::onIspDigitalGainRangeChanged)));
-
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_exposureCompensation.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &AutoControlSettingsObserver::onExposureCompensationChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_awbMode.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &AutoControlSettingsObserver::onAwbModeChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_awbLock.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &AutoControlSettingsObserver::onAwbLockChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_aeLock.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &AutoControlSettingsObserver::onAeLockChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_aeAntibandingMode.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(
+                &AutoControlSettingsObserver::onAeAntibandingModeChanged)));
     }
 
     virtual bool isInterface(Argus::Interface *interface) const
@@ -608,12 +607,12 @@ public:
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
 
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_deFogEnable.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(&DeFogSettingsObserver::onDeFogEnableChanged)));
-        PROPAGATE_ERROR_CONTINUE(dispatcher.m_deFogAmount.unregisterObserver(this,
-            static_cast<IObserver::CallbackFunction>(&DeFogSettingsObserver::onDeFogAmountChanged)));
         PROPAGATE_ERROR_CONTINUE(dispatcher.m_deFogQuality.unregisterObserver(this,
             static_cast<IObserver::CallbackFunction>(&DeFogSettingsObserver::onDeFogQualityChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_deFogAmount.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(&DeFogSettingsObserver::onDeFogAmountChanged)));
+        PROPAGATE_ERROR_CONTINUE(dispatcher.m_deFogEnable.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(&DeFogSettingsObserver::onDeFogEnableChanged)));
     }
 
     virtual bool isInterface(Argus::Interface *interface) const
@@ -744,6 +743,7 @@ static const Argus::Size2D<uint32_t> s_outputSizes[] =
 
 Dispatcher::Dispatcher()
     : m_deviceFocusPositionRange(0)
+    , m_deviceExposureCompensationRange(0.0f)
     , m_deviceIspDigitalGainRange(Argus::Range<float>(0.0f))
     , m_sensorExposureTimeRange(Argus::Range<uint64_t>(0))
     , m_sensorAnalogGainRange(Argus::Range<float>(0.0f))
@@ -761,12 +761,12 @@ Dispatcher::Dispatcher()
     , m_focusPosition(new ValidatorRange<int32_t>(&m_deviceFocusPositionRange), 0)
     , m_denoiseMode(new ValidatorEnum<Argus::DenoiseMode>(
         s_denoiseModes, sizeof(s_denoiseModes) / sizeof(s_denoiseModes[0])),
-        Argus::DENOISE_MODE_OFF)
-    , m_denoiseStrength(new ValidatorRange<float>(0.0f, 1.0f), 1.0f)
+        Argus::DENOISE_MODE_FAST)
+    , m_denoiseStrength(new ValidatorRange<float>(-1.0f, 1.0f), -1.0f)
     , m_edgeEnhanceMode(new ValidatorEnum<Argus::EdgeEnhanceMode>(
         s_edgeEnhanceModes, sizeof(s_edgeEnhanceModes) / sizeof(s_edgeEnhanceModes[0])),
-        Argus::EDGE_ENHANCE_MODE_OFF)
-    , m_edgeEnhanceStrength(new ValidatorRange<float>(0.0f, 1.0f), 1.0f)
+        Argus::EDGE_ENHANCE_MODE_FAST)
+    , m_edgeEnhanceStrength(new ValidatorRange<float>(-1.0f, 1.0f), -1.0f)
     , m_vstabMode(new ValidatorEnum<Argus::VideoStabilizationMode>(
         s_vstabModes, sizeof(s_vstabModes) / sizeof(s_vstabModes[0])),
         Argus::VIDEO_STABILIZATION_MODE_OFF)
@@ -778,7 +778,7 @@ Dispatcher::Dispatcher()
     , m_awbMode(new ValidatorEnum<Argus::AwbMode>(
         s_awbModes, sizeof(s_awbModes) / sizeof(s_awbModes[0])),
         Argus::AWB_MODE_AUTO)
-    , m_exposureCompensation(new ValidatorRange<float>(-10.0f, 10.0f), 0.0f)
+    , m_exposureCompensation(new ValidatorRange<float>(&m_deviceExposureCompensationRange), 0.0f)
     , m_ispDigitalGainRange(new ValidatorRange<Argus::Range<float> >(&m_deviceIspDigitalGainRange),
         Argus::Range<float>(1.0f))
     , m_videoFormat(new ValidatorEnum<VideoPipeline::VideoFormat>(
@@ -838,6 +838,7 @@ bool Dispatcher::initialize()
     m_iCameraProvider = Argus::interface_cast<Argus::ICameraProvider>(m_cameraProvider);
     if (!m_iCameraProvider)
         ORIGINATE_ERROR("Failed to create CameraProvider");
+    printf("Argus Version: %s\n", m_iCameraProvider->getVersion().c_str());
 
     // Get the camera devices
     m_iCameraProvider->getCameraDevices(&m_cameraDevices);
@@ -861,10 +862,20 @@ bool Dispatcher::initialize()
 
 bool Dispatcher::shutdown()
 {
-    PROPAGATE_ERROR_CONTINUE(closeSession());
+    if (m_initialized)
+    {
+        m_initialized = false;
+        // unregister the device index observer in reverse order
+        PROPAGATE_ERROR_CONTINUE(m_sensorModeIndex.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(&Dispatcher::onSensorModeIndexChanged)));
+        PROPAGATE_ERROR_CONTINUE(m_deviceIndex.unregisterObserver(this,
+            static_cast<IObserver::CallbackFunction>(&Dispatcher::onDeviceIndexChanged)));
 
-    m_cameraProvider.reset();
-    m_cameraDevices.clear();
+        PROPAGATE_ERROR_CONTINUE(closeSession());
+
+        m_cameraDevices.clear();
+        m_cameraProvider.reset();
+    }
 
     return true;
 }
@@ -902,23 +913,45 @@ bool Dispatcher::onDeviceIndexChanged(const Observed &source)
 
     // get new limits
     Argus::Range<float> digitalGainRange = iCameraProperties->getIspDigitalGainRange();
+    Argus::Range<float> deviceExposureCompensationRange =
+        iCameraProperties->getExposureCompensationRange();
 
-    // set ranges to unified range (to avoid errors when setting new values)
+
+    /* set ranges to unified range (to avoid errors when setting new values)
+     * Eg. Say Device 1 has range [-1,0] and Device 2 has range [1,2] .If current value is -1 and
+     * range is [-1,0] , setting the range to [1,2] would give error . Similarly, if current value
+     * is 1 , setting the range to [-1,0] would give error. Thus we set range to [-1,2] , set value
+     * to 1 and then set range to [1,2] to avoid errors.
+     */
     Argus::Range<float> unifiedDigitalGainRange(0);
     unifiedDigitalGainRange.min() =
         std::min(m_deviceIspDigitalGainRange.get().min().min(), digitalGainRange.min());
     unifiedDigitalGainRange.max() =
         std::max(m_deviceIspDigitalGainRange.get().max().max(), digitalGainRange.max());
 
+    Argus::Range<float> unifiedExposureCompensationRange(0);
+    unifiedExposureCompensationRange.min() =
+        std::min(m_deviceExposureCompensationRange.get().min(),
+            deviceExposureCompensationRange.min());
+    unifiedExposureCompensationRange.max() =
+        std::max(m_deviceExposureCompensationRange.get().max(),
+            deviceExposureCompensationRange.max());
+
     PROPAGATE_ERROR(m_deviceIspDigitalGainRange.set(
         Argus::Range<Argus::Range<float> >(unifiedDigitalGainRange)));
+    PROPAGATE_ERROR(m_deviceExposureCompensationRange.set(
+        Argus::Range<float> (unifiedExposureCompensationRange)));
 
     // update dependent values
     PROPAGATE_ERROR(m_ispDigitalGainRange.set(digitalGainRange));
+    PROPAGATE_ERROR(m_exposureCompensation.set(0.0f));
 
     // set to final range
     PROPAGATE_ERROR(m_deviceIspDigitalGainRange.set(Argus::Range<Argus::Range<float> >(
         digitalGainRange, digitalGainRange)));
+    PROPAGATE_ERROR(m_deviceExposureCompensationRange.set(Argus::Range<float> (
+       deviceExposureCompensationRange)));
+
 
     // add value/string pairs for each sensor mode index
     std::vector<ValidatorEnum<uint32_t>::ValueStringPair> valueStringPairs;
@@ -931,7 +964,7 @@ bool Dispatcher::onDeviceIndexChanged(const Observed &source)
         valueStringPairs[index].value = (uint32_t)index;
 
         std::ostringstream stream;
-        stream << index+1 << ": "
+        stream << index << ": "
             << sensorMode->getResolution().width() << "x" << sensorMode->getResolution().height();
 
         Argus::Ext::IPwlWdrSensorMode* pwlMode =
@@ -1034,9 +1067,6 @@ bool Dispatcher::getInfo(std::string &info) const
     stream << "  BayerSharpnessMap: " <<
         (supportsExtension(Argus::EXT_BAYER_SHARPNESS_MAP) ?
             "supported" : "not supported") << std::endl;
-    stream << "  DebugCaptureMetadata: " <<
-        (supportsExtension(Argus::EXT_DEBUG_CAPTURE_METADATA) ?
-            "supported" : "not supported") << std::endl;
     stream << "  DebugCaptureSession: " <<
         (supportsExtension(Argus::EXT_DEBUG_CAPTURE_SESSION) ?
             "supported" : "not supported") << std::endl;
@@ -1046,6 +1076,9 @@ bool Dispatcher::getInfo(std::string &info) const
     stream << "  FaceDetect: " <<
         (supportsExtension(Argus::EXT_FACE_DETECT) ?
              "supported" : "not supported") << std::endl;
+    stream << "  InternalFrameCount: " <<
+        (supportsExtension(Argus::EXT_INTERNAL_FRAME_COUNT) ?
+            "supported" : "not supported") << std::endl;
     stream << "  SensorPrivateMetadata: " <<
         (supportsExtension(Argus::EXT_SENSOR_PRIVATE_METADATA) ?
             "supported" : "not supported") << std::endl;
@@ -1266,7 +1299,7 @@ bool Dispatcher::waitForEvents(Argus::EventQueue *eventQueue, TimeValue timeout,
         ORIGINATE_ERROR("Failed to get iEventProvider interface");
 
     // wait for the events
-    const Argus::Status status =  iEventProvider->waitForEvents(eventQueue, timeout.toNSec());
+    const Argus::Status status = iEventProvider->waitForEvents(eventQueue, timeout.toNSec());
     if ((status != Argus::STATUS_OK) && (status != Argus::STATUS_TIMEOUT))
         ORIGINATE_ERROR("Failed to get events");
 
@@ -1653,7 +1686,7 @@ bool Dispatcher::getOutputSize(Argus::Size2D<uint32_t> *size) const
     return true;
 }
 
-bool Dispatcher::createOutputStream(Argus::Request *request,
+bool Dispatcher::createOutputStream(Argus::Request *request, bool enableMetadata,
     Argus::UniqueObj<Argus::OutputStream> &stream, Argus::CaptureSession *session)
 {
     if (!session)
@@ -1684,7 +1717,8 @@ bool Dispatcher::createOutputStream(Argus::Request *request,
 
     iOutputStreamSettings->setPixelFormat(Argus::PIXEL_FMT_YCbCr_420_888);
     iOutputStreamSettings->setResolution(outputSize);
-    iOutputStreamSettings->setEGLDisplay(Renderer::getInstance().getEGLDisplay());
+    iOutputStreamSettings->setEGLDisplay(Composer::getInstance().getEGLDisplay());
+    iOutputStreamSettings->setMetadataEnable(enableMetadata);
 
     Argus::UniqueObj<Argus::OutputStream> outputStream(
         iCaptureSession->createOutputStream(outputStreamSettings.get()));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus Extension: Bayer Sharpness Map API</b>
+ *
+ * @b Description: This file defines the BayerSharpnessMap extension.
+ */
+
 #ifndef _ARGUS_EXT_BAYER_SHARPNESS_MAP_H
 #define _ARGUS_EXT_BAYER_SHARPNESS_MAP_H
 
@@ -33,11 +40,14 @@ namespace Argus
 {
 
 /**
- * The Ext::BayerSharpnessMap extension adds internally-generated sharpness metrics
- * to CaptureMetadata results in order to help determine the correct position of the lens
- * to achieve the best focus. It introduces two new interfaces:
+ * Adds internally-generated sharpness metrics to CaptureMetadata results. These are used
+ * in order to help determine the correct position of the lens to achieve the best focus.
+ * It introduces two new interfaces:
  *   - IBayerSharpnessMapSettings; used to enable sharness map generation in a capture Request.
  *   - IBayerSharpnessMapMetadata; exposes the sharpness map metrics from the CaptureMetadata.
+ *
+ * @defgroup ArgusExtBayerSharpnessMap Ext::BayerSharpnessMap
+ * @ingroup ArgusExtensions
  */
 DEFINE_UUID(ExtensionName, EXT_BAYER_SHARPNESS_MAP, 7d5e0470,4ea6,11e6,bdf4,08,00,20,0c,9a,66);
 
@@ -47,7 +57,9 @@ namespace Ext
 /**
  * @class IBayerSharpnessMapSettings
  *
- * Request settings used to configure Bayer sharpness map generation.
+ * Interface to Bayer sharpness map settings.
+ *
+ * @ingroup ArgusRequest ArgusExtBayerSharpnessMap
  */
 DEFINE_UUID(InterfaceID, IID_BAYER_SHARPNESS_MAP_SETTINGS, 7d5e0471,4ea6,11e6,bdf4,08,00,20,0c,9a,66);
 class IBayerSharpnessMapSettings : public Interface
@@ -57,13 +69,13 @@ public:
 
     /**
      * Enables or disables Bayer sharpness map generation. When enabled, CaptureMetadata
-     * returned by completed captures will expose the IBayerSharpnessMap interface.
-     * @param[in] enable whether or not Bayer sharpness map generation is enabled.
+     * returned by completed captures expose the IBayerSharpnessMap interface.
+     * @param[in] enable If True, Bayer sharpness map generation is enabled.
      */
     virtual void setBayerSharpnessMapEnable(bool enable) = 0;
 
     /**
-     * @returns whether or not Bayer sharpness map generation is enabled.
+     * Returns True if sharpness map generation is enabled.
      */
     virtual bool getBayerSharpnessMapEnable() const = 0;
 
@@ -74,6 +86,8 @@ protected:
 /**
  * @class IBayerSharpnessMap
  *
+ * Interface to Bayer sharpness map metadata.
+ *
  * The Bayer sharpness map exposes image sharpness metrics that can be used in order
  * to help determine the correct position of the lens to achieve the best focus.
  * Each metric is a normalized floating-point value representing the estimated sharpness
@@ -83,10 +97,11 @@ protected:
  * (blurry) region while a high sharpness implies a well focused (sharp) region.
  *
  * The size and layout of the bins used to calculate the sharpness metrics are determined
- * by the Argus implementation, and are illustrated in the following diagram. The bin size
+ * by the libargus implementation, and are illustrated in the following diagram. The bin size
  * and interval are constant across the image, and are positioned such that the generated
  * metrics cover the majority of the full image. All dimensions are given in pixels.
  *
+ * @code
  *               start.x                     interval.width
  *               _______                   _________________
  *              |       |                 |                 |
@@ -118,7 +133,9 @@ protected:
  *                                                          |_____|
  *
  *                                                         size.width
+ * @endcode
  *
+ * @ingroup ArgusCaptureMetadata ArgusExtBayerSharpnessMap
  */
 DEFINE_UUID(InterfaceID, IID_BAYER_SHARPNESS_MAP, 7d5e0472,4ea6,11e6,bdf4,08,00,20,0c,9a,66);
 class IBayerSharpnessMap : public Interface
@@ -127,8 +144,8 @@ public:
     static const InterfaceID& id() { return IID_BAYER_SHARPNESS_MAP; }
 
     /**
-     * Returns the starting location of the first bin, in pixels.
-     * Relative to the top-left corner of the image.
+     * Returns the starting location of the first bin, in pixels, where the
+     * location is relative to the top-left corner of the image.
      */
     virtual Point2D<uint32_t> getBinStart() const = 0;
 

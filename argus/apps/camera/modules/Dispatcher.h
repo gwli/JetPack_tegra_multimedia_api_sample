@@ -204,10 +204,12 @@ public:
      * Create an output stream of an request of a session.
      *
      * @param request [in] request
+     * @param enableMetadata [in] whether or not to enable meatdata for the stream
      * @param stream [out] the created Argus output stream
      * @param session [in] capture session (optional, if NULL the internal session is used)
      */
-    bool createOutputStream(Argus::Request *request, Argus::UniqueObj<Argus::OutputStream> &stream,
+    bool createOutputStream(Argus::Request *request, bool enableMetadata,
+        Argus::UniqueObj<Argus::OutputStream> &stream,
         Argus::CaptureSession *session = NULL);
 
     /**
@@ -232,6 +234,7 @@ private:
     // current device properties
     std::vector<Argus::SensorMode*> m_sensorModes;      ///< sensor modes
     Value<Argus::Range<int32_t> > m_deviceFocusPositionRange;   ///< device focus position range
+    Value<Argus::Range<float> > m_deviceExposureCompensationRange; ///< exposure compensation range
     Value<Argus::Range<Argus::Range<float> > >
         m_deviceIspDigitalGainRange;       ///< device isp digital gain range
 

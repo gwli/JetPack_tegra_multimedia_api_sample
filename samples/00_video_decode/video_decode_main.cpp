@@ -53,6 +53,9 @@
 #define IS_NAL_UNIT_START1(buffer_ptr) (!buffer_ptr[0] && !buffer_ptr[1] && \
         (buffer_ptr[2] == 1))
 
+#define IVF_FILE_HDR_SIZE   32
+#define IVF_FRAME_HDR_SIZE  12
+
 using namespace std;
 
 static int
@@ -92,7 +95,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     // Reached end of buffer but could not find NAL unit
     if (!nalu_found)
     {
-        cerr << "Could not read nal unit from file. File seems to be corrupted"
+        cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
         return -1;
     }
@@ -123,7 +126,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     }
 
     // Reached end of buffer but could not find NAL unit
-    cerr << "Could not read nal unit from file. File seems to be corrupted"
+    cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
     return -1;
 }
@@ -138,6 +141,47 @@ read_decoder_input_chunk(ifstream * stream, NvBuffer * buffer)
     // It is necessary to set bytesused properly, so that decoder knows how
     // many bytes in the buffer are valid
     buffer->planes[0].bytesused = stream->gcount();
+    return 0;
+}
+
+static int
+read_vp9_decoder_input_chunk(context_t *ctx, NvBuffer * buffer)
+{
+    ifstream *stream = ctx->in_file;
+    int Framesize;
+    unsigned char *bitstreambuffer = (unsigned char *)buffer->planes[0].data;
+    if (ctx->vp9_file_header_flag == 0)
+    {
+        stream->read((char *) buffer->planes[0].data, IVF_FILE_HDR_SIZE);
+        if (stream->gcount() !=  IVF_FILE_HDR_SIZE)
+        {
+            cerr << "Couldn't read IVF FILE HEADER" << endl;
+            return -1;
+        }
+        if (!((bitstreambuffer[0] == 'D') && (bitstreambuffer[1] == 'K') &&
+                    (bitstreambuffer[2] == 'I') && (bitstreambuffer[3] == 'F')))
+        {
+            cerr << "It's not a valid IVF file \n" << endl;
+            return -1;
+        }
+        cout << "It's a valid IVF file" << endl;
+        ctx->vp9_file_header_flag = 1;
+    }
+    stream->read((char *) buffer->planes[0].data, IVF_FRAME_HDR_SIZE);
+    if (stream->gcount() != IVF_FRAME_HDR_SIZE)
+    {
+        cerr << "Couldn't read IVF FRAME HEADER" << endl;
+        return -1;
+    }
+    Framesize = (bitstreambuffer[3]<<24) + (bitstreambuffer[2]<<16) +
+        (bitstreambuffer[1]<<8) + bitstreambuffer[0];
+    buffer->planes[0].bytesused = Framesize;
+    stream->read((char *) buffer->planes[0].data, Framesize);
+    if (stream->gcount() != Framesize)
+    {
+        cerr << "Couldn't read Framesize" << endl;
+        return -1;
+    }
     return 0;
 }
 
@@ -709,6 +753,8 @@ set_defaults(context_t * ctx)
     ctx->window_y = 0;
     ctx->out_pixfmt = 1;
     ctx->fps = 30;
+    ctx->memory_type = V4L2_MEMORY_MMAP;
+    ctx->vp9_file_header_flag = 0;
 
     ctx->conv_output_plane_buf_queue = new queue < NvBuffer * >;
     pthread_mutex_init(&ctx->queue_lock, NULL);
@@ -789,7 +835,11 @@ main(int argc, char *argv[])
 
     // Query, Export and Map the output plane buffers so that we can read
     // encoded data into the buffers
-    ret = ctx.dec->output_plane.setupPlane(V4L2_MEMORY_MMAP, 10, true, false);
+    if (ctx.memory_type == V4L2_MEMORY_MMAP)
+        ret = ctx.dec->output_plane.setupPlane(V4L2_MEMORY_MMAP, 10, true, false);
+    else if (ctx.memory_type == V4L2_MEMORY_USERPTR)
+        ret = ctx.dec->output_plane.setupPlane(V4L2_MEMORY_USERPTR, 10, false, true);
+
     TEST_ERROR(ret < 0, "Error while setting up output plane", cleanup);
 
     ctx.in_file = new ifstream(ctx.in_file_path);
@@ -838,16 +888,25 @@ main(int argc, char *argv[])
         memset(planes, 0, sizeof(planes));
 
         buffer = ctx.dec->output_plane.getNthBuffer(i);
-        if (ctx.input_nalu)
+        if ((ctx.decoder_pixfmt == V4L2_PIX_FMT_H264) ||
+                (ctx.decoder_pixfmt == V4L2_PIX_FMT_H265))
         {
-            read_decoder_input_nalu(ctx.in_file, buffer, nalu_parse_buffer,
-                    CHUNK_SIZE);
+            if (ctx.input_nalu)
+            {
+                read_decoder_input_nalu(ctx.in_file, buffer, nalu_parse_buffer,
+                        CHUNK_SIZE);
+            }
+            else
+            {
+                read_decoder_input_chunk(ctx.in_file, buffer);
+            }
         }
-        else
+        if (ctx.decoder_pixfmt == V4L2_PIX_FMT_VP9)
         {
-            read_decoder_input_chunk(ctx.in_file, buffer);
+            ret = read_vp9_decoder_input_chunk(&ctx, buffer);
+            if (ret != 0)
+                cerr << "Couldn't read VP9 chunk" << endl;
         }
-
         v4l2_buf.index = i;
         v4l2_buf.m.planes = planes;
         v4l2_buf.m.planes[0].bytesused = buffer->planes[0].bytesused;
@@ -892,14 +951,24 @@ main(int argc, char *argv[])
             break;
         }
 
-        if (ctx.input_nalu)
+        if ((ctx.decoder_pixfmt == V4L2_PIX_FMT_H264) ||
+                (ctx.decoder_pixfmt == V4L2_PIX_FMT_H265))
         {
-            read_decoder_input_nalu(ctx.in_file, buffer, nalu_parse_buffer,
-                    CHUNK_SIZE);
+            if (ctx.input_nalu)
+            {
+                read_decoder_input_nalu(ctx.in_file, buffer, nalu_parse_buffer,
+                        CHUNK_SIZE);
+            }
+            else
+            {
+                read_decoder_input_chunk(ctx.in_file, buffer);
+            }
         }
-        else
+        if (ctx.decoder_pixfmt == V4L2_PIX_FMT_VP9)
         {
-            read_decoder_input_chunk(ctx.in_file, buffer);
+            ret = read_vp9_decoder_input_chunk(&ctx, buffer);
+            if (ret != 0)
+                cerr << "Couldn't read VP9 chunk" << endl;
         }
         v4l2_buf.m.planes[0].bytesused = buffer->planes[0].bytesused;
         ret = ctx.dec->output_plane.qBuffer(v4l2_buf, NULL);

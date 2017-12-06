@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 #include "Error.h"
 
 #include "Dispatcher.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "PerfTracker.h"
 
 namespace ArgusSamples
@@ -64,8 +64,8 @@ bool App::shutdown()
 {
     PROPAGATE_ERROR(Window::getInstance().unregisterObserver(this));
 
-    // shutdown the renderer
-    PROPAGATE_ERROR(Renderer::getInstance().shutdown());
+    // shutdown the composer
+    PROPAGATE_ERROR(Composer::getInstance().shutdown());
 
     // shutdown the window
     PROPAGATE_ERROR(Window::getInstance().shutdown());
@@ -78,11 +78,11 @@ bool App::shutdown()
 
 bool App::run(int argc, char **argv)
 {
-    PerfTracker::onAppEvent(ArgusSamples::APP_START);
+    PROPAGATE_ERROR(PerfTracker::getInstance().onEvent(GLOBAL_EVENT_APP_START));
 
     PROPAGATE_ERROR(initialize());
 
-    PerfTracker::onAppEvent(ArgusSamples::APP_INITIALIZED);
+    PROPAGATE_ERROR(PerfTracker::getInstance().onEvent(GLOBAL_EVENT_APP_INITIALIZED));
 
     // parse and execute the options
     PROPAGATE_ERROR(m_options.parse(argc, argv));

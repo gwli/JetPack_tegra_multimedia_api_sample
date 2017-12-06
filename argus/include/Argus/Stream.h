@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Stream API</b>
+ *
+ * @b Description: Defines stream related objects and interfaces.
+ */
+
 #ifndef _ARGUS_STREAM_H
 #define _ARGUS_STREAM_H
 
@@ -37,18 +44,13 @@ DEFINE_UUID(StreamMode, STREAM_MODE_MAILBOX, 33661d40,3ee2,11e6,bdf4,08,00,20,0c
 DEFINE_UUID(StreamMode, STREAM_MODE_FIFO,    33661d41,3ee2,11e6,bdf4,08,00,20,0c,9a,66);
 
 /**
- * Input streams are created and owned by CaptureSessions, and they maintain
- * a connection with an EGLStream in order to acquire frames as an EGLStream consumer.
- */
-class InputStream : public InterfaceProvider, public Destructable
-{
-protected:
-    ~InputStream() {}
-};
-
-/**
+ * Object representing an output stream capable of receiving image frames from a capture.
+ *
  * Output streams are created and owned by CaptureSessions, and they maintain
  * a connection with an EGLStream in order to present frames as an EGLStream producer.
+ *
+ * @defgroup ArgusOutputStream OutputStream
+ * @ingroup ArgusObjects
  */
 class OutputStream : public InterfaceProvider, public Destructable
 {
@@ -57,8 +59,12 @@ protected:
 };
 
 /**
- * Settings for OutputStream creation are exposed by the OutputStreamSettings class.
+ * Container for settings used to configure/create an OutputStream.
+ *
  * These are created by CaptureSessions and used for calls to ICaptureSession::createOutputStream.
+ *
+ * @defgroup ArgusOutputStreamSettings OutputStreamSettings
+ * @ingroup ArgusObjects
  */
 class OutputStreamSettings : public InterfaceProvider, public Destructable
 {
@@ -69,10 +75,11 @@ protected:
 /**
  * @class IStream
  *
- * Interface that exposes the properties common to all Stream objects.
+ * Interface that exposes common Stream properties.
+ *
+ * @ingroup ArgusOutputStream
  */
 DEFINE_UUID(InterfaceID, IID_STREAM, 8f50dade,cc26,4ec6,9d2e,d9,d0,19,2a,ef,06);
-
 class IStream : public Interface
 {
 public:
@@ -120,9 +127,10 @@ protected:
  * @class IOutputStreamSettings
  *
  * Interface that exposes the settings used for OutputStream creation.
+ *
+ * @ingroup ArgusOutputStreamSettings
  */
 DEFINE_UUID(InterfaceID, IID_OUTPUT_STREAM_SETTINGS, 52f2b830,3d52,11e6,bdf4,08,00,20,0c,9a,66);
-
 class IOutputStreamSettings : public Interface
 {
 public:
@@ -160,24 +168,24 @@ public:
      * Sets the mode of the OutputStream. Available options are:
      *
      *   MAILBOX:
-     *     In this mode, only the newest frame is made available to the consumer. When Argus
+     *     In this mode, only the newest frame is made available to the consumer. When libargus
      *     completes a frame it empties the mailbox and inserts the new frame into the mailbox.
      *     The consumer then retrieves the frame from the mailbox and processes it; when
      *     finished, the frame is either placed back into the mailbox (if the mailbox is empty)
      *     or discarded (if the mailbox is not empty). This mode implies 2 things:
      *
-     *       - If the consumer consumes frames slower than Argus produces frames, then some
+     *       - If the consumer consumes frames slower than libargus produces frames, then some
      *         frames may be lost (never seen by the consumer).
      *
-     *       - If the consumer consumes frames faster than Argus produces frames, then the
+     *       - If the consumer consumes frames faster than libargus produces frames, then the
      *         consumer may see some frames more than once.
      *
      *   FIFO:
      *     When using this mode, every producer frame is made available to the consumer through
      *     the use of a fifo queue for the frames. When using this mode, the fifo queue length
-     *     must be specified using setFifoLength. When Argus completes a frame it inserts it to
+     *     must be specified using setFifoLength. When libargus completes a frame it inserts it to
      *     the head of the fifo queue. If the fifo is full (already contains the number of frames
-     *     equal to the fifo queue length), Argus will stall until the fifo is no longer
+     *     equal to the fifo queue length), libargus will stall until the fifo is no longer
      *     full. The consumer consumes frames from the tail of the queue; however, if the
      *     consumer releases a frame while the queue is empty, the frame is set aside and will
      *     be returned again the next time the consumer requests a frame if another new frame
@@ -187,9 +195,10 @@ public:
      *
      *       - Frames are never discarded until the consumer has processed them.
      *
-     *       - If the consumer consumes frames slower than Argus produces them, Argus will stall.
+     *       - If the consumer consumes frames slower than libargus produces them,
+     *         libargus will stall.
      *
-     *       - If the consumer consumes frames faster than Argus produces them, then the
+     *       - If the consumer consumes frames faster than libargus produces them, then the
      *         consumer may see some frames more than once.
      *
      *   Default value: STREAM_MODE_MAILBOX
@@ -204,6 +213,18 @@ public:
      */
     virtual Status setFifoLength(uint32_t fifoLength) = 0;
     virtual uint32_t getFifoLength() const = 0;
+
+    /**
+     * Enable or disable embedding libargus CaptureMetadata within frames written to the EGLStream.
+     * Enabling this will allow an EGLStream::MetadataContainer to be created from frames acquired
+     * on the consumer side of the EGLStream that will expose the EGLStream::IArgusCaptureMetadata
+     * interface, which in turn provides access to the CaptureMetadata corresponding to that frame.
+     * This will also enable the IArgusCaptureMetadata interface directly on EGLStream::Frames
+     * acquired by an EGLStream::FrameConsumer.
+     *   Default value: disabled.
+     */
+    virtual Status setMetadataEnable(bool metadataEnable) = 0;
+    virtual bool getMetadataEnable() const = 0;
 
     /**
      * @returns True if the output pixel format is supported by the CaptureSession for the

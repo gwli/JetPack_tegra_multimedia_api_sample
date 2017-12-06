@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,14 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #include <sstream>
 #include <iomanip>
 
 #include "VideoRecord.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Dispatcher.h"
 #include "Error.h"
 #include "EventThread.h"
+#include "PerfTracker.h"
 
 namespace ArgusSamples
 {
@@ -45,7 +47,6 @@ TaskVideoRecord::TaskVideoRecord()
     , m_recording(false)
     , m_captureIndex(0)
     , m_videoPipeline(NULL)
-    , m_eventThread(NULL)
 {
 }
 
@@ -59,11 +60,31 @@ bool TaskVideoRecord::initialize()
     if (m_initialized)
         return true;
 
-    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_deviceOpen.registerObserver(this,
+    Dispatcher &dispatcher = Dispatcher::getInstance();
+
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.registerObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::onDeviceOpenChanged)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::restartStreams)));
+
+    m_perfTracker.reset(new SessionPerfTracker());
+    if (!m_perfTracker)
+        ORIGINATE_ERROR("Out of memory");
 
     m_initialized = true;
 
+    return true;
+}
+
+bool TaskVideoRecord::restartStreams(__attribute__((unused)) const Observed &source)
+{
+    if (m_running)
+    {
+        PROPAGATE_ERROR(stop());
+        PROPAGATE_ERROR(start());
+    }
     return true;
 }
 
@@ -91,53 +112,37 @@ bool TaskVideoRecord::start()
 {
     if (!m_initialized)
         ORIGINATE_ERROR("Not initialized");
+
     if (m_running)
         return true;
 
-    m_perfTracker.onEvent(TASK_START);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_TASK_START));
 
     Dispatcher &dispatcher = Dispatcher::getInstance();
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
 
     PROPAGATE_ERROR(dispatcher.createRequest(m_request, Argus::CAPTURE_INTENT_VIDEO_RECORD));
 
     // Create the preview stream
-    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), m_previewStream));
+    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), false, m_previewStream));
 
-    // bind the preview stream to the renderer
+    // bind the preview stream to the composer
     Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_previewStream.get());
     if (!iStream)
         ORIGINATE_ERROR("Failed to get IStream interface");
 
-    PROPAGATE_ERROR(renderer.bindStream(iStream->getEGLStream()));
+    PROPAGATE_ERROR(composer.bindStream(iStream->getEGLStream()));
 
     // Enable the preview stream
     PROPAGATE_ERROR(dispatcher.enableOutputStream(m_request.get(), m_previewStream.get()));
 
     const Argus::Size2D<uint32_t> streamSize = iStream->getResolution();
-    PROPAGATE_ERROR(renderer.setStreamAspectRatio(iStream->getEGLStream(),
+    PROPAGATE_ERROR(composer.setStreamAspectRatio(iStream->getEGLStream(),
         (float)streamSize.width() / (float)streamSize.height()));
-    PROPAGATE_ERROR(renderer.setStreamActive(iStream->getEGLStream(), true));
+    PROPAGATE_ERROR(composer.setStreamActive(iStream->getEGLStream(), true));
 
-    // create the event thread
-    std::vector<Argus::EventType> eventTypes;
-    eventTypes.push_back(Argus::EVENT_TYPE_CAPTURE_COMPLETE);
-
-    Argus::UniqueObj<Argus::EventQueue> eventQueue;
-    PROPAGATE_ERROR(dispatcher.createEventQueue(eventTypes, eventQueue));
-
-    // pass ownership of eventQueue to EventThread
-    m_eventThread.reset(new EventThread(NULL, eventQueue.release(), &m_perfTracker));
-    if (!m_eventThread)
-    {
-        ORIGINATE_ERROR("Failed to allocate EventThread");
-    }
-
-    PROPAGATE_ERROR(m_eventThread->initialize());
-    PROPAGATE_ERROR(m_eventThread->waitRunning());
-
-    m_perfTracker.onEvent(ISSUE_CAPTURE);
     // start the preview
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_ISSUE_CAPTURE));
     PROPAGATE_ERROR(dispatcher.startRepeat(m_request.get()));
 
     m_running = true;
@@ -152,44 +157,41 @@ bool TaskVideoRecord::stop()
     if (!m_running)
         return true;
 
-    m_perfTracker.onEvent(CLOSE_REQUESTED);
-
-    PROPAGATE_ERROR(m_eventThread->shutdown());
-    m_eventThread.reset();
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_REQUESTED));
 
     if (m_recording)
         PROPAGATE_ERROR(stopRecording());
 
     Dispatcher &dispatcher = Dispatcher::getInstance();
-    Renderer &renderer = Renderer::getInstance();
 
     // stop the repeating request
     PROPAGATE_ERROR(dispatcher.stopRepeat());
 
-    PROPAGATE_ERROR(renderer.setStreamActive(
-        Argus::interface_cast<Argus::IStream>(m_previewStream)->getEGLStream(), false));
-
     PROPAGATE_ERROR(dispatcher.waitForIdle());
-    m_perfTracker.onEvent(FLUSH_DONE);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_FLUSH_DONE));
 
     if (m_previewStream)
     {
         if (m_request)
             PROPAGATE_ERROR(dispatcher.disableOutputStream(m_request.get(), m_previewStream.get()));
 
-        const EGLStreamKHR eglStream =
-            Argus::interface_cast<Argus::IStream>(m_previewStream)->getEGLStream();
+        Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_previewStream);
+        if (!iStream)
+            ORIGINATE_ERROR("Failed to get IStream interface");
+
+        // disconnect the EGL stream
+        iStream->disconnect();
+
+        // unbind the preview stream from the composer
+        PROPAGATE_ERROR(Composer::getInstance().unbindStream(iStream->getEGLStream()));
 
         m_previewStream.reset();
-
-        // unbind the preview stream from the renderer
-        PROPAGATE_ERROR_CONTINUE(renderer.unbindStream(eglStream));
-
     }
     PROPAGATE_ERROR_CONTINUE(m_request.reset());
 
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_DONE));
+
     m_running = false;
-    m_perfTracker.onEvent(CLOSE_DONE);
 
     return true;
 }
@@ -211,7 +213,7 @@ bool TaskVideoRecord::startRecording()
         ORIGINATE_ERROR("Out of memory");
 
     // Create the video output stream
-    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), m_videoStream));
+    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), false, m_videoStream));
 
     Argus::Size2D<uint32_t> outputSize;
     PROPAGATE_ERROR(dispatcher.getOutputSize(&outputSize));
@@ -220,7 +222,9 @@ bool TaskVideoRecord::startRecording()
     std::ostringstream fileName;
     fileName << dispatcher.m_outputPath.get();
     if (dispatcher.m_outputPath.get() != "/dev/null")
-        fileName << "/video" << std::setfill('0') << std::setw(4) << m_captureIndex;
+        fileName << "/video_" << (long) getpid() << "_s" << std::setfill('0')
+                << std::setw(2) << dispatcher.m_deviceIndex.get() << "_"
+                << std::setfill('0') << std::setw(4) << m_captureIndex;
     ++m_captureIndex;
 
     PROPAGATE_ERROR(m_videoPipeline->setupForRecording(
@@ -304,9 +308,18 @@ bool TaskVideoRecord::shutdown()
     if (!m_initialized)
         return true;
 
-    PROPAGATE_ERROR(stop());
+    PROPAGATE_ERROR_CONTINUE(stop());
 
-    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_deviceOpen.unregisterObserver(this,
+    PROPAGATE_ERROR_CONTINUE(m_perfTracker->shutdown());
+    m_perfTracker.reset();
+
+    Dispatcher &dispatcher = Dispatcher::getInstance();
+
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.unregisterObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskVideoRecord::onDeviceOpenChanged)));
 
     m_initialized = false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,6 +31,7 @@
 #include "GLContext.h"
 #include "Window.h"
 #include "Thread.h"
+#include "Options.h"
 
 #include <Argus/Argus.h>
 #include <Argus/Ext/BayerAverageMap.h>
@@ -49,6 +50,7 @@ static const uint32_t         CAPTURE_TIME  = 10; // In seconds.
 static const Size2D<uint32_t> STREAM_SIZE     (512, 384);
 static const Size2D<uint32_t> WINDOW_RECT     (1024, 768); // Large enough for 4 viewports.
 static const float            TEXT_SIZE     = 32.0f;
+static const uint32_t         DEFAULT_CAMERA_INDEX = 0;
 
 // By default the average values are rendered to areas that include the
 // bin spacing in order to make them more visible. Setting this to true will
@@ -359,13 +361,18 @@ bool ConsumerThread::threadShutdown()
     return true;
 }
 
+struct ExecuteOptions
+{
+    uint32_t cameraIndex;
+};
+
 /*******************************************************************************
  * Argus Producer thread:
  *   Opens the Argus camera driver, creates an OutputStream to be consumed by
  *   the GL consumer, then performs repeating capture requests for CAPTURE_TIME
  *   seconds before closing the producer and Argus driver.
  ******************************************************************************/
-static bool execute()
+static bool execute(const ExecuteOptions& options)
 {
     // Initialize the window and EGL display.
     Window &window = Window::getInstance();
@@ -377,6 +384,7 @@ static bool execute()
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(g_cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Ensure BayerAverageMap extension is supported.
     if (!iCameraProvider->supportsExtension(EXT_BAYER_AVERAGE_MAP))
@@ -388,7 +396,10 @@ static bool execute()
         ORIGINATE_ERROR("Failed to get CameraDevices");
     if (cameraDevices.size() == 0)
         ORIGINATE_ERROR("No CameraDevices available");
-    CameraDevice *cameraDevice = cameraDevices[0];
+    if (cameraDevices.size() <= options.cameraIndex)
+        ORIGINATE_ERROR("Camera %d not available; there are %d cameras",
+                        options.cameraIndex, (unsigned)cameraDevices.size());
+    CameraDevice *cameraDevice = cameraDevices[options.cameraIndex];
     ICameraProperties *iCameraProperties = interface_cast<ICameraProperties>(cameraDevice);
     if (!iCameraProperties)
         ORIGINATE_ERROR("Failed to get ICameraProperties interface");
@@ -408,6 +419,7 @@ static bool execute()
     iStreamSettings->setPixelFormat(PIXEL_FMT_YCbCr_420_888);
     iStreamSettings->setResolution(STREAM_SIZE);
     iStreamSettings->setEGLDisplay(g_display.get());
+    iStreamSettings->setMetadataEnable(true);
     UniqueObj<OutputStream> outputStream(iSession->createOutputStream(streamSettings.get()));
     IStream *iStream = interface_cast<IStream>(outputStream);
     if (!iStream)
@@ -496,9 +508,24 @@ static bool execute()
 
 }; // namespace ArgusSamples
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
-    if (!ArgusSamples::execute())
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
+    ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
+    ArgusSamples::Options options(basename(argv[0]));
+    options.addOption(ArgusSamples::createValueOption
+        ("device", 'd', "INDEX", "Camera index.", cameraIndex));
+
+    if (!options.parse(argc, argv))
+        return EXIT_FAILURE;
+    if (options.requestedExit())
+        return EXIT_SUCCESS;
+
+    ArgusSamples::ExecuteOptions executeOptions;
+    executeOptions.cameraIndex = cameraIndex.get();
+
+    if (!ArgusSamples::execute(executeOptions))
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;

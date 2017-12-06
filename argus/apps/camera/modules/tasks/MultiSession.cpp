@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,11 +29,11 @@
 #include <sstream>
 
 #include "MultiSession.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Dispatcher.h"
 #include "Error.h"
 #include "UniquePointer.h"
-#include "EventThread.h"
+#include "PerfTracker.h"
 
 namespace ArgusSamples
 {
@@ -50,7 +50,6 @@ TaskMultiSession::~TaskMultiSession()
 }
 
 TaskMultiSession::Session::Session()
-    : m_eventThread(NULL)
 {
 }
 
@@ -61,72 +60,73 @@ TaskMultiSession::Session::~Session()
 
 bool TaskMultiSession::Session::initialize(uint32_t deviceIndex)
 {
-    m_perfTracker.onEvent(TASK_START);
-    Renderer &renderer = Renderer::getInstance();
+    // create the perf tracker
+    m_perfTracker.reset(new SessionPerfTracker());
+    if (!m_perfTracker)
+        ORIGINATE_ERROR("Out of memory");
 
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_TASK_START));
+
+    Composer &composer = Composer::getInstance();
     Dispatcher &dispatcher = Dispatcher::getInstance();
 
     // create the session using the current device index
     PROPAGATE_ERROR(dispatcher.createSession(m_session, deviceIndex));
+    PROPAGATE_ERROR(m_perfTracker->setSession(m_session.get()));
 
     // create the request
     PROPAGATE_ERROR(dispatcher.createRequest(m_request, Argus::CAPTURE_INTENT_STILL_CAPTURE,
         m_session.get()));
 
     // Create the preview stream
-    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), m_outputStream,
+    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), false,  m_outputStream,
         m_session.get()));
 
-    // bind the preview stream to the renderer
+    // bind the preview stream to the composer
     Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_outputStream.get());
     if (!iStream)
         ORIGINATE_ERROR("Failed to get IStream interface");
 
-    // Bind the stream to the renderer
-    PROPAGATE_ERROR(renderer.bindStream(iStream->getEGLStream()));
+    // Bind the stream to the composer
+    PROPAGATE_ERROR(composer.bindStream(iStream->getEGLStream()));
 
     const Argus::Size2D<uint32_t> streamSize = iStream->getResolution();
-    PROPAGATE_ERROR(renderer.setStreamAspectRatio(iStream->getEGLStream(),
+    PROPAGATE_ERROR(composer.setStreamAspectRatio(iStream->getEGLStream(),
         (float)streamSize.width() / (float)streamSize.height()));
 
     // Enable the output stream
     PROPAGATE_ERROR(dispatcher.enableOutputStream(m_request.get(), m_outputStream.get()));
 
-    std::vector<Argus::EventType> eventTypes;
-    eventTypes.push_back(Argus::EVENT_TYPE_CAPTURE_COMPLETE);
+    return true;
+}
 
-    Argus::UniqueObj<Argus::EventQueue> eventQueue;
-    PROPAGATE_ERROR(dispatcher.createEventQueue(eventTypes, eventQueue, m_session.get()));
+bool TaskMultiSession::Session::start()
+{
+    Composer &composer = Composer::getInstance();
 
-    // pass ownership of eventQueue to EventThread
-    m_eventThread.reset(new EventThread(m_session.get(), eventQueue.release(), &m_perfTracker));
-    if (!m_eventThread)
-    {
-        ORIGINATE_ERROR("Failed to allocate EventThread");
-    }
+    // activate the streams and populate the burst request array
+    PROPAGATE_ERROR(composer.setStreamActive(
+        Argus::interface_cast<Argus::IStream>(m_outputStream)->getEGLStream(), true));
 
-    PROPAGATE_ERROR(m_eventThread->initialize());
-    PROPAGATE_ERROR(m_eventThread->waitRunning());
+    // start the repeating burst request for the preview
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_ISSUE_CAPTURE));
+    PROPAGATE_ERROR(Dispatcher::getInstance().startRepeat(m_request.get(), m_session.get()));
 
     return true;
 }
 
 bool TaskMultiSession::Session::stop()
 {
-    m_perfTracker.onEvent(CLOSE_REQUESTED);
-
-    // stop eventThread first to avoid the thread keep waiting for long time to stop
-    PROPAGATE_ERROR(m_eventThread->shutdown());
-    m_eventThread.reset();
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_REQUESTED));
 
     Dispatcher &dispatcher = Dispatcher::getInstance();
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
 
     PROPAGATE_ERROR(dispatcher.stopRepeat(m_session.get()));
-    PROPAGATE_ERROR(renderer.setStreamActive(
+    PROPAGATE_ERROR(composer.setStreamActive(
         Argus::interface_cast<Argus::IStream>(m_outputStream)->getEGLStream(), false));
     PROPAGATE_ERROR(dispatcher.waitForIdle(m_session.get()));
-    m_perfTracker.onEvent(FLUSH_DONE);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_FLUSH_DONE));
 
     return true;
 }
@@ -136,6 +136,7 @@ bool TaskMultiSession::Session::shutdown()
     if (m_request)
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
+        Composer &composer = Composer::getInstance();
 
         if (m_outputStream)
         {
@@ -143,20 +144,25 @@ bool TaskMultiSession::Session::shutdown()
             PROPAGATE_ERROR_CONTINUE(dispatcher.disableOutputStream(m_request.get(),
                 m_outputStream.get()));
 
-            const EGLStreamKHR eglStream =
-                Argus::interface_cast<Argus::IStream>(m_outputStream)->getEGLStream();
+            Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_outputStream);
+            if (!iStream)
+                REPORT_ERROR("Failed to get IStream interface");
+
+            // disconnect the EGL stream
+            iStream->disconnect();
+
+            // unbind the EGL stream from the composer
+            PROPAGATE_ERROR_CONTINUE(composer.unbindStream(iStream->getEGLStream()));
 
             m_outputStream.reset();
-
-            // unbind the EGL stream from the renderer
-            PROPAGATE_ERROR_CONTINUE(Renderer::getInstance().unbindStream(eglStream));
         }
 
         // destroy the request
         PROPAGATE_ERROR_CONTINUE(m_request.reset());
     }
 
-    m_perfTracker.onEvent(CLOSE_DONE);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_DONE));
+
     // Destroy the session
     m_session.reset();
 
@@ -167,6 +173,11 @@ bool TaskMultiSession::initialize()
 {
     if (m_initialized)
         return true;
+
+    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_sensorModeIndex.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiSession::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_outputSize.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiSession::restartStreams)));
 
     m_initialized = true;
 
@@ -180,6 +191,11 @@ bool TaskMultiSession::shutdown()
 
     // stop the preview
     PROPAGATE_ERROR(stop());
+
+    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_outputSize.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiSession::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_sensorModeIndex.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiSession::restartStreams)));
 
     m_initialized = false;
 
@@ -231,18 +247,11 @@ bool TaskMultiSession::start()
         }
     }
 
-    // activate the streams and populate the burst request array
-    Renderer &renderer = Renderer::getInstance();
+    // start the sessions
     for (std::list<Session*>::iterator it = m_sessions.begin(); it != m_sessions.end(); ++it)
     {
         Session *session = *it;
-        PROPAGATE_ERROR(renderer.setStreamActive(
-            Argus::interface_cast<Argus::IStream>(session->m_outputStream)->getEGLStream(), true));
-
-        PerfTracker &perf = session->m_perfTracker;
-        perf.onEvent(ISSUE_CAPTURE);
-        // start the repeating burst request for the preview
-        PROPAGATE_ERROR(dispatcher.startRepeat(session->m_request.get(), session->m_session.get()));
+        PROPAGATE_ERROR(session->start());
     }
 
     m_running = true;
@@ -265,6 +274,16 @@ bool TaskMultiSession::stop()
 
     m_running = false;
 
+    return true;
+}
+
+bool TaskMultiSession::restartStreams(__attribute__((unused)) const Observed &source)
+{
+    if (m_running)
+    {
+        PROPAGATE_ERROR(stop());
+        PROPAGATE_ERROR(start());
+    }
     return true;
 }
 

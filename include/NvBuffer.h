@@ -44,7 +44,7 @@
 
 /**
  *
- * @defgroup ee_nvbuffer_group Buffer API
+ * @defgroup l4t_mm_nvbuffer_group Buffer API
  *
  * The @c %NvBuffer API provides buffer functionality, including reference
  * count functionality and convenience methods.

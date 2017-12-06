@@ -16,6 +16,5 @@ var searchData=
   ['tuple_3c_20coordinate_5f2d_5fcount_2c_20t_20_3e',['Tuple&lt; COORDINATE_2D_COUNT, T &gt;',['../classArgus_1_1Tuple.html',1,'Argus']]],
   ['tuple_3c_20rgb_5fchannel_5fcount_2c_20t_20_3e',['Tuple&lt; RGB_CHANNEL_COUNT, T &gt;',['../classArgus_1_1Tuple.html',1,'Argus']]],
   ['tuplesize',['tupleSize',['../classArgus_1_1Tuple.html#a134a129b8b6f1c51db038d7b32e060c2',1,'Argus::Tuple']]],
-  ['type',['type',['../structArgus_1_1remove__const_3_01const_01T_01_6_01_4.html#a11224fa91b2913e11855b549959a2359',1,'Argus::remove_const&lt; const T &amp; &gt;::type()'],['../structArgus_1_1remove__const_3_01const_01T_01_5_01_4.html#a804d8e0a651fe58b272165b1c080cece',1,'Argus::remove_const&lt; const T * &gt;::type()'],['../structArgus_1_1remove__const_3_01const_01T_01_4.html#a726d6259944daa29a1f3635758cd34e1',1,'Argus::remove_const&lt; const T &gt;::type()'],['../structArgus_1_1remove__const.html#a5483e26ab50767b12d9b02a40487c29d',1,'Argus::remove_const::type()']]],
   ['types_2eh',['Types.h',['../Types_8h.html',1,'']]]
 ];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION.  All rights reserved.
  *
  * NVIDIA Corporation and its licensors retain all intellectual property
  * and proprietary rights in and to this software, related documentation
@@ -9,9 +9,17 @@
  */
 
 /**
-* @file nvbuf_utils.h
-* @brief NVBUF Utils library to be used by applications
-*/
+ * @file
+ * <b>NVIDIA Multimedia API: Buffering API</b>
+ *
+ */
+
+/**
+ * @defgroup ee_nvbuffering_group NV HW Buffer Utility API
+ *
+ * NVIDIA buffering utility library for use by applications.
+ * @{
+ */
 
 #ifndef _NVBUF_UTILS_H_
 #define _NVBUF_UTILS_H_
@@ -68,33 +76,36 @@ typedef struct _NvBufferParams
   uint32_t pitch[MAX_NUM_PLANES];
   uint32_t offset[MAX_NUM_PLANES];
   uint32_t psize[MAX_NUM_PLANES];
+  uint32_t layout[MAX_NUM_PLANES];
 }NvBufferParams;
 
 /**
-* This method should be used for getting EGLImage from dmabuf-fd
-* @param[in] display EGLDisplay object used during creation of EGLImage
-* @param[in] dmabuf_fd DMABUF FD of buffer from which EGLImage to be created
+* This method must be used for getting `EGLImage` from `dmabuf-fd`.
 *
-* @returns EGLImageKHR for success, NULL for failure
+* @param[in] display `EGLDisplay` object used during the creation of `EGLImage`.
+* @param[in] dmabuf_fd `DMABUF FD` of buffer from which `EGLImage` to be created.
+*
+* @returns `EGLImageKHR` for success, `NULL` for failure
 */
 EGLImageKHR NvEGLImageFromFd (EGLDisplay display, int dmabuf_fd);
 
 /**
-* This method should be used for destroying EGLImage object
-* @param[in] display EGLDisplay object used for destroying EGLImage
-* @param[in] eglImage EGLImageKHR object to be destroyed
+* This method must be used for destroying `EGLImage` object.
+
+* @param[in] display `EGLDisplay` object used for destroying `EGLImage`.
+* @param[in] eglImage `EGLImageKHR` object to be destroyed.
 *
 * @returns 0 for success, -1 for failure
 */
 int NvDestroyEGLImage (EGLDisplay display, EGLImageKHR eglImage);
 
 /**
- * This method can be used to allocate hw buffer.
- * @param[out] dmabuf_fd returns dmabuf_fd of hardware buffer
- * @param[in] width hardware buffer width in bytes
- * @param[in] height hardware buffer height in bytes
- * @param[in] layout layout of buffer
- * @param[in] colorFormat colorFormat of buffer
+ * Use this method to allocate HW buffer.
+ * @param[out] dmabuf_fd Returns `dmabuf_fd` of hardware buffer.
+ * @param[in] width Hardware buffer width, in bytes.
+ * @param[in] height Hardware buffer height, in bytes.
+ * @param[in] layout Layout of buffer.
+ * @param[in] colorFormat The `colorFormat` of buffer.
  *
  * @returns 0 for success, -1 for failure
  */
@@ -102,63 +113,63 @@ int NvBufferCreate (int *dmabuf_fd, int width, int height,
     NvBufferLayout layout, NvBufferColorFormat colorFormat);
 
 /**
- * This method can be used to get buffer parameters.
- * @param[in] dmabuf_fd DMABUF FD of buffer
- * @param[out] params structure which will be filled with parameters.
+ * Use this method to get buffer parameters.
+ * @param[in] dmabuf_fd `DMABUF FD` of buffer.
+ * @param[out] params A pointer to the structure to fill with parameters.
  *
  * @returns 0 for success, -1 for failure.
  */
 int NvBufferGetParams (int dmabuf_fd, NvBufferParams *params);
 
 /**
-* This method should be used for destroying hw_buffer
-* @param[in] dmabuf_fd dmabuf_fd hw_buffer to be destroyed
+* This method must be used for destroying `hw_buffer`.
+* @param[in] dmabuf_fd Specifies the `dmabuf_fd` `hw_buffer` to destroy.
 *
-* @returns 0 for success, -1 for failure
+* @returns 0 for success, -1 for failure.
 */
 int NvBufferDestroy (int dmabuf_fd);
 
 /**
-* This method should be used for hw memory cache sync for cpu
-* @param[in] dmabuf_fd DMABUF FD of buffer
-* @param[in] plane video frame plane
-* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane
+* This method must be used for hw memory cache sync for the CPU.
+* @param[in] dmabuf_fd DMABUF FD of buffer.
+* @param[in] plane video frame plane.
+* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane.
 *
-* @returns 0 for success, -1 for failure
+* @returns 0 for success, -1 for failure.
 */
 int NvBufferMemSyncForCpu (int dmabuf_fd, unsigned int plane, void **pVirtAddr);
 
 /**
-* This method should be used for hw memory cache sync for device
-* @param[in] dmabuf_fd DMABUF FD of buffer
-* @param[in] plane video frame plane
-* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane
+* This method must be used for hw memory cache sync for device.
+* @param[in] dmabuf_fd DMABUF FD of buffer.
+* @param[in] plane video frame plane.
+* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane.
 *
-* @returns 0 for success, -1 for failure
+* @returns 0 for success, -1 for failure.
 */
 int NvBufferMemSyncForDevice (int dmabuf_fd, unsigned int plane, void **pVirtAddr);
 
 /**
-* This method should be used for getting mem mapped virtual Address of the plane
-* @param[in] dmabuf_fd DMABUF FD of buffer
-* @param[in] plane video frame plane
-* @param[in] memflag NvBuffer memory flag
-* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane
+* This method must be used for getting mem mapped virtual Address of the plane.
+* @param[in] dmabuf_fd DMABUF FD of buffer.
+* @param[in] plane video frame plane.
+* @param[in] memflag NvBuffer memory flag.
+* @param[in] pVirtAddr Virtual Addres pointer of the mem mapped plane.
 *
-* @returns 0 for success, -1 for failure
+* @returns 0 for success, -1 for failure.
 */
 int NvBufferMemMap (int dmabuf_fd, unsigned int plane, NvBufferMemFlags memflag, void **pVirtAddr);
 
 /**
-* This method should be used to Unmap the mapped virtual Address of the plane
-* @param[in] dmabuf_fd DMABUF FD of buffer
-* @param[in] plane video frame plane
-* @param[in] pVirtAddr mem mapped Virtual Addres pointer of the plane
+* This method must be used to Unmap the mapped virtual Address of the plane.
+* @param[in] dmabuf_fd DMABUF FD of buffer.
+* @param[in] plane video frame plane.
+* @param[in] pVirtAddr mem mapped Virtual Addres pointer of the plane.
 *
-* @returns 0 for success, -1 for failure
+* @returns 0 for success, -1 for failure.
 */
 int NvBufferMemUnMap (int dmabuf_fd, unsigned int plane, void **pVirtAddr);
-
+/** @} */
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -52,12 +52,6 @@ public:
     virtual bool start(Window::IGuiMenuBar *iGuiMenuBar = NULL,
         Window::IGuiContainer *iGuiContainerConfig = NULL);
     virtual bool stop();
-    /**@}*/
-
-    /** @name option callbacks */
-    /**@{*/
-    static bool exposureRange(void *userPtr, const char *optArg);
-    static bool exposureSteps(void *userPtr, const char *optArg);
     /**@}*/
 
 private:

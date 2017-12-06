@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['bayerhistogram',['BayerHistogram',['../group__ArgusBayerHistogram.html',1,'']]],
   ['b',['b',['../classArgus_1_1BayerTuple.html#a7a405c9d6103ea4b2908dd90024f171c',1,'Argus::BayerTuple::b()'],['../classArgus_1_1BayerTuple.html#a4493be34f517bc456bb2e33bb5a5bc2c',1,'Argus::BayerTuple::b() const '],['../classArgus_1_1RGBTuple.html#aee75ddcdc97b817aaa38ad939d5c85d2',1,'Argus::RGBTuple::b()'],['../classArgus_1_1RGBTuple.html#aedaba96c6c208755de2fb53f93f6d36b',1,'Argus::RGBTuple::b() const ']]],
   ['bayer_5fchannel_5fb',['BAYER_CHANNEL_B',['../namespaceArgus.html#a07e5912e70dde696b8bac5c28719a6daade7e0847d7c46e6ef48a73a5bfa7c0d2',1,'Argus']]],
   ['bayer_5fchannel_5fcount',['BAYER_CHANNEL_COUNT',['../namespaceArgus.html#a07e5912e70dde696b8bac5c28719a6daa4fe9995810ef6c8d0b0e6293a644ca92',1,'Argus']]],

@@ -33,8 +33,8 @@
  */
 
 /**
- * @defgroup ee_nvvideodecoder_group Video Decoder
- * @ingroup ee_nvvideo_group
+ * @defgroup l4t_mm_nvvideodecoder_group Video Decoder
+ * @ingroup l4t_mm_nvvideo_group
  *
  * Helper class that creates new V4L2
  * video decoders, and it sets decoder capture and output plane
@@ -51,9 +51,9 @@
  * @brief Defines a helper class for V4L2 Video Decoder.
  *
  * The video decoder device node is `/dev/nvhost-nvdec`. The category name
- * for encoder is \c "NVDEC".
+ * for the decoder is \c "NVDEC".
  *
- * Refer to [V4L2 Video Decoder](group__V4L2Dec.html) for more information on the converter.
+ * Refer to [V4L2 Video Decoder](group__V4L2Dec.html) for more information on the decoder.
  */
 class NvVideoDecoder:public NvV4l2Element
 {

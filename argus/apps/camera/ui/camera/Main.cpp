@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,6 +25,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+// For Bug 200239385 and Bug 200243017
+// There are asserts while operating the gallery.
+// With the following #define commented out, access to the gallery is disabled until it can be fixed
+//#define GALLERY_SUPPORTED
 
 #include <stdlib.h>
 
@@ -68,10 +73,15 @@ enum Modules
     MODULE_VIDEO,
     MODULE_MULTI_EXPOSURE,
     MODULE_MULTI_SESSION,
+#ifdef GALLERY_SUPPORTED
     MODULE_GALLERY,
-
+#endif
     MODULE_FIRST = MODULE_CAPTURE,
+#ifdef GALLERY_SUPPORTED
     MODULE_LAST = MODULE_GALLERY,
+#else
+    MODULE_LAST = MODULE_MULTI_SESSION,
+#endif
     MODULE_COUNT,
     MODULE_INVALID = -1
 };
@@ -82,8 +92,12 @@ static const ValidatorEnum<Modules>::ValueStringPair s_modules[] =
     { MODULE_CAPTURE, "Capture" },
     { MODULE_VIDEO, "Video" },
     { MODULE_MULTI_EXPOSURE, "Multi Exposure" },
+#ifdef GALLERY_SUPPORTED
     { MODULE_MULTI_SESSION, "Multi Session" },
     { MODULE_GALLERY, "Gallery" }
+#else
+    { MODULE_MULTI_SESSION, "Multi Session" }
+#endif
 };
 
 class CameraApp : public App, public IObserver
@@ -97,11 +111,6 @@ public:
     virtual bool initialize();
     virtual bool shutdown();
     virtual bool start();
-    /**@}*/
-
-    /** @name option callbacks */
-    /**@{*/
-    static bool module(void *userPtr, const char *optArg);
     /**@}*/
 
 private:
@@ -147,13 +156,6 @@ CameraApp::~CameraApp()
     shutdown();
 }
 
-/* static */ bool CameraApp::module(void *userPtr, const char *optArg)
-{
-    CameraApp *cameraApp = reinterpret_cast<CameraApp*>(userPtr);
-    PROPAGATE_ERROR(cameraApp->m_module.setFromString(optArg));
-    return true;
-}
-
 bool CameraApp::initialize()
 {
     PROPAGATE_ERROR(App::initialize());
@@ -161,10 +163,7 @@ bool CameraApp::initialize()
     const char *description =
         "Press 'm' to toggle between modules (still capture, video recording, multi exposure, \n"
         "multi session).\n"
-// For Bug 200239385
-// There are asserts while operating the gallery.
-// This "#if" will disable access to the gallery until it can be fixed
-#if 0
+#ifdef GALLERY_SUPPORTED
         "Press 'g' to switch to gallery and back. Use left and right arrow keys to move to next\n"
         "and previous image or video.\n"
 #endif
@@ -173,8 +172,7 @@ bool CameraApp::initialize()
     PROPAGATE_ERROR(m_options.addDescription(description));
 
     PROPAGATE_ERROR(m_options.addOption(
-        Options::Option("module", 0, "MODULE", m_module, "switch to module MODULE.",
-            module, this)));
+        createValueOption("module", 0, "MODULE", "switch to module MODULE.", m_module)));
 
 #if (WINDOW_GUI_SUPPORT == WINDOW_GUI_GTK)
     Window::IGuiBuilder *builder = NULL;
@@ -222,10 +220,12 @@ bool CameraApp::initialize()
         ORIGINATE_ERROR("Out of memory");
     m_modules[MODULE_MULTI_SESSION] = module.release();
 
+#ifdef GALLERY_SUPPORTED
     module.reset(new AppModuleGallery);
     if (!module)
         ORIGINATE_ERROR("Out of memory");
     m_modules[MODULE_GALLERY] = module.release();
+#endif
 
     // initialize generic module, this has options common to all modules
     PROPAGATE_ERROR(m_moduleGeneric.initialize(m_options));
@@ -291,22 +291,23 @@ bool CameraApp::onKey(const Key &key)
         // switch to next module
         Modules curModule = m_module.get();
 
+#ifdef GALLERY_SUPPORTED
         // switch to next module but skip gallery
         do
         {
+#endif
             if (curModule == MODULE_LAST)
                 curModule = MODULE_FIRST;
             else
                 curModule = static_cast<Modules>(curModule + 1);
+#ifdef GALLERY_SUPPORTED
         }
         while (curModule == MODULE_GALLERY);
+#endif
 
         m_module.set(curModule);
     }
-// For Bug 200239385
-// There are asserts while operating the gallery.
-// This "#if" will disable access to the gallery until it can be fixed
-#if 0
+#ifdef GALLERY_SUPPORTED
     else if (key == Key("g"))
     {
         // switch to gallery on/off
@@ -349,7 +350,9 @@ bool CameraApp::onModuleChanged(const Observed &source)
 
 int main(int argc, char **argv)
 {
-    ArgusSamples::CameraApp cameraApp(argv[0]);
+    printf("Executing Argus Sample Application (%s)\n", basename(argv[0]));
+
+    ArgusSamples::CameraApp cameraApp(basename(argv[0]));
 
     if (!cameraApp.run(argc, argv))
          return EXIT_FAILURE;

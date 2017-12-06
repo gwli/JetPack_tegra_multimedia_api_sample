@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,27 +61,6 @@ public:
     static bool quit(void *userPtr, const char *optArg);
     static bool verbose(void *userPtr, const char *optArg);
     static bool kpi(void *userPtr, const char *optArg);
-    static bool device(void *userPtr, const char *optArg);
-    static bool exposureTimeRange(void *userPtr, const char *optArg);
-    static bool focusPosition(void *userPtr, const char *optArg);
-    static bool gainRange(void *userPtr, const char *optArg);
-    static bool sensorMode(void *userPtr, const char *optArg);
-    static bool frameRate(void *userPtr, const char *optArg);
-    static bool outputSize(void *userPtr, const char *optArg);
-    static bool outputPath(void *userPtr, const char *optArg);
-    static bool autoFocus(void *userPtr, const char *optArg);
-    static bool autoExposure(void *userPtr, const char *optArg);
-    static bool vstab(void *userPtr, const char *optArg);
-    static bool deNoise(void *userPtr, const char *optArg);
-    static bool aeAntibanding(void *userPtr, const char *optArg);
-    static bool aeLock(void *userPtr, const char *optArg);
-    static bool awbLock(void *userPtr, const char *optArg);
-    static bool awb(void *userPtr, const char *optArg);
-    static bool exposureCompensation(void *userPtr, const char *optArg);
-    static bool ispDigitalGainRange(void *userPtr, const char *optArg);
-    static bool deFogEnable(void *userPtr, const char *optArg);
-    static bool deFogAmount(void *userPtr, const char *optArg);
-    static bool deFogQuality(void *userPtr, const char *optArg);
     /**@}*/
 
 private:

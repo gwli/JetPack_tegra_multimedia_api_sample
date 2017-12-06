@@ -134,6 +134,8 @@ Public Member Functions</h2></td></tr>
 Private Member Functions</h2></td></tr>
 <tr class="memitem:a216bfc2b791163e21fae0492af8498a7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#a216bfc2b791163e21fae0492af8498a7">onDeviceOpenChanged</a> (const Observed &amp;source)</td></tr>
 <tr class="memdesc:a216bfc2b791163e21fae0492af8498a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback when the device is opened/closed.  <a href="#a216bfc2b791163e21fae0492af8498a7"></a><br/></td></tr>
+<tr class="memitem:a30c6aa5eede194e6cb811ceb6d52f861"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#a30c6aa5eede194e6cb811ceb6d52f861">restartStreams</a> (const Observed &amp;source)</td></tr>
+<tr class="memdesc:a30c6aa5eede194e6cb811ceb6d52f861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart when sensor mode or output size changes.  <a href="#a30c6aa5eede194e6cb811ceb6d52f861"></a><br/></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -145,8 +147,7 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:aa29dcbe5a25ff01fca0e9e13283b2b18"><td class="mdescLeft">&#160;</td><td class="mdescRight">set if was running before the device had been closed  <a href="#aa29dcbe5a25ff01fca0e9e13283b2b18"></a><br/></td></tr>
 <tr class="memitem:afb9fe6f6a509b7146579e8e590a593cf"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#afb9fe6f6a509b7146579e8e590a593cf">m_captureIndex</a></td></tr>
 <tr class="memdesc:afb9fe6f6a509b7146579e8e590a593cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Incrementing capture index.  <a href="#afb9fe6f6a509b7146579e8e590a593cf"></a><br/></td></tr>
-<tr class="memitem:ac4e54d98b58bee14d7e959ab838c7046"><td class="memItemLeft" align="right" valign="top">UniquePointer&lt; <a class="el" href="classArgusSamples_1_1EventThread.html">EventThread</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#ac4e54d98b58bee14d7e959ab838c7046">m_eventThread</a></td></tr>
-<tr class="memitem:af4a27000bb1bb1e4a32a1d23b1eec6fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classArgusSamples_1_1PerfTracker.html">PerfTracker</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#af4a27000bb1bb1e4a32a1d23b1eec6fc">m_perfTracker</a></td></tr>
+<tr class="memitem:ab8abaa019cd61954ae430d665f6acfc5"><td class="memItemLeft" align="right" valign="top">UniquePointer&lt; <a class="el" href="classArgusSamples_1_1SessionPerfTracker.html">SessionPerfTracker</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#ab8abaa019cd61954ae430d665f6acfc5">m_perfTracker</a></td></tr>
 <tr class="memitem:a2b5bcde355ef0bdb0e8f13697f2caf25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classArgusSamples_1_1TrackedUniqueObj.html">TrackedUniqueObj</a>&lt; Argus::Request &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskStillCapture.html#a2b5bcde355ef0bdb0e8f13697f2caf25">m_previewRequest</a></td></tr>
 <tr class="memdesc:a2b5bcde355ef0bdb0e8f13697f2caf25"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespaceArgus.html">Argus</a> preview request.  <a href="#a2b5bcde355ef0bdb0e8f13697f2caf25"></a><br/></td></tr>
 <tr class="memitem:a99cdb83b0f34e19c9515ba0200124a67"><td class="memItemLeft" align="right" valign="top">Argus::UniqueObj<br class="typebreak"/>
@@ -171,7 +172,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00042">42</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00043">43</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -216,7 +217,7 @@ Private Attributes</h2></td></tr>
 
 <p>Capture one image. </p>
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00190">190</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00195">195</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -273,7 +274,35 @@ Private Attributes</h2></td></tr>
 
 <p>Callback when the device is opened/closed. </p>
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00069">69</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00089">89</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a30c6aa5eede194e6cb811ceb6d52f861"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ArgusSamples::TaskStillCapture::restartStreams </td>
+          <td>(</td>
+          <td class="paramtype">const Observed &amp;&#160;</td>
+          <td class="paramname"><em>source</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Restart when sensor mode or output size changes. </p>
+
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00079">79</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -302,7 +331,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#a5891b29c51e0651bf870936a51af4bcb">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00275">275</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00280">280</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -331,7 +360,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#a80bafe246911afeb08d21c6d33f9cade">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00089">89</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00109">109</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -360,7 +389,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classArgusSamples_1_1ITask.html#ab3d17813e200c57cb68f048604a2ea4a">ArgusSamples::ITask</a>.</p>
 
-<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00146">146</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8cpp_source.html#l00151">151</a> of file <a class="el" href="StillCapture_8cpp_source.html">StillCapture.cpp</a>.</p>
 
 </div>
 </div>
@@ -389,28 +418,6 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac4e54d98b58bee14d7e959ab838c7046"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">UniquePointer&lt;<a class="el" href="classArgusSamples_1_1EventThread.html">EventThread</a>&gt; ArgusSamples::TaskStillCapture::m_eventThread</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00071">71</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a0611c811496a43985efac4e710c448e6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -435,7 +442,7 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af4a27000bb1bb1e4a32a1d23b1eec6fc"></a>
+<a class="anchor" id="ab8abaa019cd61954ae430d665f6acfc5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -443,7 +450,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classArgusSamples_1_1PerfTracker.html">PerfTracker</a> ArgusSamples::TaskStillCapture::m_perfTracker</td>
+          <td class="memname">UniquePointer&lt;<a class="el" href="classArgusSamples_1_1SessionPerfTracker.html">SessionPerfTracker</a>&gt; ArgusSamples::TaskStillCapture::m_perfTracker</td>
         </tr>
       </table>
   </td>
@@ -453,7 +460,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00072">72</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00071">71</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
 
 </div>
 </div>
@@ -477,7 +484,7 @@ Private Attributes</h2></td></tr>
 
 <p><a class="el" href="namespaceArgus.html">Argus</a> preview request. </p>
 
-<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00074">74</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00073">73</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
 
 </div>
 </div>
@@ -501,7 +508,7 @@ Private Attributes</h2></td></tr>
 
 <p><a class="el" href="namespaceArgus.html">Argus</a> preview stream. </p>
 
-<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00075">75</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
+<p>Definition at line <a class="el" href="StillCapture_8h_source.html#l00074">74</a> of file <a class="el" href="StillCapture_8h_source.html">StillCapture.h</a>.</p>
 
 </div>
 </div>
@@ -560,7 +567,7 @@ Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

@@ -334,6 +334,10 @@ bool ConsumerThread::createVideoEncoder()
     if (ret < 0)
         ORIGINATE_ERROR("Could not set m_VideoEncoderoder framerate");
 
+    ret = m_VideoEncoder->setHWPresetType(V4L2_ENC_HW_PRESET_ULTRAFAST);
+    if (ret < 0)
+        ORIGINATE_ERROR("Could not set m_VideoEncoderoder HW Preset");
+
     // Query, Export and Map the output plane buffers so that we can read
     // raw data into the buffers
     ret = m_VideoEncoder->output_plane.setupPlane(V4L2_MEMORY_DMABUF, 10, true, false);
@@ -346,7 +350,7 @@ bool ConsumerThread::createVideoEncoder()
     if (ret < 0)
         ORIGINATE_ERROR("Could not setup capture plane");
 
-    printf("create vidoe encoder return true\n");
+    printf("create video encoder return true\n");
     return true;
 }
 
@@ -372,7 +376,12 @@ bool ConsumerThread::encoderCapturePlaneDqCallback(struct v4l2_buffer *v4l2_buf,
     thiz->m_outputFile->write((char *) buffer->planes[0].data,
                               buffer->planes[0].bytesused);
 
-    thiz->m_VideoEncoder->capture_plane.qBuffer(*v4l2_buf, NULL);
+    if (thiz->m_VideoEncoder->capture_plane.qBuffer(*v4l2_buf, NULL) < 0)
+    {
+        thiz->abort();
+        ORIGINATE_ERROR("Failed to enqueue buffer to encoder capture plane");
+        return false;
+    }
 
     // GOT EOS from m_VideoEncoderoder. Stop dqthread.
     if (buffer->planes[0].bytesused == 0)

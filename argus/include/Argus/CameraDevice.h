@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,21 +26,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Camera Device API</b>
+ *
+ * @b Description: This file defines objects representing a single camera device.
+ */
+
 #ifndef _ARGUS_CAMERA_DEVICE_H
 #define _ARGUS_CAMERA_DEVICE_H
-
 
 namespace Argus
 {
 
 /**
- * An object representing a single camera device.
+ * Object representing a single camera device.
  *
  * CameraDevices are provided by a CameraProvider and are used to
  * access the camera devices available within the system.
  * Each device is based on a single sensor or a set of synchronized sensors.
  *
- * @see ICameraProvider::getCameraDevices()
+ * @see ICameraProvider::getCameraDevices
+ *
+ * @defgroup ArgusCameraDevice CameraDevice
+ * @ingroup ArgusObjects
  */
 class CameraDevice : public InterfaceProvider
 {
@@ -51,10 +60,11 @@ protected:
 /**
  * @class ICameraProperties
  *
- * An interface to retrieve the properties of a CameraDevice.
+ * Interface to the core CameraDevice properties.
+ *
+ * @ingroup ArgusCameraDevice
  */
 DEFINE_UUID(InterfaceID, IID_CAMERA_PROPERTIES, 436d2a73,c85b,4a29,bce5,15,60,6e,35,86,91);
-
 class ICameraProperties : public Interface
 {
 public:
@@ -62,7 +72,7 @@ public:
 
     /**
      * Returns the camera UUID.
-     * @todo DOC describe the camera UUID
+     * @todo Describe the meaning of the camera UUID.
      */
     virtual UUID getUUID() const = 0;
 
@@ -86,7 +96,7 @@ public:
      * Returns only the basic available sensor modes that do not have an associated
      * extension. Basic mode types include Depth, RGB, YUV and Bayer types.
      *
-     * @param[out] modes, a vector that will be populated with the sensor modes.
+     * @param[out] modes A vector that will be populated with the sensor modes.
      *
      * @returns success/status of the call.
      */
@@ -99,7 +109,7 @@ public:
      * All the returned modes will support the basic sensor mode interface.
      * @see ISensorMode
      *
-     * @param[out] modes, a vector that will be populated with the sensor modes.
+     * @param[out] modes A vector that will be populated with the sensor modes.
      *
      * @returns success/status of the call.
      */
@@ -117,18 +127,25 @@ public:
     virtual Range<float> getLensApertureRange() const = 0;
 
     /**
-     * Returns the  supported range of ISP digital gain.
+     * Returns the supported range of ISP digital gain.
      */
     virtual Range<float> getIspDigitalGainRange() const = 0;
+
+    /**
+     * Returns the supported range of Exposure Compensation.
+     */
+    virtual Range<float> getExposureCompensationRange() const = 0;
 
 protected:
     ~ICameraProperties() {}
 };
 
 /**
- * An object representing the sensor mode of a CameraDevice.
+ * Child object representing a CameraDevice's sensor mode, returned by
+ * ICameraProperties::getAllSensorModes
  *
- * @see ICameraProperties::getAllSensorModes().
+ * @defgroup ArgusSensorMode SensorMode
+ * @ingroup ArgusCameraDevice
  */
 class SensorMode : public InterfaceProvider
 {
@@ -139,10 +156,11 @@ protected:
 /**
  * @class ISensorMode
  *
- * An interface to retrieve the properties of a SensorMode.
+ * Interface to the core properties of a SensorMode.
+ *
+ * @ingroup ArgusSensorMode
  */
 DEFINE_UUID(InterfaceID, IID_SENSOR_MODE, e69015e0,db2a,11e5,a837,18,00,20,0c,9a,66);
-
 class ISensorMode : public Interface
 {
 public:

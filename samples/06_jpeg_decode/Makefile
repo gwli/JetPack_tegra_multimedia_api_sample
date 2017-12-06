@@ -32,21 +32,12 @@ include ../Rules.mk
 
 APP := jpeg_decode
 
-CLASS_DIR := ../common/classes
-
 SRCS := \
 	jpeg_decode_csvparser.cpp \
 	jpeg_decode_main.cpp \
 	$(wildcard $(CLASS_DIR)/*.cpp)
 
 OBJS := $(SRCS:.cpp=.o)
-
-CPPFLAGS += -I"../../include/libjpeg-8b"
-
-LDFLAGS += \
-	-lpthread \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg
 
 all: $(APP)
 
@@ -60,5 +51,4 @@ $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

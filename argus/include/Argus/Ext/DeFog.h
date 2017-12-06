@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus Extension: DeFog API</b>
+ *
+ * @b Description: This file defines the DeFog extension.
+ */
+
 #ifndef _ARGUS_DE_FOG_H
 #define _ARGUS_DE_FOG_H
 
@@ -33,22 +40,24 @@ namespace Argus
 {
 
 /**
- * The Ext::DeFog extension adds an internal de-fog algorithm to
- * the Argus driver. It introduces one new interface:
+ * Adds internal de-fog post-processing algorithms. It introduces one new interface:
  *   - IDeFogSettings; used to enable de-fog for a Request.
+ *
+ * @defgroup ArgusExtDeFog Ext::DeFog
+ * @ingroup ArgusExtensions
  */
 DEFINE_UUID(ExtensionName, EXT_DE_FOG, 9cf05bd0,1d99,4be8,8732,75,99,55,7f,ed,3a);
-
 namespace Ext
 {
 
 /**
  * @class IDeFogSettings
  *
- * Request settings used to configure the de-fog algorithm.
+ * Interface to de-fog settings.
+ *
+ * @ingroup ArgusRequest ArgusExtDeFog
  */
 DEFINE_UUID(InterfaceID, IID_DE_FOG_SETTINGS, 9cf05bd1,1d99,4be8,8732,75,99,55,7f,ed,3a);
-
 class IDeFogSettings : public Interface
 {
 public:

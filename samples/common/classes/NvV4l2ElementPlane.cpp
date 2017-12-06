@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -388,8 +388,11 @@ NvV4l2ElementPlane::reqbufs(enum v4l2_memory mem_type, uint32_t num)
             {
                 planefmts[i].stride =
                     planefmts[i].width * planefmts[i].bytesperpixel;
-                planefmts[i].sizeimage =
-                    planefmts[i].width * planefmts[i].height;
+                if(!planefmts[i].sizeimage)
+                {
+                    planefmts[i].sizeimage =
+                        planefmts[i].width * planefmts[i].height;
+                }
             }
             break;
         case V4L2_MEMORY_MMAP:
@@ -474,11 +477,7 @@ NvV4l2ElementPlane::setStreamStatus(bool status)
 
         if (buf_type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
         {
-            if (status)
-            {
-                v4l2elem_profiler.enableProfiling(false);
-            }
-            else
+            if (status == false)
             {
                 v4l2elem_profiler.disableProfiling();
             }

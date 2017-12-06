@@ -45,8 +45,8 @@
 
 /**
  *
- * @defgroup ee_nvelement_base_group NvElement Base Class
- * @ingroup ee_nvelement_group
+ * @defgroup l4t_mm_nvelement_base_group NvElement Base Class
+ * @ingroup l4t_mm_nvelement_group
  *
  * This class is the class from which both V4L2 and non-V4L2
  * components are derived.
@@ -64,7 +64,7 @@ class NvElement
 {
 public:
     /**
-     * Indicates if the element encountered an error during its operation.
+     * Indicates whether the element encountered an error during its operation.
      *
      * @return 0 if no error was encountered, a non-zero value if an
      *            error was encountered.

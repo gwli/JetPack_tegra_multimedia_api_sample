@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Event Queue API</b>
+ *
+ * @b Description: Defines the EventQueue object and interface.
+ */
+
 #ifndef _ARGUS_EVENT_QUEUE_H
 #define _ARGUS_EVENT_QUEUE_H
 
@@ -33,7 +40,12 @@ namespace Argus
 {
 
 /**
- * An EventQueue object, as returned by IEventProvider::createEventQueue.
+ * Object to receive and expose Events from an IEventProvider.
+ *
+ * @see IEventProvider::createEventQueue.
+ *
+ * @defgroup ArgusEventQueue EventQueue
+ * @ingroup ArgusObjects
  */
 class EventQueue : public InterfaceProvider, public Destructable
 {
@@ -44,10 +56,11 @@ protected:
 /**
  * @class IEventQueue
  *
- * The interface available to an EventQueue.
+ * Interface to the core EventQueue methods.
+ *
+ * @ingroup ArgusEventQueue
  */
 DEFINE_UUID(InterfaceID, IID_EVENT_QUEUE, 944b11f6,e512,49ad,8573,fc,82,3e,02,25,ed);
-
 class IEventQueue : public Interface
 {
 public:
@@ -55,8 +68,8 @@ public:
 
     /**
      * Returns the event types that this queue will receive.
-     * @param[out] eventTypes, this vector will be populated with the event types registered to this
-     *                         queue.
+     * @param[out] types This vector will be populated with the event types
+     *                   registered to this queue.
      *
      * @returns success/status of the call.
      */

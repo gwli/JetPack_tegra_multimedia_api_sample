@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,7 +34,7 @@
  * The task communicates with the thread through commands.
  * Image gallery items share one EGL stream, image data is written to that stream. Video gallery
  * items each have an EGL stream.
- * EGL streams are enabled for the current visible item only. The renderer displays them on the
+ * EGL streams are enabled for the current visible item only. The composer displays them on the
  * screen.
  */
 
@@ -52,7 +52,7 @@
 #include <list>
 
 #include "Gallery.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Dispatcher.h"
 #include "Error.h"
 #include "Ordered.h"
@@ -339,7 +339,7 @@ bool GalleryItemVideo::initialize()
         ORIGINATE_ERROR("Failed to allocate video pipeline");
 
     PROPAGATE_ERROR(m_pipeline->setupForPlayback(&m_eglStream, m_fileName.c_str()));
-    PROPAGATE_ERROR(Renderer::getInstance().bindStream(m_eglStream));
+    PROPAGATE_ERROR(Composer::getInstance().bindStream(m_eglStream));
 
     // set to pause
     PROPAGATE_ERROR(m_pipeline->pause());
@@ -347,7 +347,7 @@ bool GalleryItemVideo::initialize()
     // query size
     float aspectRatio = 1.0f;
     PROPAGATE_ERROR(m_pipeline->getAspectRatio(&aspectRatio));
-    PROPAGATE_ERROR(Renderer::getInstance().setStreamAspectRatio(m_eglStream, aspectRatio));
+    PROPAGATE_ERROR(Composer::getInstance().setStreamAspectRatio(m_eglStream, aspectRatio));
 
     return true;
 }
@@ -356,7 +356,7 @@ bool GalleryItemVideo::shutdown()
 {
     if (m_pipeline)
     {
-        PROPAGATE_ERROR_CONTINUE(Renderer::getInstance().unbindStream(m_eglStream));
+        PROPAGATE_ERROR_CONTINUE(Composer::getInstance().unbindStream(m_eglStream));
         delete m_pipeline;
         m_pipeline = NULL;
     }
@@ -634,24 +634,24 @@ pass:
 
 bool GalleryThread::threadInitialize()
 {
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
     //! @todo Using 1920x1080 for now. Should use the image size, but this would require creating
     //        one stream and one surface for each image because surfaces can't be resized
     const uint32_t streamWidth = 1920;
     const uint32_t streamHeight = 1080;
 
     // create the EGL output stream
-    PROPAGATE_ERROR(m_eglImageOutputStream.create(renderer.getEGLDisplay()));
+    PROPAGATE_ERROR(m_eglImageOutputStream.create(composer.getEGLDisplay()));
     CHECK_STREAM_STATE(m_eglImageOutputStream, CREATED);
 
-    // bind the output stream to the renderer
-    PROPAGATE_ERROR(renderer.bindStream(m_eglImageOutputStream.get()));
-    PROPAGATE_ERROR(renderer.setStreamAspectRatio(m_eglImageOutputStream.get(),
+    // bind the output stream to the composer
+    PROPAGATE_ERROR(composer.bindStream(m_eglImageOutputStream.get()));
+    PROPAGATE_ERROR(composer.setStreamAspectRatio(m_eglImageOutputStream.get(),
         (float)streamWidth / (float)streamHeight));
     CHECK_STREAM_STATE(m_eglImageOutputStream, CONNECTING);
 
     // create a EGL context and make it current to the output surface
-    PROPAGATE_ERROR(m_context.initialize(renderer.getEGLDisplay()));
+    PROPAGATE_ERROR(m_context.initialize(composer.getEGLDisplay()));
 
     // create the EGL output surface and connect the EGL output stream to it
     PROPAGATE_ERROR(m_context.createEGLStreamProducerSurface(&m_eglOutputSurface,
@@ -786,7 +786,7 @@ bool GalleryThread::startDisplay()
         ORIGINATE_ERROR("Unhandled gallery item type");
     }
 
-    PROPAGATE_ERROR(Renderer::getInstance().setStreamActive(getOutputStream(), true));
+    PROPAGATE_ERROR(Composer::getInstance().setStreamActive(getOutputStream(), true));
 
     return true;
 }
@@ -796,7 +796,7 @@ bool GalleryThread::pauseDisplay()
     if (m_curItem == m_itemList.end())
         return true;
 
-    PROPAGATE_ERROR(Renderer::getInstance().setStreamActive(getOutputStream(), false));
+    PROPAGATE_ERROR(Composer::getInstance().setStreamActive(getOutputStream(), false));
     PROPAGATE_ERROR((*m_curItem)->pauseDisplay());
 
     return true;
@@ -884,18 +884,18 @@ bool GalleryThread::threadExecute()
 
 bool GalleryThread::threadShutdown()
 {
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
 
     PROPAGATE_ERROR_CONTINUE(stop());
 
     if (m_eglOutputSurface != EGL_NO_SURFACE)
     {
-        eglDestroySurface(renderer.getEGLDisplay(), m_eglOutputSurface);
+        eglDestroySurface(composer.getEGLDisplay(), m_eglOutputSurface);
         m_eglOutputSurface = EGL_NO_SURFACE;
     }
 
-    // unbind the EGL output stream from the renderer
-    PROPAGATE_ERROR_CONTINUE(renderer.unbindStream(m_eglImageOutputStream.get()));
+    // unbind the EGL output stream from the composer
+    PROPAGATE_ERROR_CONTINUE(composer.unbindStream(m_eglImageOutputStream.get()));
     CHECK_STREAM_STATE(m_eglImageOutputStream, DISCONNECTED);
     // and destroy the EGL output stream
     PROPAGATE_ERROR_CONTINUE(m_eglImageOutputStream.destroy());

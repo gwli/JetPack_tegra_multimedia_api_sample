@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,9 +57,6 @@ public:
     /**@{*/
     static bool video(void *userPtr, const char *optArg);
     static bool toggleRecording(void *userPtr, const char *optArg);
-    static bool videoBitRate(void *userPtr, const char *optArg);
-    static bool videoFormat(void *userPtr, const char *optArg);
-    static bool videoFileType(void *userPtr, const char *optArg);
     /**@}*/
 
 private:

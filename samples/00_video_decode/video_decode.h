@@ -64,6 +64,7 @@ typedef struct
 
     bool enable_metadata;
     enum v4l2_skip_frames_type skip_frames;
+    enum v4l2_memory memory_type;
 
     std::queue < NvBuffer * > *conv_output_plane_buf_queue;
     pthread_mutex_t queue_lock;
@@ -72,6 +73,7 @@ typedef struct
     pthread_t dec_capture_loop;
     bool got_error;
     bool got_eos;
+    bool vp9_file_header_flag;
 } context_t;
 
 int parse_csv_args(context_t * ctx, int argc, char *argv[]);

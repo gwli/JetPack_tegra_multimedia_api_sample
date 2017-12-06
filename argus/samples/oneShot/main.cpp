@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,11 +30,14 @@
 #include <stdlib.h>
 #include <Argus/Argus.h>
 #include <EGLStream/EGLStream.h>
+#include "Options.h"
 
 #define EXIT_IF_NULL(val,msg)   \
         {if (!val) {printf("%s\n",msg); return EXIT_FAILURE;}}
 #define EXIT_IF_NOT_OK(val,msg) \
         {if (val!=Argus::STATUS_OK) {printf("%s\n",msg); return EXIT_FAILURE;}}
+
+static const uint32_t         DEFAULT_CAMERA_INDEX = 0;
 
 /*
  * Program: oneShot
@@ -46,6 +49,18 @@
 
 int main(int argc, char** argv)
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
+    ArgusSamples::Value<uint32_t> cameraIndex(DEFAULT_CAMERA_INDEX);
+    ArgusSamples::Options options(basename(argv[0]));
+    options.addOption(ArgusSamples::createValueOption
+        ("device", 'd', "INDEX", "Camera index.", cameraIndex));
+
+    if (!options.parse(argc, argv))
+        return EXIT_FAILURE;
+    if (options.requestedExit())
+        return EXIT_SUCCESS;
+
     const uint64_t FIVE_SECONDS_IN_NANOSECONDS = 5000000000;
     std::vector<Argus::CameraDevice*> cameraDevices;
 
@@ -59,13 +74,19 @@ int main(int argc, char** argv)
     Argus::ICameraProvider *iCameraProvider =
         Argus::interface_cast<Argus::ICameraProvider>(cameraProvider);
     EXIT_IF_NULL(iCameraProvider, "Cannot get core camera provider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     Argus::Status status = iCameraProvider->getCameraDevices(&cameraDevices);
     EXIT_IF_NOT_OK(status, "Failed to get camera devices");
     EXIT_IF_NULL(cameraDevices.size(), "No camera devices available");
+    if (cameraDevices.size() <= cameraIndex.get())
+    {
+        printf("Camera device specifed on command line is not available\n");
+        return EXIT_FAILURE;
+    }
 
     Argus::UniqueObj<Argus::CaptureSession> captureSession(
-        iCameraProvider->createCaptureSession(cameraDevices[0], &status));
+        iCameraProvider->createCaptureSession(cameraDevices[cameraIndex.get()], &status));
 
     Argus::ICaptureSession *iSession =
         Argus::interface_cast<Argus::ICaptureSession>(captureSession);
@@ -87,6 +108,7 @@ int main(int argc, char** argv)
     EXIT_IF_NULL(iStreamSettings, "Cannot get OutputStreamSettings Interface");
     iStreamSettings->setPixelFormat(Argus::PIXEL_FMT_YCbCr_420_888);
     iStreamSettings->setResolution(Argus::Size2D<uint32_t>(640, 480));
+    iStreamSettings->setMetadataEnable(true);
 
     Argus::UniqueObj<Argus::OutputStream> stream(
         iSession->createOutputStream(streamSettings.get()));

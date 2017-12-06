@@ -58,6 +58,16 @@ Requirements
 
       https://developer.nvidia.com/embedded/jetpack
 
+
+Creating symbolic links
+---------------------
+
+Create symbolic links with the following commands:
+
+ $ cd /usr/lib/aarch64-linux-gnu
+ $ sudo ln -sf tegra-egl/libEGL.so.1 libEGL.so
+
+
 Building and Installing
 -----------------------
 

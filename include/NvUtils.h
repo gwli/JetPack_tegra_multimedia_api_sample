@@ -34,8 +34,8 @@
  */
 
 /**
- * @defgroup ee_nvutils_group Video Read/Write
- * @ingroup ee_nvvideo_group
+ * @defgroup l4t_mm_nvutils_group Video Read/Write
+ * @ingroup l4t_mm_nvvideo_group
  *
  * Utility functions for reading video frames from a file to the buffer structure and
  * for writing from the buffer structure to a file.

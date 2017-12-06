@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Capture Session API</b>
+ *
+ * @b Description: Defines the CaptureSession object and interface.
+ */
+
 #ifndef _ARGUS_CAPTURE_SESSION_H
 #define _ARGUS_CAPTURE_SESSION_H
 
@@ -33,9 +40,13 @@ namespace Argus
 {
 
 /**
- * The object that controls all operations on a single sensor.
+ * Object that controls all operations on a single sensor.
+ *
  * A capture session is bound to a single sensor (or, in future, a group of synchronized sensors)
  * and provides methods to perform captures on that sensor (via the ICaptureSession interface).
+ *
+ * @defgroup ArgusCaptureSession CaptureSession
+ * @ingroup ArgusObjects
  */
 class CaptureSession : public InterfaceProvider, public Destructable
 {
@@ -46,10 +57,11 @@ protected:
 /**
  * @class ICaptureSession
  *
- * Describes the core interface available to CaptureSessions.
+ * Interface to the core CaptureSession methods.
+ *
+ * @ingroup ArgusCaptureSession
  */
 DEFINE_UUID(InterfaceID, IID_CAPTURE_SESSION, 813644f5,bc21,4013,af44,dd,da,b5,7a,9d,13);
-
 class ICaptureSession : public Interface
 {
 public:
@@ -140,7 +152,7 @@ public:
     /**
      * Creates an OutputStream object. All OutputStream objects are associated with
      * and EGLStream, which is created and owned by this object and left in the CREATED
-     * state upon return. Argus does not connect as a producer for this EGLStream until
+     * state upon return. This does not connect as a producer for this EGLStream until
      * the first request outputting to the stream; thus, the application is expected to
      * connect the consumer to this stream before the first request is made otherwise the
      * request will fail.
@@ -165,7 +177,7 @@ public:
      *
      * To stop repeating the request, call stopRepeat().
      *
-     * @param[in] The request to repeat.
+     * @param[in] request The request to repeat.
      *
      * @returns success/status of the call.
      */

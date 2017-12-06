@@ -295,3 +295,19 @@ NvVideoConverter::setCropRect(uint32_t left, uint32_t top, uint32_t width,
             "Setting crop rectangle to left=" << left << ", top=" << top <<
             ", width=" << width << ", height=" << height);
 }
+
+int
+NvVideoConverter::setDestRect(uint32_t left, uint32_t top, uint32_t width,
+            uint32_t height)
+{
+    struct v4l2_rect rect;
+
+    rect.left = left;
+    rect.top = top;
+    rect.width = width;
+    rect.height = height;
+
+    CHECK_V4L2_RETURN(output_plane.setSelection(V4L2_SEL_TGT_COMPOSE, 0, rect),
+            "Setting compose rectangle to left=" << left << ", top=" << top <<
+            ", width=" << width << ", height=" << height);
+}

@@ -32,13 +32,7 @@ include ../Rules.mk
 
 APP := backend
 
-CLASS_DIR := ../common/classes
-
-ALGO_DIR := ../common/algorithm/cuda
-
-GIE_DIR  := ../common/algorithm/gie
-
-ENABLEGIE := 1
+ENABLETRT := 1
 
 SRCS := \
 	v4l2_backend_csvparser.cpp \
@@ -48,33 +42,27 @@ SRCS := \
 OBJS := $(SRCS:.cpp=.o)
 
 CPPFLAGS += -std=c++11 \
-	-I"../../include/libjpeg-8b" \
-	-I"../common/algorithm/cuda" \
-	-I"../common/algorithm/gie" \
+	-I"$(ALGO_CUDA_DIR)" \
+	-I"$(ALGO_TRT_DIR)" \
 	-I"$(CUDA_PATH)/targets/aarch64-linux/include"
 
 LDFLAGS += \
 	-L"$(CUDA_PATH)/targets/aarch64-linux/lib" \
-	-ldl -lpthread -lrt \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg -lnvosd \
 	-lcuda -lcudart
 
 OBJS += \
-	../common/algorithm/cuda/NvAnalysis.o \
-	../common/algorithm/cuda/NvCudaProc.o
+	$(ALGO_CUDA_DIR)/NvAnalysis.o \
+	$(ALGO_CUDA_DIR)/NvCudaProc.o
 
-ifeq ($(ENABLEGIE), 1)
-CPPFLAGS += -D ENABLE_GIE
+ifeq ($(ENABLETRT), 1)
+CPPFLAGS += -D ENABLE_TRT
 
 LDFLAGS += \
 	-lnvinfer -lnvcaffe_parser \
-	-lcudnn -lcublas -lcudart_static \
-	-lnvToolsExt -lrt -ldl \
-	-lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect
+	-lopencv_highgui -lopencv_objdetect
 
 OBJS += \
-	../common/algorithm/gie/gie_inference.o
+	$(ALGO_TRT_DIR)/trt_inference.o
 endif
 
 all: $(APP)
@@ -82,14 +70,14 @@ all: $(APP)
 $(CLASS_DIR)/%.o: $(CLASS_DIR)/%.cpp
 	$(MAKE) -C $(CLASS_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.c
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cpp
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.cu
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cu
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-$(GIE_DIR)/%.o: $(GIE_DIR)/%.cpp
-	$(MAKE) -C $(GIE_DIR)
+$(ALGO_TRT_DIR)/%.o: $(ALGO_TRT_DIR)/%.cpp
+	$(MAKE) -C $(ALGO_TRT_DIR)
 
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $<
@@ -98,7 +86,4 @@ $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	$(MAKE) -C $(ALGO_DIR) clean
-	$(MAKE) -C $(GIE_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

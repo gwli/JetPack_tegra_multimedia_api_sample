@@ -292,6 +292,7 @@ static bool execute(const ExecuteOptions& options)
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to open CameraProvider");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Get/use the first available CameraDevice.
     std::vector<CameraDevice*> cameraDevices;
@@ -413,12 +414,14 @@ static bool execute(const ExecuteOptions& options)
 
 int main(int argc, char** argv)
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
     ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
     ArgusSamples::Value<uint32_t> captureTime(ArgusSamples::DEFAULT_CAPTURE_TIME);
     ArgusSamples::Value<Argus::Rectangle<uint32_t> > windowRect(ArgusSamples::DEFAULT_WINDOW_RECT);
     ArgusSamples::Value<bool> enablePreview(true);
 
-    ArgusSamples::Options options("argus_gstvideoencode");
+    ArgusSamples::Options options(basename(argv[0]));
     options.addOption(ArgusSamples::createValueOption
         ("device", 'd', "INDEX", "Camera index.", cameraIndex));
     options.addOption(ArgusSamples::createValueOption

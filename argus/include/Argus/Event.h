@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Event API</b>
+ *
+ * @b Description: Defines the Event objects and interfaces.
+ */
+
 #ifndef _ARGUS_EVENT_H
 #define _ARGUS_EVENT_H
 
@@ -33,10 +40,13 @@ namespace Argus
 {
 
 /**
- * An Event represents an asynchronous result.
+ * Container representing a single event.
  *
  * Every Event will have a single EventType and will expose one or more
  * interfaces, with the core IEvent interface being mandatory.
+ *
+ * @defgroup ArgusEvent Event
+ * @ingroup ArgusObjects
  */
 class Event : public InterfaceProvider
 {
@@ -46,6 +56,8 @@ protected:
 
 /**
  * A unique identifier for a particular type of Event.
+ *
+ * @ingroup ArgusEvent
  */
 class EventType : public NamedUUID
 {
@@ -70,24 +82,39 @@ public:
  * Core Event types
  */
 
-/// Event Type used to report an error.
-/// Additional interface: IEventError.
+/**
+ * Event type used to report an error.
+ *
+ * @defgroup ArgusEventError Error Event
+ * @ingroup ArgusEvent
+ */
 DEFINE_UUID(EventType, EVENT_TYPE_ERROR,            2c80d8b0,2bfd,11e5,a2cb,08,00,20,0c,9a,66);
 
-/// Event Type used to report when a capture starts.
+/**
+ * Event type used to report when a capture starts.
+ *
+ * @defgroup ArgusEventCaptureStarted CaptureStarted Event
+ * @ingroup ArgusEvent
+ */
 DEFINE_UUID(EventType, EVENT_TYPE_CAPTURE_STARTED,  2c80d8b1,2bfd,11e5,a2cb,08,00,20,0c,9a,66);
 
-/// Event Type used to report when all capture processing has completed.
+/**
+ * Event type used to report when all capture processing has completed.
+ *
+ * @defgroup ArgusEventCaptureComplete CaptureComplete Event
+ * @ingroup ArgusEvent
+ */
 DEFINE_UUID(EventType, EVENT_TYPE_CAPTURE_COMPLETE, 2c80d8b2,2bfd,11e5,a2cb,08,00,20,0c,9a,66);
 
 
 /**
  * @class IEvent
  *
- * The interface common to all event types.
+ * Interface to the common Event properties.
+ *
+ * @ingroup ArgusEvent
  */
 DEFINE_UUID(InterfaceID, IID_EVENT, 98bcb49e,fd7d,11e4,a322,16,97,f9,25,ec,7b);
-
 class IEvent : public Interface
 {
 public:
@@ -115,10 +142,11 @@ protected:
 /**
  * @class IEventError
  *
- * The interface that exposes the properties for an ERROR event.
+ * Interface exposed by Events having type EVENT_TYPE_ERROR.
+ *
+ * @ingroup ArgusEventError
  */
 DEFINE_UUID(InterfaceID, IID_EVENT_ERROR, 13e0fc70,1ab6,11e5,b939,08,00,20,0c,9a,66);
-
 class IEventError : public Interface
 {
 public:
@@ -136,10 +164,11 @@ protected:
 /**
  * @class IEventCaptureComplete
  *
- * The interface that exposes the properties for a CAPTURE_COMPLETE event.
+ * Interface exposed by Events having type EVENT_TYPE_CAPTURE_COMPLETE
+ *
+ * @ingroup ArgusEventCaptureComplete
  */
 DEFINE_UUID(InterfaceID, IID_EVENT_CAPTURE_COMPLETE, 8b2b40b5,f1e4,4c4d,ae1c,f3,93,f6,54,06,d5);
-
 class IEventCaptureComplete : public Interface
 {
 public:

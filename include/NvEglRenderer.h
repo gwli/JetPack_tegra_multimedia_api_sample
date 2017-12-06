@@ -45,7 +45,7 @@
 #include <X11/Xlib.h>
 
 /**
- * @defgroup ee_nveglrenderer_group Rendering API
+ * @defgroup l4t_mm_nveglrenderer_group Rendering API
  *
  * The \c %NvEglRenderer API provides EGL and Open GL ES 2.0 rendering
  * functionality.

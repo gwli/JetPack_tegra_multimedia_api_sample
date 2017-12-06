@@ -126,6 +126,7 @@ NvVideoDecoder::setOutputPlaneFormat(uint32_t pixfmt, uint32_t sizeimage)
     {
         case V4L2_PIX_FMT_H264:
         case V4L2_PIX_FMT_H265:
+        case V4L2_PIX_FMT_VP9:
             output_plane_pixfmt = pixfmt;
             break;
         default:

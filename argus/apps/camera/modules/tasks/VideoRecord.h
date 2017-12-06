@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,19 +32,19 @@
 #include <Argus/Argus.h>
 
 #include "ITask.h"
-#include "PerfTracker.h"
 #include "UniquePointer.h"
 #include "IObserver.h"
 #include "TrackedUniqueObject.h"
 
 namespace ArgusSamples
 {
-class EventThread;
+
+class SessionPerfTracker;
 class VideoPipeline;
 
 /**
  * This task records a video and saves it to a file using gstreamer. It also creates a preview
- * stream and display it using the renderer.
+ * stream and display it using the composer.
  */
 class TaskVideoRecord : public ITask, public IObserver
 {
@@ -80,8 +80,7 @@ private:
 
     VideoPipeline *m_videoPipeline;     ///< video pipeline
 
-    UniquePointer<EventThread> m_eventThread;
-    PerfTracker m_perfTracker;
+    UniquePointer<SessionPerfTracker> m_perfTracker;
 
     TrackedUniqueObj<Argus::Request> m_request;             ///< Argus request
     Argus::UniqueObj<Argus::OutputStream> m_videoStream;    ///< Argus video output stream
@@ -91,6 +90,11 @@ private:
      * Callback when the device is opened/closed.
      */
     bool onDeviceOpenChanged(const Observed &source);
+
+    /**
+     * Restart when sensor mode or output size changes
+     */
+    bool restartStreams(const Observed &source);
 };
 
 }; // namespace ArgusSamples

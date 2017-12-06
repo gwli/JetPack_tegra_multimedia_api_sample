@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Argus API: Member List</title>
+<title>Libargus API: Member List</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,9 +21,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">Argus API
+   <div id="projectname">Libargus API
    </div>
-   <div id="projectbrief">Argus Camera API</div>
+   <div id="projectbrief">Libargus Camera API</div>
   </td>
  </tr>
  </tbody>
@@ -38,6 +38,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -72,7 +73,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Groups</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(11)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -96,20 +97,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="directory">
   <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#afc4a1031659b1448c6429a48f162ae31">getAllSensorModes</a>(std::vector&lt; SensorMode * &gt; *modes) const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#ab485a075d86ace425b0a5372910b2c21">getBasicSensorModes</a>(std::vector&lt; SensorMode * &gt; *modes) const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a905673cc0e0c9229fd6b48d4e33d7726">getFocusPositionRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#aea5453e4036326b63ea795237a135632">getIspDigitalGainRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#aa074121387a5da56a41de2b1f0876ef5">getLensApertureRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a372e6b264377c0ff6f29b399d8687137">getMaxAeRegions</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a2e89af6e134c60d6ca3bc0caecdfdf63">getMaxAwbRegions</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#acc03568c65948948525a19c8fefea785">getUUID</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a39cac6824b6e2c3e5e7f66307c073995">id</a>()</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classArgus_1_1Interface.html#a854506c99b87879c60e821c33aa65881">Interface</a>()</td><td class="entry"><a class="el" href="classArgus_1_1Interface.html">Argus::Interface</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a0def3b8a38874ebcd9c93a69a9ab499f">~ICameraProperties</a>()</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classArgus_1_1Interface.html#a3b94d7271c3143ba58696410eb79b5de">~Interface</a>()</td><td class="entry"><a class="el" href="classArgus_1_1Interface.html">Argus::Interface</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a2ae73495b253bf7150ed6006ca113e9e">getExposureCompensationRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a905673cc0e0c9229fd6b48d4e33d7726">getFocusPositionRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#aea5453e4036326b63ea795237a135632">getIspDigitalGainRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#aa074121387a5da56a41de2b1f0876ef5">getLensApertureRange</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a372e6b264377c0ff6f29b399d8687137">getMaxAeRegions</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a2e89af6e134c60d6ca3bc0caecdfdf63">getMaxAwbRegions</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#acc03568c65948948525a19c8fefea785">getUUID</a>() const =0</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a39cac6824b6e2c3e5e7f66307c073995">id</a>()</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1Interface.html#a854506c99b87879c60e821c33aa65881">Interface</a>()</td><td class="entry"><a class="el" href="classArgus_1_1Interface.html">Argus::Interface</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html#a0def3b8a38874ebcd9c93a69a9ab499f">~ICameraProperties</a>()</td><td class="entry"><a class="el" href="classArgus_1_1ICameraProperties.html">Argus::ICameraProperties</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classArgus_1_1Interface.html#a3b94d7271c3143ba58696410eb79b5de">~Interface</a>()</td><td class="entry"><a class="el" href="classArgus_1_1Interface.html">Argus::Interface</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 25 2017 13:23:02 for Argus API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:18 for Libargus API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

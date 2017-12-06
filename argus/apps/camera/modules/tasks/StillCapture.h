@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,14 +33,14 @@
 #include <EGLStream/EGLStream.h>
 
 #include "ITask.h"
-#include "PerfTracker.h"
 #include "UniquePointer.h"
 #include "IObserver.h"
 #include "TrackedUniqueObject.h"
 
 namespace ArgusSamples
 {
-class EventThread;
+
+class SessionPerfTracker;
 
 /**
  * This task captures still images
@@ -68,8 +68,7 @@ private:
     bool m_wasRunning;                  ///< set if was running before the device had been closed
     uint32_t m_captureIndex;            ///< Incrementing capture index
 
-    UniquePointer<EventThread> m_eventThread;
-    PerfTracker m_perfTracker;
+    UniquePointer<SessionPerfTracker> m_perfTracker;
 
     TrackedUniqueObj<Argus::Request> m_previewRequest;      ///< Argus preview request
     Argus::UniqueObj<Argus::OutputStream> m_previewStream;  ///< Argus preview stream
@@ -78,6 +77,11 @@ private:
      * Callback when the device is opened/closed.
      */
     bool onDeviceOpenChanged(const Observed &source);
+
+    /**
+     * Restart when sensor mode or output size changes
+     */
+    bool restartStreams(const Observed &source);
 };
 
 }; // namespace ArgusSamples

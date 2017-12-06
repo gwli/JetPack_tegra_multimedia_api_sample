@@ -32,8 +32,7 @@ include ../Rules.mk
 
 APP := camera_jpeg_capture
 
-CLASS_DIR := ../common/classes
-ARGUS_UTILS_DIR := ../../argus/samples/utils
+ARGUS_UTILS_DIR := $(TOP_DIR)/argus/samples/utils
 
 SRCS := \
 	main.cpp \
@@ -43,13 +42,10 @@ SRCS := \
 OBJS := $(SRCS:.cpp=.o)
 
 CPPFLAGS += \
-	-I"$(ARGUS_UTILS_DIR)" \
-	-I"../../include/libjpeg-8b"
+	-I"$(ARGUS_UTILS_DIR)"
 
 LDFLAGS += \
-	-lpthread \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg -lnveglstream_camconsumer -largus
+	-lnveglstream_camconsumer -largus
 
 all: $(APP)
 
@@ -63,5 +59,4 @@ $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,17 +29,14 @@
 #ifndef COMPOSER_H
 #define COMPOSER_H
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include "EGLGlobal.h"
 
 #include <list>
 
 #include "Window.h"
 #include "Thread.h"
 #include "Mutex.h"
-#include "ConditionVariable.h"
 
-#include "Ordered.h"
 #include "GLContext.h"
 
 namespace ArgusSamples
@@ -50,18 +47,18 @@ class StreamConsumer;
 /**
  * The composer is used to render multiple EGL streams into the windows. The streams are arranged
  * into a regular grid.
- * Streams are only composed if the client indicates that by calling reCompose(). This updates
- * a client sequence count and wakes up the composer thread.
- * All functions modifying the stream configuration (bind/unbind/setActive/setAspectRatio) need to
- * trigger a re-compose.
  */
 class Composer : public Thread, public Window::IResizeObserver
 {
 public:
-    Composer();
-    ~Composer();
+    /**
+     * Get the composer instance.
+     */
+    static Composer &getInstance();
 
-    bool initialize();
+    /**
+     * Shutdown, free all resources
+     */
     bool shutdown();
 
     /**
@@ -95,20 +92,26 @@ public:
     bool setStreamAspectRatio(EGLStreamKHR eglStream, float aspectRatio);
 
     /**
-     * Get the GL context the composer is rendering into
+     * Get the EGL display
      */
-    const GLContext& getContext() const
+    EGLDisplay getEGLDisplay()
     {
-        return m_context;
+        if (initialize())
+            return m_display.get();
+
+        return EGL_NO_DISPLAY;
     }
 
-    /**
-     * Trigger a re-compose. Called when new images arrived in a stream or the stream configuration
-     * changed.
-     */
-    bool reCompose();
-
 private:
+    Composer();
+    ~Composer();
+
+    // this is a singleton, hide copy constructor etc.
+    Composer(const Composer&);
+    Composer& operator=(const Composer&);
+
+    bool initialize();
+
     /** @name Thread methods */
     /**@{*/
     virtual bool threadInitialize();
@@ -121,20 +124,20 @@ private:
     virtual bool onResize(uint32_t width, uint32_t height);
     /**@}*/
 
+    bool renderStreams(uint32_t activeStreams);
+
     bool m_initialized;         ///< set if initialized
+
+    EGLDisplayHolder m_display; ///< EGL display
+
     GLContext m_context;        ///< GL context
     uint32_t m_program;         ///< program to render streams
+    uint32_t m_vbo;             ///< vertex buffer object
     uint32_t m_windowWidth;     ///< window width
     uint32_t m_windowHeight;    ///< window height
     float m_windowAspectRatio;  ///< window aspect ratio
 
     Mutex m_mutex;              ///< to protect access to the stream array
-
-    Mutex m_sequenceMutex;      ///< sequence mutex
-    ConditionVariable m_sequenceCond; ///< sequence condition variable
-    Ordered<uint32_t> m_clientSequence; ///< client sequence counter
-
-    uint32_t m_composerSequence; ///< composer sequence counter
 
     /**
      * Each bound EGL stream has a stream consumer and can be active or inactive.
@@ -145,11 +148,13 @@ private:
         explicit Stream(StreamConsumer *consumer)
             : m_consumer(consumer)
             , m_active(false)
+            , m_shutdown(false)
         {
         }
 
         StreamConsumer *m_consumer; ///< the stream consumer
         bool m_active;              ///< if set then the stream is active and rendered
+        bool m_shutdown;            ///< shutdown and remove the stream
     };
 
     typedef std::list<Stream> StreamList;   ///< a list of streams

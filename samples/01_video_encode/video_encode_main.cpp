@@ -143,6 +143,7 @@ encoder_capture_plane_dq_callback(struct v4l2_buffer *v4l2_buf, NvBuffer * buffe
     uint32_t ReconRef_Y_CRC = 0;
     uint32_t ReconRef_U_CRC = 0;
     uint32_t ReconRef_V_CRC = 0;
+    static uint32_t num_encoded_frames = 1;
 
     if (v4l2_buf == NULL)
     {
@@ -161,8 +162,13 @@ encoder_capture_plane_dq_callback(struct v4l2_buffer *v4l2_buf, NvBuffer * buffe
     if(ctx->pBitStreamCrc)
         CalculateCrc (ctx->pBitStreamCrc, buffer->planes[0].data, buffer->planes[0].bytesused);
 
-
     write_encoder_output_frame(ctx->out_file, buffer);
+    num_encoded_frames++;
+
+    // Accounting for the first frame as it is only sps+pps
+    if (ctx->gdr_out_frame_number != 0xFFFFFFFF)
+        if ( (ctx->enableGDR) && (ctx->GDR_out_file_path) && (num_encoded_frames >= ctx->gdr_out_frame_number+1))
+            write_encoder_output_frame(ctx->gdr_out_file, buffer);
 
     if (ctx->report_metadata)
     {
@@ -385,6 +391,7 @@ set_defaults(context_t * ctx)
     ctx->ratecontrol = V4L2_MPEG_VIDEO_BITRATE_MODE_CBR;
     ctx->iframe_interval = 30;
     ctx->externalRPS = false;
+    ctx->enableGDR = false;
     ctx->enableROI = false;
     ctx->bnoIframe = false;
     ctx->bGapsInFrameNumAllowed = false;
@@ -395,6 +402,9 @@ set_defaults(context_t * ctx)
     ctx->level = V4L2_MPEG_VIDEO_H264_LEVEL_5_1;
     ctx->fps_n = 30;
     ctx->fps_d = 1;
+    ctx->gdr_start_frame_number = 0xffffffff;
+    ctx->gdr_num_frames = 0xffffffff;
+    ctx->gdr_out_frame_number = 0xffffffff;
     ctx->num_b_frames = (uint32_t) -1;
     ctx->nMinQpI = (uint32_t)QP_RETAIN_VAL;
     ctx->nMaxQpI = (uint32_t)QP_RETAIN_VAL;
@@ -487,6 +497,19 @@ restart:
     }
 }
 
+static void
+populate_gdr_Param(std::ifstream * stream, uint32_t *start_frame_num, uint32_t *gdr_num_frames)
+{
+    if (stream->eof()) {
+        *start_frame_num = 0xFFFFFFFF;
+        cout << "GDR param EoF reached \n";
+    }
+    if (!stream->eof()) {
+        *stream >> *start_frame_num;
+        *stream >> *gdr_num_frames;
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -494,6 +517,7 @@ main(int argc, char *argv[])
     int ret = 0;
     int error = 0;
     bool eos = false;
+    unsigned int input_frames_queued_count = 0;
 
     set_defaults(&ctx);
 
@@ -536,6 +560,16 @@ main(int argc, char *argv[])
     if (ctx.RPS_Param_file_path) {
         ctx.rps_Param_file = new ifstream(ctx.RPS_Param_file_path);
         TEST_ERROR(!ctx.rps_Param_file->is_open(), "Could not open rps param file", cleanup);
+    }
+
+    if (ctx.GDR_Param_file_path) {
+        ctx.gdr_Param_file = new ifstream(ctx.GDR_Param_file_path);
+        TEST_ERROR(!ctx.gdr_Param_file->is_open(), "Could not open GDR param file", cleanup);
+    }
+
+    if (ctx.GDR_out_file_path) {
+        ctx.gdr_out_file = new ofstream(ctx.GDR_out_file_path);
+        TEST_ERROR(!ctx.gdr_out_file->is_open(), "Could not open GDR Out file", cleanup);
     }
 
     if (ctx.hints_Param_file_path) {
@@ -598,6 +632,12 @@ main(int argc, char *argv[])
         TEST_ERROR(ret < 0, "Could not set slice length params", cleanup);
     }
 
+    if (ctx.hw_preset_type)
+    {
+        ret = ctx.enc->setHWPresetType(ctx.hw_preset_type);
+        TEST_ERROR(ret < 0, "Could not set encoder HW Preset Type", cleanup);
+    }
+
     if (ctx.virtual_buffer_size)
     {
         ret = ctx.enc->setVirtualBufferSize(ctx.virtual_buffer_size);
@@ -620,6 +660,18 @@ main(int argc, char *argv[])
     {
         ret = ctx.enc->setInsertSpsPpsAtIdrEnabled(true);
         TEST_ERROR(ret < 0, "Could not set insertSPSPPSAtIDR", cleanup);
+    }
+
+    if (ctx.insert_vui)
+    {
+        ret = ctx.enc->setInsertVuiEnabled(true);
+        TEST_ERROR(ret < 0, "Could not set insertVUI", cleanup);
+    }
+
+    if (ctx.insert_aud)
+    {
+        ret = ctx.enc->setInsertAudEnabled(true);
+        TEST_ERROR(ret < 0, "Could not set insertAUD", cleanup);
     }
 
     if (ctx.num_b_frames != (uint32_t) -1)
@@ -775,6 +827,7 @@ main(int argc, char *argv[])
             v4l2_enc_frame_ReconCRC_params VEnc_ReconCRC_params;
             v4l2_enc_frame_ext_rps_ctrl_params VEnc_ext_rps_ctrl_params;
             v4l2_enc_frame_ext_rate_ctrl_params VEnc_ext_rate_ctrl_params;
+            v4l2_enc_gdr_params VEnc_gdr_params;
             VEnc_imeta_param.flag = 0;
 
             if (ctx.ROI_Param_file_path)
@@ -809,6 +862,23 @@ main(int argc, char *argv[])
                 }
             }
 
+            if (ctx.GDR_Param_file_path)
+            {
+                if (ctx.enableGDR)
+                {
+                    if (ctx.gdr_start_frame_number == 0xFFFFFFFF)
+                        populate_gdr_Param(ctx.gdr_Param_file, &ctx.gdr_start_frame_number,
+                                    &ctx.gdr_num_frames);
+                    if (input_frames_queued_count == ctx.gdr_start_frame_number)
+                    {
+                        ctx.gdr_out_frame_number = ctx.gdr_start_frame_number;
+                        VEnc_gdr_params.nGDRFrames = ctx.gdr_num_frames;
+                        VEnc_imeta_param.flag |= V4L2_ENC_INPUT_GDR_PARAM_FLAG;
+                        VEnc_imeta_param.VideoEncGDRParams = &VEnc_gdr_params;
+                    }
+                }
+            }
+
             if (ctx.hints_Param_file_path)
             {
                 if (ctx.externalRCHints) {
@@ -840,6 +910,7 @@ main(int argc, char *argv[])
             eos = true;
             break;
         }
+        input_frames_queued_count++;
     }
 
     // Keep reading input till EOS is reached
@@ -882,6 +953,7 @@ main(int argc, char *argv[])
             v4l2_enc_frame_ReconCRC_params VEnc_ReconCRC_params;
             v4l2_enc_frame_ext_rps_ctrl_params VEnc_ext_rps_ctrl_params;
             v4l2_enc_frame_ext_rate_ctrl_params VEnc_ext_rate_ctrl_params;
+            v4l2_enc_gdr_params VEnc_gdr_params;
             VEnc_imeta_param.flag = 0;
 
             if (ctx.ROI_Param_file_path)
@@ -889,7 +961,6 @@ main(int argc, char *argv[])
                 if (ctx.enableROI) {
                     VEnc_imeta_param.flag |= V4L2_ENC_INPUT_ROI_PARAM_FLAG;
                     VEnc_imeta_param.VideoEncROIParams = &VEnc_ROI_params;
-
                     populate_roi_Param(ctx.roi_Param_file, VEnc_imeta_param.VideoEncROIParams);
                 }
             }
@@ -911,8 +982,24 @@ main(int argc, char *argv[])
                 if (ctx.externalRPS) {
                     VEnc_imeta_param.flag |= V4L2_ENC_INPUT_RPS_PARAM_FLAG;
                     VEnc_imeta_param.VideoEncRPSParams = &VEnc_ext_rps_ctrl_params;
-
                     populate_ext_rps_ctrl_Param(ctx.rps_Param_file, VEnc_imeta_param.VideoEncRPSParams);
+                }
+            }
+
+            if (ctx.GDR_Param_file_path)
+            {
+                if (ctx.enableGDR)
+                {
+                    if (ctx.gdr_start_frame_number == 0xFFFFFFFF)
+                        populate_gdr_Param(ctx.gdr_Param_file, &ctx.gdr_start_frame_number,
+                                    &ctx.gdr_num_frames);
+                    if (input_frames_queued_count == ctx.gdr_start_frame_number)
+                    {
+                        ctx.gdr_out_frame_number = ctx.gdr_start_frame_number;
+                        VEnc_gdr_params.nGDRFrames = ctx.gdr_num_frames;
+                        VEnc_imeta_param.flag |= V4L2_ENC_INPUT_GDR_PARAM_FLAG;
+                        VEnc_imeta_param.VideoEncGDRParams = &VEnc_gdr_params;
+                    }
                 }
             }
 
@@ -948,6 +1035,7 @@ main(int argc, char *argv[])
             eos = true;
             break;
         }
+        input_frames_queued_count++;
     }
 
     // Wait till capture plane DQ Thread finishes
@@ -1008,6 +1096,8 @@ cleanup:
     delete ctx.recon_Ref_file;
     delete ctx.rps_Param_file;
     delete ctx.hints_Param_file;
+    delete ctx.gdr_Param_file;
+    delete ctx.gdr_out_file;
 
     free(ctx.in_file_path);
     free(ctx.out_file_path);
@@ -1015,6 +1105,8 @@ cleanup:
     free(ctx.Recon_Ref_file_path);
     free(ctx.RPS_Param_file_path);
     free(ctx.hints_Param_file_path);
+    free(ctx.GDR_Param_file_path);
+    free(ctx.GDR_out_file_path);
     delete ctx.runtime_params_str;
 
     if (error)

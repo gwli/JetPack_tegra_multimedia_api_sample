@@ -10,16 +10,14 @@ var searchData=
   ['video_5fformat_5fh264',['VIDEO_FORMAT_H264',['../classArgusSamples_1_1VideoPipeline.html#a230816b2fbb715977081ef3626687989a72105cf323d104e225ec0105323f26f4',1,'ArgusSamples::VideoPipeline']]],
   ['video_5fformat_5fh265',['VIDEO_FORMAT_H265',['../classArgusSamples_1_1VideoPipeline.html#a230816b2fbb715977081ef3626687989a8d944945a5327f75954d96c55bc02a0e',1,'ArgusSamples::VideoPipeline']]],
   ['video_5fformat_5fvp8',['VIDEO_FORMAT_VP8',['../classArgusSamples_1_1VideoPipeline.html#a230816b2fbb715977081ef3626687989a15d1fdd7be8d72c43242ed3f2e1b6c15',1,'ArgusSamples::VideoPipeline']]],
-  ['videobitrate',['videoBitRate',['../classArgusSamples_1_1AppModuleVideo.html#a85d5a91e8585f67fd8999bc28f8b062b',1,'ArgusSamples::AppModuleVideo']]],
-  ['videofiletype',['VideoFileType',['../classArgusSamples_1_1VideoPipeline.html#a8713cede5289d2d95b2a66d57a64ff94',1,'ArgusSamples::VideoPipeline::VideoFileType()'],['../classArgusSamples_1_1AppModuleVideo.html#a566345ecc41a14c2def46befa6a0be4e',1,'ArgusSamples::AppModuleVideo::videoFileType()']]],
-  ['videoformat',['VideoFormat',['../classArgusSamples_1_1VideoPipeline.html#a230816b2fbb715977081ef3626687989',1,'ArgusSamples::VideoPipeline::VideoFormat()'],['../classArgusSamples_1_1AppModuleVideo.html#aaa9c45225a01a3fdec2d758b312c4371',1,'ArgusSamples::AppModuleVideo::videoFormat()']]],
+  ['videofiletype',['VideoFileType',['../classArgusSamples_1_1VideoPipeline.html#a8713cede5289d2d95b2a66d57a64ff94',1,'ArgusSamples::VideoPipeline']]],
+  ['videoformat',['VideoFormat',['../classArgusSamples_1_1VideoPipeline.html#a230816b2fbb715977081ef3626687989',1,'ArgusSamples::VideoPipeline']]],
   ['videopipeline',['VideoPipeline',['../classArgusSamples_1_1VideoPipeline.html#aaa2ffb6e7b9a3b85a007135d99fd5f90',1,'ArgusSamples::VideoPipeline']]],
   ['videopipeline',['VideoPipeline',['../classArgusSamples_1_1VideoPipeline.html',1,'ArgusSamples']]],
   ['videopipeline_2ecpp',['VideoPipeline.cpp',['../VideoPipeline_8cpp.html',1,'']]],
   ['videopipeline_2eh',['VideoPipeline.h',['../VideoPipeline_8h.html',1,'']]],
   ['videorecord_2ecpp',['VideoRecord.cpp',['../VideoRecord_8cpp.html',1,'']]],
   ['videorecord_2eh',['VideoRecord.h',['../VideoRecord_8h.html',1,'']]],
-  ['videostabilizationsettingsobserver',['VideoStabilizationSettingsObserver',['../classArgusSamples_1_1VideoStabilizationSettingsObserver.html#a2eb758a6fdebc2c46c98dc64796123ed',1,'ArgusSamples::VideoStabilizationSettingsObserver']]],
   ['videostabilizationsettingsobserver',['VideoStabilizationSettingsObserver',['../classArgusSamples_1_1VideoStabilizationSettingsObserver.html',1,'ArgusSamples']]],
-  ['vstab',['vstab',['../classArgusSamples_1_1AppModuleGeneric.html#aafa4452028bbdf5a4a95f30f86220c25',1,'ArgusSamples::AppModuleGeneric']]]
+  ['videostabilizationsettingsobserver',['VideoStabilizationSettingsObserver',['../classArgusSamples_1_1VideoStabilizationSettingsObserver.html#a2eb758a6fdebc2c46c98dc64796123ed',1,'ArgusSamples::VideoStabilizationSettingsObserver']]]
 ];

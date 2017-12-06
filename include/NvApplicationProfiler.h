@@ -26,9 +26,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 /**
  * @file
- * <b>NVIDIA Eagle Eye API: Application Resource Profiling API</b>
+ * <b>NVIDIA Multimedia API: Application Resource Profiling API</b>
  *
  * @b Description: This file declares the NvApplicationProfiler API.
  */
@@ -43,7 +44,7 @@
 
 /**
  *
- * @c %NvApplicationProfiler is a helper class for profiling the overall application
+ * Helper class for profiling the overall application
  * resource usage.
  *
  * NvApplicationProfiler spawns a background thread which periodically measures resource
@@ -58,16 +59,20 @@
  * usage during the profiling duration. It requires that the CPU frequency be
  * constant over the entire duration. To force this, NvApplicationProfiler will start only
  * when the CPU governor is set to @b performance.
+ *
+ * @defgroup l4t_mm_nvapplicationprofiler_group  Application Resource Profiler API
+ * @ingroup aa_framework_api_group
+ * @{
  */
 class NvApplicationProfiler
 {
 public:
     /**
-     * Holds the profiling data
+     * Holds the profiling data.
      */
     typedef struct
     {
-        /** Total time for which the profiler ran / is running */
+        /** Total time for which the profiler ran or is running. */
         struct timeval total_time;
         /** Peak CPU usage during the profiling time. */
         float peak_cpu_usage;
@@ -82,14 +87,14 @@ public:
     static const uint64_t DefaultSamplingInterval = 100;
 
     /**
-     * Get a reference to the global NvApplicationProfiler instance.
+     * Gets a reference to the global #NvApplicationProfiler instance.
      *
      * @return A reference to the global NvApplicationProfiler instance.
      */
     static NvApplicationProfiler& getProfilerInstance();
 
     /**
-     * Start the profiler with the specified sampling interval.
+     * Starts the profiler with the specified sampling interval.
      *
      * This method resets the internal profiler data measurements.
      *
@@ -100,12 +105,12 @@ public:
     void start(uint32_t sampling_interval_ms);
 
     /**
-     * Stop the profiler.
+     * Stops the profiler.
      */
     void stop();
 
     /**
-     * Print the profiler data to an output stream.
+     * Prints the profiler data to an output stream.
      *
      * @param[in] outstream A reference to an output stream of type std::ostream.
      *                      std::cout if not specified.
@@ -113,7 +118,7 @@ public:
     void printProfilerData(std::ostream &outstream = std::cout);
 
     /**
-     * Get the profiler data.
+     * Gets the profiler data.
      *
      * @param[out] data Pointer to the ProfilerData structure to be filled.
      */
@@ -121,7 +126,7 @@ public:
 
 private:
     /**
-     * Method which is run by the background profiling thread.
+     * Method run by the background profiling thread.
      *
      * Waits on a condition till the next periodic sampling time and calls
      * profile() for measurement.
@@ -135,7 +140,7 @@ private:
                                      in milliseconds. */
 
     pthread_mutex_t thread_lock; /**< Lock for synchronized multithreaded
-                                      access to #data */
+                                      access to NvApplicationProfiler::data */
     pthread_t profiling_thread;  /** ID of the profiling thread running in
                                      background */
 
@@ -144,7 +149,7 @@ private:
     bool check_cpu_usage; /**< Flag indicating if cpu usage should be checked. */
 
     /**
-     * Internal structure to hold resource usage readings.
+     * Holds resource usage readings (internal use only).
      */
     struct ProfilerDataInternal
     {
@@ -177,7 +182,7 @@ private:
     } data; /**< Internal structure to hold intermediate measurements. */
 
     /**
-     * Measure resource usage parameters.
+     * Measures resource usage parameters.
      */
     void profile();
 
@@ -187,13 +192,15 @@ private:
     NvApplicationProfiler();
 
     /**
-     * Disallow copy constructor.
+     * Disallows copy constructor.
      */
     NvApplicationProfiler(const NvApplicationProfiler& that);
     /**
-     * Disallow assignment.
+     * Disallows assignment.
      */
     void operator=(NvApplicationProfiler const&);
 };
+
+/** @} */
 
 #endif

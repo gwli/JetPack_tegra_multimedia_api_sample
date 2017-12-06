@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /*
-** Copyright (c) 2013-2016 The Khronos Group Inc.
+** Copyright (c) 2013-2017 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -31,9 +31,7 @@ extern "C" {
 ** This header is generated from the Khronos OpenGL / OpenGL ES XML
 ** API Registry. The current version of the Registry, generator scripts
 ** used to make the header, and the header can be found at
-**   http://www.opengl.org/registry/
-**
-** Khronos $Revision: 33222 $ on $Date: 2016-10-14 05:14:59 -0700 (Fri, 14 Oct 2016) $
+**   https://github.com/KhronosGroup/OpenGL-Registry
 */
 
 #include <GLES2/gl2platform.h>
@@ -46,7 +44,7 @@ extern "C" {
 #define GL_GLES_PROTOTYPES 1
 #endif
 
-/* Generated on date 20161014 */
+/* Generated on date 20170302 */
 
 /* Generated C header for:
  * API: gles2

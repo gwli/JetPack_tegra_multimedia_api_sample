@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /*
-** Copyright (c) 2013-2016 The Khronos Group Inc.
+** Copyright (c) 2013-2017 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -31,16 +31,14 @@ extern "C" {
 ** This header is generated from the Khronos OpenGL / OpenGL ES XML
 ** API Registry. The current version of the Registry, generator scripts
 ** used to make the header, and the header can be found at
-**   http://www.opengl.org/registry/
-**
-** Khronos $Revision: 33222 $ on $Date: 2016-10-14 05:14:59 -0700 (Fri, 14 Oct 2016) $
+**   https://github.com/KhronosGroup/OpenGL-Registry
 */
 
 #ifndef GL_APIENTRYP
 #define GL_APIENTRYP GL_APIENTRY*
 #endif
 
-/* Generated on date 20161014 */
+/* Generated on date 20170302 */
 
 /* Generated C header for:
  * API: gles2
@@ -1332,6 +1330,16 @@ GL_APICALL void GL_APIENTRY glDrawElementsInstancedEXT (GLenum mode, GLsizei cou
 #endif
 #endif /* GL_EXT_draw_instanced */
 
+#ifndef GL_EXT_draw_transform_feedback
+#define GL_EXT_draw_transform_feedback 1
+typedef void (GL_APIENTRYP PFNGLDRAWTRANSFORMFEEDBACKEXTPROC) (GLenum mode, GLuint id);
+typedef void (GL_APIENTRYP PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC) (GLenum mode, GLuint id, GLsizei instancecount);
+#ifdef GL_GLEXT_PROTOTYPES
+GL_APICALL void GL_APIENTRY glDrawTransformFeedbackEXT (GLenum mode, GLuint id);
+GL_APICALL void GL_APIENTRY glDrawTransformFeedbackInstancedEXT (GLenum mode, GLuint id, GLsizei instancecount);
+#endif
+#endif /* GL_EXT_draw_transform_feedback */
+
 #ifndef GL_EXT_float_blend
 #define GL_EXT_float_blend 1
 #endif /* GL_EXT_float_blend */
@@ -1858,6 +1866,11 @@ GL_APICALL void GL_APIENTRY glTexBufferRangeEXT (GLenum target, GLenum internalf
 #endif
 #endif /* GL_EXT_texture_buffer */
 
+#ifndef GL_EXT_texture_compression_astc_decode_mode
+#define GL_EXT_texture_compression_astc_decode_mode 1
+#define GL_TEXTURE_ASTC_DECODE_PRECISION_EXT 0x8F69
+#endif /* GL_EXT_texture_compression_astc_decode_mode */
+
 #ifndef GL_EXT_texture_compression_dxt1
 #define GL_EXT_texture_compression_dxt1 1
 #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
@@ -2148,6 +2161,10 @@ GL_APICALL void GL_APIENTRY glGetPerfQueryInfoINTEL (GLuint queryId, GLuint quer
 #endif
 #endif /* GL_INTEL_performance_query */
 
+#ifndef GL_NVX_blend_equation_advanced_multi_draw_buffers
+#define GL_NVX_blend_equation_advanced_multi_draw_buffers 1
+#endif /* GL_NVX_blend_equation_advanced_multi_draw_buffers */
+
 #ifndef GL_NV_bindless_texture
 #define GL_NV_bindless_texture 1
 typedef GLuint64 (GL_APIENTRYP PFNGLGETTEXTUREHANDLENVPROC) (GLuint texture);
@@ -2365,6 +2382,23 @@ GL_APICALL void GL_APIENTRY glDrawArraysInstancedNV (GLenum mode, GLint first, G
 GL_APICALL void GL_APIENTRY glDrawElementsInstancedNV (GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount);
 #endif
 #endif /* GL_NV_draw_instanced */
+
+#ifndef GL_NV_draw_vulkan_image
+#define GL_NV_draw_vulkan_image 1
+typedef void (GL_APIENTRY  *GLVULKANPROCNV)(void);
+typedef void (GL_APIENTRYP PFNGLDRAWVKIMAGENVPROC) (GLuint64 vkImage, GLuint sampler, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1, GLfloat z, GLfloat s0, GLfloat t0, GLfloat s1, GLfloat t1);
+typedef GLVULKANPROCNV (GL_APIENTRYP PFNGLGETVKPROCADDRNVPROC) (const GLchar *name);
+typedef void (GL_APIENTRYP PFNGLWAITVKSEMAPHORENVPROC) (GLuint64 vkSemaphore);
+typedef void (GL_APIENTRYP PFNGLSIGNALVKSEMAPHORENVPROC) (GLuint64 vkSemaphore);
+typedef void (GL_APIENTRYP PFNGLSIGNALVKFENCENVPROC) (GLuint64 vkFence);
+#ifdef GL_GLEXT_PROTOTYPES
+GL_APICALL void GL_APIENTRY glDrawVkImageNV (GLuint64 vkImage, GLuint sampler, GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1, GLfloat z, GLfloat s0, GLfloat t0, GLfloat s1, GLfloat t1);
+GL_APICALL GLVULKANPROCNV GL_APIENTRY glGetVkProcAddrNV (const GLchar *name);
+GL_APICALL void GL_APIENTRY glWaitVkSemaphoreNV (GLuint64 vkSemaphore);
+GL_APICALL void GL_APIENTRY glSignalVkSemaphoreNV (GLuint64 vkSemaphore);
+GL_APICALL void GL_APIENTRY glSignalVkFenceNV (GLuint64 vkFence);
+#endif
+#endif /* GL_NV_draw_vulkan_image */
 
 #ifndef GL_NV_explicit_attrib_location
 #define GL_NV_explicit_attrib_location 1
@@ -3170,6 +3204,18 @@ GL_APICALL GLboolean GL_APIENTRY glExtIsProgramBinaryQCOM (GLuint program);
 GL_APICALL void GL_APIENTRY glExtGetProgramBinarySourceQCOM (GLuint program, GLenum shadertype, GLchar *source, GLint *length);
 #endif
 #endif /* GL_QCOM_extended_get2 */
+
+#ifndef GL_QCOM_framebuffer_foveated
+#define GL_QCOM_framebuffer_foveated 1
+#define GL_FOVEATION_ENABLE_BIT_QCOM      0x00000001
+#define GL_FOVEATION_SCALED_BIN_METHOD_BIT_QCOM 0x00000002
+typedef void (GL_APIENTRYP PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC) (GLuint framebuffer, GLuint numLayers, GLuint focalPointsPerLayer, GLuint requestedFeatures, GLuint *providedFeatures);
+typedef void (GL_APIENTRYP PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC) (GLuint framebuffer, GLuint layer, GLfloat focalX, GLfloat focalY, GLfloat gainX, GLfloat gainY, GLfloat foveaArea);
+#ifdef GL_GLEXT_PROTOTYPES
+GL_APICALL void GL_APIENTRY glFramebufferFoveationConfigQCOM (GLuint framebuffer, GLuint numLayers, GLuint focalPointsPerLayer, GLuint requestedFeatures, GLuint *providedFeatures);
+GL_APICALL void GL_APIENTRY glFramebufferFoveationParametersQCOM (GLuint framebuffer, GLuint layer, GLfloat focalX, GLfloat focalY, GLfloat gainX, GLfloat gainY, GLfloat foveaArea);
+#endif
+#endif /* GL_QCOM_framebuffer_foveated */
 
 #ifndef GL_QCOM_perfmon_global_mode
 #define GL_QCOM_perfmon_global_mode 1

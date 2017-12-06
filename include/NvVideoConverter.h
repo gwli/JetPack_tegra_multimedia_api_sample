@@ -34,8 +34,8 @@
  */
 
 /**
- * @defgroup ee_nvvideoconverter_group Video Converter
- * @ingroup ee_nvvideo_group
+ * @defgroup l4t_mm_nvvideoconverter_group Video Converter
+ * @ingroup l4t_mm_nvvideo_group
  *
  * Helper class that creates new V4L2
  * video converters, and it sets converter capture and output plane
@@ -56,7 +56,7 @@
  * V4L2_MEMORY_DMABUF</code>) and software buffer memory (\c V4L2_MEMORY_USERPTR).
  *
  * The video converter device node is \c "/dev/nvhost-vic". The category name
- * for encoder is \c "NVVIDCONV"
+ * for the converter is \c "NVVIDCONV".
  *
  * Refer to [V4L2 Video Converter](group__V4L2Conv.html) for more information on the converter.
  */
@@ -116,7 +116,7 @@ public:
      *
      * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with control ID
      * #V4L2_CID_VIDEO_CONVERT_OUTPUT_PLANE_LAYOUT. Must be called before
-     * setFormat on any of the planes.
+     * setFormat() on any of the planes.
      *
      * @param[in] type Type of layout, one of enum v4l2_nv_buffer_layout.
      *
@@ -129,7 +129,7 @@ public:
      *
      * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
      * #V4L2_CID_VIDEO_CONVERT_CAPTURE_PLANE_LAYOUT. Must be called before
-     * setFormat on any of the planes.
+     * setFormat() on any of the planes.
      *
      * @param[in] type Type of layout, one of enum v4l2_nv_buffer_layout.
      *
@@ -142,7 +142,7 @@ public:
      *
      * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
      * #V4L2_CID_VIDEO_CONVERT_INTERPOLATION_METHOD. Must be called before
-     * setFormat on any of the planes.
+     * setFormat() on any of the planes.
      *
      * @param[in] method Type of interpolation method, one of enum
      *                   v4l2_interpolation_method.
@@ -156,7 +156,7 @@ public:
      *
      * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
      * #V4L2_CID_VIDEO_CONVERT_FLIP_METHOD. Must be called before
-     * setFormat on any of the planes.
+     * setFormat() on any of the planes.
      *
      * @param[in] method Type of flip method, one of enum v4l2_flip_method.
      *
@@ -169,7 +169,7 @@ public:
      *
      * Calls the VIDIOC_S_EXT_CTRLS IOCTL internally with Control ID
      * #V4L2_CID_VIDEO_CONVERT_TNR_ALGORITHM. Must be called before
-     * setFormat on any of the planes.
+     * setForma() on any of the planes.
      *
      * @param[in] algorithm Type of TNR algorithm to use, one of enum
      *                      v4l2_tnr_algorithm.
@@ -182,7 +182,7 @@ public:
      * Set the cropping rectangle for the converter
      *
      * Calls the VIDIOC_S_SELECTION internally on the capture plane. Must be called
-     * before setFormat on any of the planes.
+     * before setFormat() on any of the planes.
      *
      * @param[in] left Horizontal offset of the rectangle, in pixels.
      * @param[in] top  Verticaal offset of the rectangle, in pixels.
@@ -192,6 +192,22 @@ public:
      * @returns 0 for success, -1 for failure
      */
     int setCropRect(uint32_t left, uint32_t top, uint32_t width,
+            uint32_t height);
+
+    /**
+     * Sets the destnation rectangle for the converter.
+     *
+     * Calls the VIDIOC_S_SELECTION internally on output plane. Must be called
+     * before setFormat() on any of the planes.
+     *
+     * @param[in] left Horizontal offset of the rectangle, in pixels
+     * @param[in] top  Verticaal offset of the rectangle, in pixels
+     * @param[in] width Width of the rectangle, in pixels
+     * @param[in] height Height of the rectangle, in pixels
+     *
+     * @returns 0 for success, -1 for failure
+     */
+    int setDestRect(uint32_t left, uint32_t top, uint32_t width,
             uint32_t height);
 
     /**

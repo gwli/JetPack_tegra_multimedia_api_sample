@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,13 +26,88 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Main Include File</b>
+ *
+ * @b Description: This is the main include file for libargus applications.
+ */
+
 #ifndef _ARGUS_H
 #define _ARGUS_H
 
 /**
- * @file Argus.h
- * This is the main include file for Argus applications.
- * It includes all the other standard API header files.
+ * @defgroup LibargusAPI Libargus Camera API
+ *
+ * Libargus is an API for acquiring images and associated metadata from cameras.
+ * The fundamental libargus operation is a capture:
+ * acquiring an image from a sensor and processing it into a final output image.
+ *
+ * Currently, libargus is supported on Android and L4T on NVIDIA Tegra TX1-based platforms.
+ *
+ * Libargus is designed to address a number of fundamental requirements:
+ *
+ * - Support for a wide variety of use cases (traditional photography, computational photography,
+ * video, computer vision, and other application areas.)
+ * To this end, libargus is a frame-based API; every capture is triggered by an explicit request that
+ * specifies exactly how the capture is to be performed.
+ *
+ * - Support for multiple platforms, including L4T and Android.
+ *
+ * - Efficient and simple integration into applications and larger frameworks.  In support of this,
+ * libargus delivers images with EGLStreams, which are directly supported by other system components
+ * such as OpenGL and Cuda, and which require no buffer copies during delivery to the consumer.
+ *
+ * - Expansive metadata along with each output image.
+ *
+ * - Support for multiple sensors, including both separate control over independent sensors and
+ * access to synchronized multi-sensor configurations.  (The latter are unsupported in the current
+ * release. When support is added, it will be available on only some NVIDIA platforms.)
+ *
+ * - Version stability and extensibility, which are provided by unchanging virtual interfaces and
+ * the ability for vendors to add specialized extension interfaces.
+ *
+ * Libargus provides functionality in a number of different areas:
+ *
+ * - Captures with a wide variety of settings.
+ *
+ * - Optional autocontrol (such as auto-exposure and auto-white-balance.)
+ *
+ * - Libraries that consume the EGLStream outputs in different ways; for example, jpeg encoding or
+ * direct application access to the images.
+ *
+ * - Metadata delivery via both libargus events and EGLStream metadata.
+ *
+ * - Image post-processing such as noise reduction and edge sharpening.
+ *
+ * - Notification of errors, image acquisition start, and other events via synchronous event queues.
+ *
+ * Functionality not provided by libargus:
+ *
+ * - Auto-focus. (Planned to be added in a later release.)
+ *
+ * - Reprocessing of YUV images (such as that required by Android’s Zero Shutter Lag feature.)
+ *
+ * - Reprocessing of Bayer (raw) images.  (Planned to be added in a later release.)
+ *
+ * - Output of Bayer (raw) images.  (Planned to be added in a later release.)
+ *
+ * @defgroup ArgusObjects Objects and Interfaces
+ * This module provides a list of libargus objects and the interfaces that they support.
+ * Children of objects in this list describe either child InterfaceProviders provided by
+ * the object or specialized types of the object (ie. Event types).
+ * @ingroup LibargusAPI
+ *
+ * @defgroup ArgusExtensions Extensions
+ * This module provides a list of extensions currently available for libargus.
+ * @ingroup LibargusAPI
+ */
+
+/**
+ * @ifnot SWDOCS_L4T <!-- Hides open-source doxy entries in L4T build.-->
+ * @mainpage
+ * Proceed to the \ref LibargusAPI module for libargus documentation.
+ * @endif
  */
 
 #include <stddef.h>
@@ -52,60 +127,3 @@
 #include "Argus/Stream.h"
 
 #endif
-
-/**
- * @mainpage
- *
- * Argus is an API for acquiring images and associated metadata from cameras.
- * The fundamental operation is a capture:
- * acquiring an image from a sensor and processing it into a final output image.
- *
- * Currently, Argus is supported on Android and L4T on NVIDIA Tegra TX1-based platforms.
- *
- * Argus is designed to address a number of fundamental requirements:
- *
- * - Support for a wide variety of use cases (traditional photography, computational photography,
- * video, computer vision, and other application areas.)
- * To this end, Argus is a frame-based API; every capture is triggered by an explicit request that
- * specifies exactly how the capture is to be performed.
- *
- * - Support for multiple platforms, including L4T and Android.
- *
- * - Efficient and simple integration into applications and larger frameworks.  In support of this,
- * Argus delivers images with EGLStreams, which are directly supported by other system components
- * such as OpenGL and Cuda, and which require no buffer copies during delivery to the consumer.
- *
- * - Expansive metadata along with each output image.
- *
- * - Support for multiple sensors, including both separate control over independent sensors and
- * access to synchronized multi-sensor configurations.  (The latter are unsupported in the current
- * release, and will be available on only some platforms.)
- *
- * - Version stability and extensibility, which are provided by unchanging virtual interfaces and
- * the ability for vendors to add specialized extension interfaces.
- *
- * Argus provides functionality in a number of different areas:
- *
- * - Captures with a wide variety of settings.
- *
- * - Optional autocontrol (such as auto-exposure and auto-white-balance.)
- *
- * - Libraries that consume the EGLStream outputs in different ways; for example, jpeg encoding or
- * direct application access to the images.
- *
- * - Metadata delivery via both Argus events and EGLStream metadata.
- *
- * - Image post-processing such as noise reduction and edge sharpening.
- *
- * - Notification of errors, image acquisition start, and other events via synchronous event queues.
- *
- * Functionality not provided by Argus:
- *
- * - Auto-focus. (Will be added in a later release.)
- *
- * - Reprocessing of YUV images (such as that required by Android’s Zero Shutter Lag feature.)
- *
- * - Reprocessing of Bayer (raw) images.  (Will be added in a later release.)
- *
- * - Output of Bayer (raw) images.  (Will be added in a later release.)
- */

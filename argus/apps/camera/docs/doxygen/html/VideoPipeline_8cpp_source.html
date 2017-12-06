@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="VideoPipeline_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -123,7 +123,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;Error.h&quot;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="VideoPipeline_8h.html">VideoPipeline.h</a>&quot;</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Renderer_8h.html">Renderer.h</a>&quot;</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Composer_8h.html">Composer.h</a>&quot;</span></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">namespace </span>ArgusSamples</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;{</div>
@@ -221,7 +221,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        ORIGINATE_ERROR(<span class="stringliteral">&quot;Failed to add video source to pipeline&quot;</span>);</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    unrefer.<a class="code" href="classArgusSamples_1_1GstUnrefer.html#ae8af68c70ed2bc33e0d197640d448a72" title="Cancel the unref.">cancel</a>();</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    g_object_set(G_OBJECT(videoSource), <span class="stringliteral">&quot;display&quot;</span>, <a class="code" href="classArgusSamples_1_1Renderer.html#ac3b8f5a8ae233f7544f463e01605e8b5" title="Get the window instance.">Renderer::getInstance</a>().getEGLDisplay(), NULL);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    g_object_set(G_OBJECT(videoSource), <span class="stringliteral">&quot;display&quot;</span>, <a class="code" href="classArgusSamples_1_1Composer.html#ab5414e37a967badf08f0046cf2f26d17" title="Get the composer instance.">Composer::getInstance</a>().getEGLDisplay(), NULL);</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    g_object_set(G_OBJECT(videoSource), <span class="stringliteral">&quot;eglstream&quot;</span>, videoStream, NULL);</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="comment">// Create queue</span></div>
@@ -479,7 +479,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    unrefer.<a class="code" href="classArgusSamples_1_1GstUnrefer.html#ae8af68c70ed2bc33e0d197640d448a72" title="Cancel the unref.">cancel</a>();</div>
 <div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;</div>
 <div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;    <span class="comment">// configure video sink</span></div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;    g_object_set(G_OBJECT(videoSink), <span class="stringliteral">&quot;display&quot;</span>, <a class="code" href="classArgusSamples_1_1Renderer.html#ac3b8f5a8ae233f7544f463e01605e8b5" title="Get the window instance.">Renderer::getInstance</a>().getEGLDisplay(), NULL);</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;    g_object_set(G_OBJECT(videoSink), <span class="stringliteral">&quot;display&quot;</span>, <a class="code" href="classArgusSamples_1_1Composer.html#ab5414e37a967badf08f0046cf2f26d17" title="Get the composer instance.">Composer::getInstance</a>().getEGLDisplay(), NULL);</div>
 <div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;    <span class="comment">// get the EGL stream</span></div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;    *videoStream = EGL_NO_STREAM_KHR;</div>
 <div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;    g_object_get(G_OBJECT(videoSink), <span class="stringliteral">&quot;stream&quot;</span>, videoStream, NULL);</div>
@@ -758,7 +758,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

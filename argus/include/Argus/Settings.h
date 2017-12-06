@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * <b>Libargus API: Settings API</b>
+ *
+ * @b Description: This file defines the settings that control the sensor module.
+ */
+
 #ifndef _ARGUS_SETTINGS_H
 #define _ARGUS_SETTINGS_H
 
@@ -34,12 +41,12 @@ namespace Argus
 
 /**
  * @class ISourceSettings
- *  - Exposed by the InterfaceProvider returned by IRequest::getSourceSettings().
  *
- * An interface to settings that control the sensor module.
+ * Interface to the source settings (provided by IRequest::getSourceSettings()).
+ *
+ * @ingroup ArgusSourceSettings
  */
 DEFINE_UUID(InterfaceID, IID_SOURCE_SETTINGS, eb7ae38c,3c62,4161,a92a,a6,4f,ba,c6,38,83);
-
 class ISourceSettings : public Interface
 {
 public:
@@ -51,7 +58,7 @@ public:
      * will be as close as possible to the exposure range specified.
      * @param[in] exposureTimeRange Exposure time range, in nanoseconds.
      * @see ISensorMode::getExposureTimeRange()
-     * @todo: Have a discussion on quantization.
+     * @todo Document implications of quantization.
      *
      * @returns success/status of the call.
      */
@@ -125,17 +132,55 @@ public:
      */
     virtual SensorMode* getSensorMode() const = 0;
 
+    /**
+     * Sets the user-specified optical black levels.
+     * These values will be ignored unless <tt>getOpticalBlackEnable() == true</tt>
+     * Values are floating point in the range [0,1) normalized based on sensor bit depth.
+     * @param[in] opticalBlackLevels opticalBlack levels in range [0,1) per bayer phase
+     *
+     * @returns success/status of the call.
+     */
+    virtual Status setOpticalBlack(const BayerTuple<float>& opticalBlackLevels) = 0;
+
+    /**
+     * Returns user-specified opticalBlack level per bayer phase.
+     *
+     * @returns opticalBlackLevels
+     */
+    virtual BayerTuple<float> getOpticalBlack() const = 0;
+
+    /**
+     * Sets whether or not user-provided optical black levels are used.
+     * @param[in] enable If @c true, Argus will use the user-specified optical black levels.
+     * @see setOpticalBlack()
+     * If @c false, the Argus implementation will choose the optical black values.
+     *
+     * @returns success/status of the call.
+     */
+    virtual Status setOpticalBlackEnable(bool enable) = 0;
+
+    /**
+     * Returns whether user-specified optical black levels are enabled.
+     * If false, the Argus implementation will choose the optical black values.
+     * @see setOpticalBlackEnable()
+     *
+     * @returns enable
+     */
+    virtual bool getOpticalBlackEnable() const = 0;
+
+
 protected:
     ~ISourceSettings() {}
 };
 
-/** @class IAutoControlSettings
- *  - Exposed by the InterfaceProvider returned by IRequest::getAutocontrolSettings().
+/**
+ * @class IAutoControlSettings
  *
- * An interface to settings related to autocontrol.
+ * Interface to the auto control settings (provided by IRequest::getAutoControlSettings()).
+ *
+ * @ingroup ArgusAutoControlSettings
  */
 DEFINE_UUID(InterfaceID, IID_AUTO_CONTROL_SETTINGS, 1f2ad1c6,cb13,440b,bc95,3f,fd,0d,19,91,db);
-
 class IAutoControlSettings : public Interface
 {
 public:
@@ -179,7 +224,7 @@ public:
 
     /**
      * Returns the AE regions of interest.
-     * @param[out] regions, a vector that will be populated with the AE regions of interest.
+     * @param[out] regions A vector that will be populated with the AE regions of interest.
      *
      * @returns success/status of the call.
      */
@@ -223,7 +268,7 @@ public:
 
     /**
      * Returns the AWB regions of interest.
-     * @param[out] regions, a vector that will be populated with the AWB regions of interest.
+     * @param[out] regions A vector that will be populated with the AWB regions of interest.
      *
      * @returns success/status of the call.
      */
@@ -265,7 +310,7 @@ public:
 
     /**
      * Returns the user-specified color correction matrix.
-     * @param[out] matrix, A matrix that will be populated with the CCM.
+     * @param[out] matrix A matrix that will be populated with the CCM.
      *
      * @returns success/status of the call.
      */
@@ -273,7 +318,7 @@ public:
 
     /**
      * Enables the user-specified color correction matrix.
-     * @param[in] enable If @c true, Argus will use the user-specified matrix.
+     * @param[in] enable If @c true, libargus uses the user-specified matrix.
      * @see setColorCorrectionMatrix()
      *
      * @returns success/status of the call.
@@ -305,7 +350,7 @@ public:
 
     /**
      * Enables the user-specified absolute color saturation.
-     * @param[in] enable If @c true, Argus will use the user-specified color saturation.
+     * @param[in] enable If @c true, libargus uses the user-specified color saturation.
      * @see setColorSaturation()
      *
      * @returns success/status of the call.
@@ -382,7 +427,7 @@ public:
 
     /**
      * Enables the user-specified tone map.
-     * @param[in] enable If @c true, Argus will use the user-specified tone map.
+     * @param[in] enable If @c true, libargus uses the user-specified tone map.
      *
      * @returns success/status of the call.
      */
@@ -395,14 +440,14 @@ public:
 
      /**
      * Sets the user-specified Isp Digital gain range.
-     * @param[in] The user-specified Isp Digital gain
+     * @param[in] gain The user-specified Isp Digital gain.
      *
      * @returns success/status of the call.
      */
     virtual Status setIspDigitalGainRange(const Range<float>& gain) = 0;
 
     /**
-     * Returns the user-specified Isp Digital gain range
+     * Returns the user-specified Isp Digital gain range.
      *
      * @returns Isp Digital gain
      */
@@ -414,12 +459,12 @@ protected:
 
 /**
  * @class IStreamSettings
- *  - Exposed by the per-Stream InterfaceProviders returned by IRequest::getStreamSettings().
  *
- * An interface to per-stream settings.
+ * Interface to per-stream settings (provided by IRequest::getStreamSettings()).
+ *
+ * @ingroup ArgusStreamSettings
  */
 DEFINE_UUID(InterfaceID, IID_STREAM_SETTINGS, c477aeaf,9cc8,4467,a834,c7,07,d7,b6,9f,a4);
-
 class IStreamSettings : public Interface
 {
 public:
@@ -463,12 +508,12 @@ protected:
 
 /**
  * @class IDenoiseSettings
- * - Exposed by Request objects.
  *
- * An interface to control denoise (noise reduction) algorithms.
+ * Interface to denoise settings.
+ *
+ * @ingroup ArgusRequest
  */
 DEFINE_UUID(InterfaceID, IID_DENOISE_SETTINGS, 7A461D20,6AE1,11E6,BDF4,08,00,20,0C,9A,66);
-
 class IDenoiseSettings : public Interface
 {
 public:
@@ -513,12 +558,12 @@ protected:
 
 /**
  * @class IEdgeEnhanceSettings
- * - Exposed by Request objects.
  *
- * An interface to control edge enhancement algorithms.
+ * Interface to edge enhancement settings.
+ *
+ * @ingroup ArgusRequest
  */
 DEFINE_UUID(InterfaceID, IID_EDGE_ENHANCE_SETTINGS, 7A461D21,6AE1,11E6,BDF4,08,00,20,0C,9A,66);
-
 class IEdgeEnhanceSettings : public Interface
 {
 public:
@@ -563,12 +608,12 @@ protected:
 
 /**
  * @class IVideoStabilizationSettings
- * - Exposed by Request objects.
  *
- * An interface to control video stabilization algorithms.
+ * Interface to video stabilization settings.
+ *
+ * @ingroup ArgusRequest
  */
 DEFINE_UUID(InterfaceID, IID_VIDEO_STABILIZATION_SETTINGS, 7A461D22,6AE1,11E6,BDF4,08,00,20,0C,9A,66);
-
 class IVideoStabilizationSettings : public Interface
 {
 public:

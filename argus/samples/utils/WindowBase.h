@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -246,6 +246,7 @@ public:
         {
             FLAG_NONE = (0 << 0),
             FLAG_BUTTON_TOGGLE = (1 << 0),  ///< toggle button
+            FLAG_NUMERIC_SLIDER = (1 << 1), ///< a numeric input has a slider
         };
 
         /**
@@ -271,7 +272,7 @@ public:
          * specializations of this function
          */
         template<typename T> static bool createValue(Value<T> *value,
-            IGuiElement **element);
+            IGuiElement **element, Flags flags = FLAG_NONE);
 
         /**
          * Create a GUI element for a label.
@@ -308,6 +309,34 @@ public:
          */
         static bool createAction(const char *name, GuiActionCallBackFunc function, void *userPtr,
             Flags flags, Icon icon, IGuiElement **element);
+    };
+
+    /**
+     * A GUI element displaying an image
+     */
+    class IGuiImage : public IGuiElement
+    {
+    public:
+        virtual ~IGuiImage() {}
+
+        /**
+         * Create a GUI element for an image
+         *
+         * @param element [out]     the created GUI element
+         */
+        static bool create(IGuiImage **image);
+
+        /**
+         * Set the image data.
+         *
+         * @param width [in]    width of the image
+         * @param height [in]   height of the image
+         * @param components [in] color components per pixel (only 3 or 4 is supported)
+         * @param rowStride [in] bytes between consecutive rows
+         * @param data [in]     image data
+         */
+        virtual bool set(size_t width, size_t height, uint32_t components, size_t rowStride,
+            const uint8_t *data) = 0;
     };
 
     /**

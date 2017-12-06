@@ -389,6 +389,29 @@ NvVideoEncoder::setSliceLength(v4l2_enc_slice_length_type type, uint32_t length)
 }
 
 int
+NvVideoEncoder::setHWPresetType(v4l2_enc_hw_preset_type type)
+{
+    struct v4l2_ext_control control;
+    struct v4l2_ext_controls ctrls;
+
+    RETURN_ERROR_IF_FORMATS_NOT_SET();
+    RETURN_ERROR_IF_BUFFERS_REQUESTED();
+
+    memset(&control, 0, sizeof(control));
+    memset(&ctrls, 0, sizeof(ctrls));
+
+    ctrls.count = 1;
+    ctrls.controls = &control;
+    ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
+
+    control.id = V4L2_CID_MPEG_VIDEOENC_HW_PRESET_TYPE_PARAM;
+    control.value = type;
+
+    CHECK_V4L2_RETURN(setExtControls(ctrls),
+            "Setting encoder HW Preset type to " << type);
+}
+
+int
 NvVideoEncoder::setROIParams(uint32_t buffer_index,
         v4l2_enc_frame_ROI_params &params)
 {
@@ -749,4 +772,50 @@ NvVideoEncoder::setQpRange(uint32_t MinQpI, uint32_t MaxQpI, uint32_t MinQpP,
 
     CHECK_V4L2_RETURN(setExtControls(ctrls),
             "Setting encoder Qp range " << ctrls.count);
+}
+
+int
+NvVideoEncoder::setInsertVuiEnabled(bool enabled)
+{
+    struct v4l2_ext_control control;
+    struct v4l2_ext_controls ctrls;
+
+    RETURN_ERROR_IF_FORMATS_NOT_SET();
+    RETURN_ERROR_IF_BUFFERS_REQUESTED();
+
+    memset(&control, 0, sizeof(control));
+    memset(&ctrls, 0, sizeof(ctrls));
+
+    ctrls.count = 1;
+    ctrls.controls = &control;
+    ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
+
+    control.id = V4L2_CID_MPEG_VIDEOENC_INSERT_VUI;
+    control.value = enabled;
+
+    CHECK_V4L2_RETURN(setExtControls(ctrls),
+            "Setting encoder InsertVUI to " << enabled);
+}
+
+int
+NvVideoEncoder::setInsertAudEnabled(bool enabled)
+{
+    struct v4l2_ext_control control;
+    struct v4l2_ext_controls ctrls;
+
+    RETURN_ERROR_IF_FORMATS_NOT_SET();
+    RETURN_ERROR_IF_BUFFERS_REQUESTED();
+
+    memset(&control, 0, sizeof(control));
+    memset(&ctrls, 0, sizeof(ctrls));
+
+    ctrls.count = 1;
+    ctrls.controls = &control;
+    ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
+
+    control.id = V4L2_CID_MPEG_VIDEOENC_INSERT_AUD;
+    control.value = enabled;
+
+    CHECK_V4L2_RETURN(setExtControls(ctrls),
+            "Setting encoder InsertAUD to " << enabled);
 }

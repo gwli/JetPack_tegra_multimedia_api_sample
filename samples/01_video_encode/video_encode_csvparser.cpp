@@ -62,11 +62,14 @@ print_help(void)
             "\t-ifi <interval>       I-frame Interval [Default = 30]\n"
             "\t-idri <interval>      IDR Interval [Default = 256]\n"
             "\t--insert-spspps-idr   Insert SPS PPS at every IDR [Default = disabled]\n"
+            "\t--insert-vui          Insert VUI [Default = disabled]\n"
+            "\t--insert-aud          Insert AUD [Default = disabled]\n"
             "\t-fps <num> <den>      Encoding fps in num/den [Default = 30/1]\n\n"
             "\t-tt <level>           Temporal Tradeoff level [Default = 0]\n"
             "\t-vbs <size>           Virtual buffer size [Default = 0]\n"
             "\t-nrf <num>            Number of reference frames [Default = 1]\n\n"
             "\t-slt <type>           Slice length type (1 = Number of MBs, 2 = Bytes) [Default = 1]\n"
+            "\t-hpt <type>           HW preset type (1 = ultrafast, 2 = fast, 3 = medium,  4 = slow)\n"
             "\t-slen <length>        Slice length [Default = 0]\n"
             "\t-sir <interval>       Slice intrarefresh interval [Default = 0]\n\n"
             "\t-nbf <num>            Number of B frames [Default = 0]\n\n"
@@ -84,12 +87,15 @@ print_help(void)
             "\t--eroi                Enable ROI [Default = disabled]\n\n"
             "\t-roi <roi_file_path>  Specify roi param file\n\n"
             "\t--erps                Enable External RPS [Default = disabled]\n\n"
+            "\t--egdr                Enable GDR [Default = disabled]\n\n"
             "\t--gif                 Enable Gaps in FrameNum [Default = disabled]\n\n"
             "\t-fnb <num_bits>       H264 FrameNum bits [Default = 0]\n\n"
             "\t-plb <num_bits>       H265 poc lsb bits [Default = 0]\n\n"
             "\t--ni                  No I-frames [Default = disabled]\n\n"
             "\t-rpsf <rps_file_path> Specify external rps param file\n\n"
             "\t--erh                 Enable External picture RC [Default = disabled]\n\n"
+            "\t-gdrf <gdr_file_path> Specify GDR Parameters filename \n\n"
+            "\t-gdrof <gdr_out_file_path> Specify GDR Out filename \n\n"
             "\t-smq <max_qp_value>   Max QP per session when external picture RC enabled\n\n"
             "\t-hf <hint_file_path>  Specify external rate control param file\n\n"
             "\t-MinQpI               Specify minimum Qp Value for I frame\n\n"
@@ -301,6 +307,10 @@ parse_csv_args(context_t * ctx, int argc, char *argv[])
         {
             ctx->externalRPS = true;
         }
+        else if (!strcmp(arg, "--egdr"))
+        {
+            ctx->enableGDR = true;
+        }
         else if (!strcmp(arg, "--gif"))
         {
             ctx->bGapsInFrameNumAllowed = true;
@@ -326,6 +336,18 @@ parse_csv_args(context_t * ctx, int argc, char *argv[])
             argp++;
             CHECK_OPTION_VALUE(argp);
             ctx->RPS_Param_file_path = strdup(*argp);
+        }
+        else if (!strcmp(arg, "-gdrf"))
+        {
+            argp++;
+            CHECK_OPTION_VALUE(argp);
+            ctx->GDR_Param_file_path = strdup(*argp);
+        }
+        else if (!strcmp(arg, "-gdrof"))
+        {
+            argp++;
+            CHECK_OPTION_VALUE(argp);
+            ctx->GDR_out_file_path = strdup(*argp);
         }
         else if (!strcmp(arg, "--erh"))
         {
@@ -382,6 +404,14 @@ parse_csv_args(context_t * ctx, int argc, char *argv[])
         else if (!strcmp(arg, "--insert-spspps-idr"))
         {
             ctx->insert_sps_pps_at_idr = true;
+        }
+        else if (!strcmp(arg, "--insert-vui"))
+        {
+            ctx->insert_vui = true;
+        }
+        else if (!strcmp(arg, "--insert-aud"))
+        {
+            ctx->insert_aud = true;
         }
         else if (!strcmp(arg, "-l"))
         {
@@ -458,6 +488,29 @@ parse_csv_args(context_t * ctx, int argc, char *argv[])
                 default:
                     CSV_PARSE_CHECK_ERROR(true,
                             "Unsupported value for slice length type: " << *argp);
+            }
+        }
+        else if (!strcmp(arg, "-hpt"))
+        {
+            argp++;
+            CHECK_OPTION_VALUE(argp);
+            switch (atoi(*argp))
+            {
+                case 1:
+                    ctx->hw_preset_type = V4L2_ENC_HW_PRESET_ULTRAFAST;
+                    break;
+                case 2:
+                    ctx->hw_preset_type = V4L2_ENC_HW_PRESET_FAST;
+                    break;
+                case 3:
+                    ctx->hw_preset_type = V4L2_ENC_HW_PRESET_MEDIUM;
+                    break;
+                case 4:
+                    ctx->hw_preset_type = V4L2_ENC_HW_PRESET_SLOW;
+                    break;
+                default:
+                    CSV_PARSE_CHECK_ERROR(true,
+                            "Unsupported value for encoder HW Preset Type: " << *argp);
             }
         }
         else if (!strcmp(arg, "-slen"))

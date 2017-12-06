@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -89,25 +89,6 @@ namespace ArgusSamples
     return true;
 }
 
-/* static */ bool AppModuleVideo::videoBitRate(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_videoBitRate.setFromString(optArg));
-
-    return true;
-}
-
-/* static */ bool AppModuleVideo::videoFormat(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_videoFormat.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleVideo::videoFileType(void *userPtr, const char *optArg)
-{
-    PROPAGATE_ERROR(Dispatcher::getInstance().m_videoFileType.setFromString(optArg));
-    return true;
-}
-
 AppModuleVideo::AppModuleVideo()
     : m_initialized(false)
     , m_running(false)
@@ -134,16 +115,16 @@ bool AppModuleVideo::initialize(Options &options)
             "record video for DURATION seconds and save to a file.", video, this)));
 
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("videobitrate", 0, "RATE", Dispatcher::getInstance().m_videoBitRate,
+        createValueOption("videobitrate", 0, "RATE",
             "set the video bit rate mode to RATE. If RATE is zero a reasonable default "
-            "is selected.", videoBitRate)));
+            "is selected.", Dispatcher::getInstance().m_videoBitRate)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("videoformat", 0, "FORMAT", Dispatcher::getInstance().m_videoFormat,
-            "set the video format.", videoFormat)));
+        createValueOption("videoformat", 0, "FORMAT",
+            "set the video format.", Dispatcher::getInstance().m_videoFormat)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("videofiletype", 0, "TYPE", Dispatcher::getInstance().m_videoFileType,
+        createValueOption("videofiletype", 0, "TYPE",
             "set the video file type. For 'h265' set the file type as 'mkv' since 'h265' is only "
-            "supported by the 'mkv' container.", videoFileType)));
+            "supported by the 'mkv' container.", Dispatcher::getInstance().m_videoFileType)));
 
     m_initialized = true;
 

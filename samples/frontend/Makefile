@@ -32,12 +32,9 @@ include ../Rules.mk
 
 APP := frontend
 
-CLASS_DIR := ../common/classes
-ARGUS_UTILS_DIR := ../../argus/samples/utils
-ALGO_DIR := ../common/algorithm/cuda
-GIE_DIR  := ../common/algorithm/gie
+ARGUS_UTILS_DIR := $(TOP_DIR)/argus/samples/utils
 
-ENABLE_GIE ?= 1
+ENABLE_TRT ?= 1
 
 SRCS := \
 	main.cpp \
@@ -47,43 +44,40 @@ SRCS := \
 	$(wildcard $(CLASS_DIR)/*.cpp) \
 	$(ARGUS_UTILS_DIR)/Thread.cpp
 
-ifeq ($(ENABLE_GIE), 1)
+ifeq ($(ENABLE_TRT), 1)
 SRCS += \
-	GIEStreamConsumer.cpp
+	TRTStreamConsumer.cpp
 endif
 
 OBJS := $(SRCS:.cpp=.o)
 
-ifeq ($(ENABLE_GIE), 1)
+ifeq ($(ENABLE_TRT), 1)
 OBJS += \
-	../common/algorithm/cuda/NvAnalysis.o \
-	../common/algorithm/cuda/NvCudaProc.o \
-	../common/algorithm/gie/gie_inference.o
+	$(ALGO_CUDA_DIR)/NvAnalysis.o \
+	$(ALGO_CUDA_DIR)/NvCudaProc.o \
+	$(ALGO_TRT_DIR)/trt_inference.o
 endif
 
 CPPFLAGS += \
 	-std=c++11
 
 CPPFLAGS += \
-	-I"$(ARGUS_UTILS_DIR)" \
-	-I"../../include/libjpeg-8b"
+	-I"$(ARGUS_UTILS_DIR)"
 
 LDFLAGS += \
-	-lpthread \
-	-lv4l2 -lEGL -lGLESv2 -lX11 \
-	-lnvbuf_utils -lnvjpeg -largus
+	-largus
 
-ifeq ($(ENABLE_GIE), 1)
+ifeq ($(ENABLE_TRT), 1)
 CPPFLAGS += \
-	-DENABLE_GIE \
-	-I"../common/algorithm/gie" \
-	-I"../common/algorithm/cuda" \
+	-DENABLE_TRT \
+	-I"$(ALGO_CUDA_DIR)" \
+	-I"$(ALGO_TRT_DIR)" \
 	-I"$(CUDA_PATH)/include"
 
 LDFLAGS += \
 	-L"$(CUDA_PATH)/targets/aarch64-linux/lib" \
 	-lnvinfer -lnvcaffe_parser \
-	-lcudart -lcuda -lnvosd \
+	-lcudart -lcuda \
 	-lopencv_objdetect
 
 endif
@@ -93,14 +87,14 @@ all: $(APP)
 $(CLASS_DIR)/%.o: $(CLASS_DIR)/%.cpp
 	$(MAKE) -C $(CLASS_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.c
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cpp
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-$(ALGO_DIR)/%.o: $(ALGO_DIR)/%.cu
-	$(MAKE) -C $(ALGO_DIR)
+$(ALGO_CUDA_DIR)/%.o: $(ALGO_CUDA_DIR)/%.cu
+	$(MAKE) -C $(ALGO_CUDA_DIR)
 
-$(GIE_DIR)/%.o: $(GIE_DIR)/%.cpp
-	$(MAKE) -C $(GIE_DIR)
+$(ALGO_TRT_DIR)/%.o: $(ALGO_TRT_DIR)/%.cpp
+	$(MAKE) -C $(ALGO_TRT_DIR)
 
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@
@@ -109,8 +103,4 @@ $(APP): $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(CPPFLAGS) $(LDFLAGS)
 
 clean:
-	$(MAKE) -C $(CLASS_DIR) clean
-	$(MAKE) -C $(ALGO_DIR) clean
-	$(MAKE) -C $(GIE_DIR) clean
-
-	rm -rf *.o $(APP)
+	rm -rf $(APP) $(OBJS)

@@ -1,4 +1,4 @@
-# Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -30,39 +30,48 @@ project(argussampleutils)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
-find_package(Argus REQUIRED)
-find_package(OpenGLES REQUIRED)
+find_package(Argus COMPONENTS ARGUS_INCLUDE_DIR OPTIONAL_COMPONENTS ARGUS_LIBRARY)
+find_package(OpenGLES)
 find_package(EGL REQUIRED)
 find_package(X11 REQUIRED)
 find_package(CUDA)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+pkg_check_modules(Cairo REQUIRED cairo)
 
 set(SOURCES
     EGLGlobal.cpp
-    GLContext.cpp
     JPEGConsumer.cpp
     Observed.cpp
     Options.cpp
-    PreviewConsumer.cpp
     Thread.cpp
     WindowBase.cpp
     gtk/GuiElement.cpp
     gtk/Window.cpp
     )
 
-if(CUDA_FOUND)
+if(CUDA_FOUND AND OPENGLES_FOUND)
     set(SOURCES
         ${SOURCES}
         CUDAHelper.cpp
         )
-endif(CUDA_FOUND)
+endif(CUDA_FOUND AND OPENGLES_FOUND)
+
+if(OPENGLES_FOUND)
+    set(SOURCES
+        ${SOURCES}
+        GLContext.cpp
+        PreviewConsumer.cpp
+        )
+    include_directories(
+        ${OPENGLES_INCLUDE_DIR}
+        )
+endif(OPENGLES_FOUND)
 
 include_directories(
     ${ARGUS_INCLUDE_DIR}
     ${EGL_INCLUDE_DIR}
-    ${OPENGLES_INCLUDE_DIR}
     ${GTK3_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
@@ -78,7 +87,8 @@ add_definitions(
 if(CUDA_FOUND)
     cuda_add_library(${PROJECT_NAME} ${SOURCES})
     target_link_libraries(${PROJECT_NAME}
-        ${CUDA_LIBRARIES} )
+        ${CUDA_LIBRARIES}
+        )
 else(CUDA_FOUND)
     add_library(${PROJECT_NAME} STATIC ${SOURCES})
 endif(CUDA_FOUND)
@@ -87,6 +97,11 @@ target_link_libraries(${PROJECT_NAME}
     pthread
     ${X11_LIBRARIES}
     ${EGL_LIBRARIES}
-    ${OPENGLES_LIBRARIES}
     ${GTK3_LIBRARIES}
     )
+
+if(OPENGLES_FOUND)
+    target_link_libraries(${PROJECT_NAME}
+        ${OPENGLES_LIBRARIES}
+        )
+endif(OPENGLES_FOUND)

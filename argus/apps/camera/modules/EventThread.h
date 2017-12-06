@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,24 +30,23 @@
 #define EVENTTHREAD_H
 
 #include "Thread.h"
+
 #include <Argus/Argus.h>
-#include "PerfTracker.h"
 
 namespace ArgusSamples
 {
 
+class SessionPerfTracker;
+
 /**
- * EventThread is created by task object.
- * It is given a session and event queue. A new thread is generated to
- * keep querying events from the session. It does some analysis and pass
- * info to perfTracker.
+ * The EventThread is querying events from the session. It does some analysis and then pass the
+ * info to a sessionPerfTracker.
  */
 class EventThread : public Thread
 {
 public:
     explicit EventThread(Argus::CaptureSession *session,
-                         Argus::EventQueue *eventQueue,
-                         PerfTracker *perfTracker);
+                         SessionPerfTracker *sessionPerfTracker);
     virtual ~EventThread();
 
 protected:
@@ -57,9 +56,10 @@ protected:
 
 private:
     Argus::CaptureSession *m_session;
-    Argus::UniqueObj<Argus::EventQueue> m_eventQueue; // this takes ownship of queue
-    PerfTracker *m_perfTracker;
+    Argus::UniqueObj<Argus::EventQueue> m_eventQueue;
+    SessionPerfTracker *m_sessionPerfTracker;
 };
 
 }; // namespace ArgusSamples
-#endif //EVENTTHREAD_H
+
+#endif // EVENTTHREAD_H

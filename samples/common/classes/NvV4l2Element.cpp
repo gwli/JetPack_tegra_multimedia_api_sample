@@ -38,6 +38,9 @@
 
 using namespace std;
 
+/*initialization of mutex for NvV4l2Element*/
+pthread_mutex_t initializer_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 NvV4l2Element::NvV4l2Element(const char *comp_name, const char *dev_node, int flags, NvElementProfiler::ProfilerField fields)
     :NvElement(comp_name, fields),
       output_plane(V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, comp_name,
@@ -52,13 +55,18 @@ NvV4l2Element::NvV4l2Element(const char *comp_name, const char *dev_node, int fl
     output_plane_pixfmt = 0;
     capture_plane_pixfmt = 0;
 
+    /*Synchronization issue of libv4l2 open source library fixing here,adding lock for that*/
+    pthread_mutex_lock(&initializer_mutex);
     fd = v4l2_open(dev_node, flags | O_RDWR);
     if (fd == -1)
     {
         COMP_SYS_ERROR_MSG("Could not open device '" << dev_node << "'");
         is_in_error = 1;
+        pthread_mutex_unlock(&initializer_mutex);
         return;
     }
+    pthread_mutex_unlock(&initializer_mutex);
+
     COMP_DEBUG_MSG("Opened, fd = " << fd);
 
     ret = v4l2_ioctl(fd, VIDIOC_QUERYCAP, &caps);

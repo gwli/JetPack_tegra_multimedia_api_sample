@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@
 #include <sstream>
 
 #include "MultiExposure.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Dispatcher.h"
 #include "Error.h"
 #include "UniquePointer.h"
@@ -48,7 +48,6 @@ TaskMultiExposure::TaskMultiExposure()
     , m_initialized(false)
     , m_running(false)
     , m_wasRunning(false)
-    , m_captureIndex(0)
 {
 }
 
@@ -68,7 +67,7 @@ TaskMultiExposure::ExpLevel::~ExpLevel()
 
 bool TaskMultiExposure::ExpLevel::initialize(float exposureCompensation)
 {
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
     Dispatcher &dispatcher = Dispatcher::getInstance();
 
     // create the request
@@ -93,17 +92,17 @@ bool TaskMultiExposure::ExpLevel::initialize(float exposureCompensation)
         ORIGINATE_ERROR("Failed to set exposure compensation");
 
     // Create the preview stream
-    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), m_outputStream));
+    PROPAGATE_ERROR(dispatcher.createOutputStream(m_request.get(), false, m_outputStream));
 
     Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_outputStream.get());
     if (!iStream)
         ORIGINATE_ERROR("Failed to get IStream interface");
 
-    // Bind the stream to the renderer
-    PROPAGATE_ERROR(renderer.bindStream(iStream->getEGLStream()));
+    // Bind the stream to the composer
+    PROPAGATE_ERROR(composer.bindStream(iStream->getEGLStream()));
 
     const Argus::Size2D<uint32_t> streamSize = iStream->getResolution();
-    PROPAGATE_ERROR(renderer.setStreamAspectRatio(iStream->getEGLStream(),
+    PROPAGATE_ERROR(composer.setStreamAspectRatio(iStream->getEGLStream(),
         (float)streamSize.width() / (float)streamSize.height()));
 
     // Enable the output stream
@@ -117,6 +116,7 @@ bool TaskMultiExposure::ExpLevel::shutdown()
     if (m_request)
     {
         Dispatcher &dispatcher = Dispatcher::getInstance();
+        Composer &composer = Composer::getInstance();
 
         if (m_outputStream)
         {
@@ -124,13 +124,17 @@ bool TaskMultiExposure::ExpLevel::shutdown()
             PROPAGATE_ERROR_CONTINUE(dispatcher.disableOutputStream(m_request.get(),
                 m_outputStream.get()));
 
-            const EGLStreamKHR eglStream =
-                Argus::interface_cast<Argus::IStream>(m_outputStream)->getEGLStream();
+            Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_outputStream);
+            if (!iStream)
+                REPORT_ERROR("Failed to get IStream interface");
+
+            // disconnect the EGL stream
+            iStream->disconnect();
+
+            // unbind the EGL stream from the composer
+            PROPAGATE_ERROR_CONTINUE(composer.unbindStream(iStream->getEGLStream()));
 
             m_outputStream.reset();
-
-            // unbind the EGL stream from the renderer
-            PROPAGATE_ERROR_CONTINUE(Renderer::getInstance().unbindStream(eglStream));
         }
 
         // destroy the request
@@ -147,13 +151,16 @@ bool TaskMultiExposure::initialize()
 
     Dispatcher &dispatcher = Dispatcher::getInstance();
 
-    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.registerObserver(this,
-        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onDeviceOpenChanged)));
-
     m_initialized = true;
 
     // register the device observers after 'm_initialize' is set, the call back will be
     // called immediately and assert that 'm_initialize' is set
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onDeviceOpenChanged)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::restartStreams)));
     PROPAGATE_ERROR_CONTINUE(m_exposureRange.registerObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onParametersChanged)));
     PROPAGATE_ERROR_CONTINUE(m_exposureSteps.registerObserver(this,
@@ -170,12 +177,18 @@ bool TaskMultiExposure::shutdown()
     // stop the preview
     PROPAGATE_ERROR(stop());
 
-    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_deviceOpen.unregisterObserver(this,
-        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onDeviceOpenChanged)));
-    PROPAGATE_ERROR_CONTINUE(m_exposureRange.unregisterObserver(this,
-        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onParametersChanged)));
+    Dispatcher &dispatcher = Dispatcher::getInstance();
+
     PROPAGATE_ERROR_CONTINUE(m_exposureSteps.unregisterObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onParametersChanged)));
+    PROPAGATE_ERROR_CONTINUE(m_exposureRange.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onParametersChanged)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskMultiExposure::onDeviceOpenChanged)));
 
     m_initialized = false;
 
@@ -199,6 +212,16 @@ bool TaskMultiExposure::shutdownExpLevels()
     return true;
 }
 
+bool TaskMultiExposure::restartStreams(__attribute__((unused)) const Observed &source)
+{
+    if (m_running)
+    {
+        PROPAGATE_ERROR(stop());
+        PROPAGATE_ERROR(start());
+    }
+    return true;
+}
+
 bool TaskMultiExposure::onDeviceOpenChanged(const Observed &source)
 {
     const bool isOpen = static_cast<const Value<bool>&>(source).get();
@@ -212,8 +235,8 @@ bool TaskMultiExposure::onDeviceOpenChanged(const Observed &source)
     }
     else
     {
-        uint32_t maxBurstRequests = Dispatcher::getInstance().maxBurstRequests();
-        PROPAGATE_ERROR(m_exposureStepsRange.set(Argus::Range<uint32_t>(2, maxBurstRequests)));
+        PROPAGATE_ERROR(m_exposureStepsRange.set(
+            Argus::Range<uint32_t>(2, Dispatcher::getInstance().maxBurstRequests())));
 
         if (m_wasRunning)
         {
@@ -281,11 +304,11 @@ bool TaskMultiExposure::start()
 
     // activate the streams and populate the burst request array
     std::vector<const Argus::Request*> requests;
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
     for (std::list<ExpLevel*>::iterator it = m_expLevels.begin(); it != m_expLevels.end(); ++it)
     {
         ExpLevel *expLevel = *it;
-        PROPAGATE_ERROR(renderer.setStreamActive(
+        PROPAGATE_ERROR(composer.setStreamActive(
             Argus::interface_cast<Argus::IStream>(expLevel->m_outputStream)->getEGLStream(), true));
         requests.push_back(expLevel->m_request.get());
     }
@@ -310,11 +333,11 @@ bool TaskMultiExposure::stop()
     PROPAGATE_ERROR(dispatcher.stopRepeat());
 
     // de-activate the streams
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
     for (std::list<ExpLevel*>::iterator it = m_expLevels.begin(); it != m_expLevels.end(); ++it)
     {
         ExpLevel *expLevel = *it;
-        PROPAGATE_ERROR(renderer.setStreamActive(
+        PROPAGATE_ERROR(composer.setStreamActive(
             Argus::interface_cast<Argus::IStream>(expLevel->m_outputStream)->getEGLStream(), false));
     }
 

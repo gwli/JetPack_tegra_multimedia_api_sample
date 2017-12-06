@@ -181,13 +181,15 @@ static nv_color_fmt nvcolor_fmt[] =
 static NvBufferColorFormat
 get_nvbuff_color_fmt(unsigned int v4l2_pixfmt)
 {
-  for (unsigned i = 0; i < sizeof(nvcolor_fmt); i++)
-  {
-    if (v4l2_pixfmt == nvcolor_fmt[i].v4l2_pixfmt)
-      return nvcolor_fmt[i].nvbuff_color;
-  }
+    unsigned i;
 
-  return NvBufferColorFormat_Invalid;
+    for (i = 0; i < sizeof(nvcolor_fmt) / sizeof(nvcolor_fmt[0]); i++)
+    {
+        if (v4l2_pixfmt == nvcolor_fmt[i].v4l2_pixfmt)
+            return nvcolor_fmt[i].nvbuff_color;
+    }
+
+    return NvBufferColorFormat_Invalid;
 }
 
 static bool
@@ -203,7 +205,10 @@ save_frame_to_file(context_t * ctx, struct v4l2_buffer * buf)
 
     if (-1 == write(file, ctx->g_buff[buf->index].start,
                 ctx->g_buff[buf->index].size))
+    {
+        close(file);
         ERROR_RETURN("Failed to write frame into file");
+    }
 
     close(file);
 
@@ -665,9 +670,8 @@ start_capture(context_t * ctx)
     // Stop VIC dq thread
     if (!ctx->got_error)
     {
-        ctx->conv->waitForIdle(2000);
-        ctx->conv->capture_plane.stopDQThread();
-        ctx->conv->output_plane.stopDQThread();
+        ctx->conv->output_plane.deinitPlane();
+        ctx->conv->capture_plane.deinitPlane();
     }
 
     // Print profiling information when streaming stops.
@@ -751,6 +755,11 @@ cleanup:
             if (ctx.g_buff[i].dmabuff_fd)
                 NvBufferDestroy(ctx.g_buff[i].dmabuff_fd);
         free(ctx.g_buff);
+    }
+
+    while(!ctx.conv_output_plane_buf_queue->empty())
+    {
+        ctx.conv_output_plane_buf_queue->pop();
     }
 
     delete ctx.conv_output_plane_buf_queue;

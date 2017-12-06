@@ -67,6 +67,7 @@ static bool execute(const ExecuteOptions& options)
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to create CameraProvider");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Get the camera devices.
     std::vector<CameraDevice*> cameraDevices;
@@ -235,10 +236,12 @@ static bool execute(const ExecuteOptions& options)
 
 int main(int argc, char** argv)
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
     ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
     ArgusSamples::Value<uint32_t> frameCount(ArgusSamples::DEFAULT_FRAME_COUNT);
 
-    ArgusSamples::Options options("argus_cudahistogram");
+    ArgusSamples::Options options(basename(argv[0]));
     options.addOption(ArgusSamples::createValueOption
         ("device", 'd', "INDEX", "Camera index.", cameraIndex));
     options.addOption(ArgusSamples::createValueOption

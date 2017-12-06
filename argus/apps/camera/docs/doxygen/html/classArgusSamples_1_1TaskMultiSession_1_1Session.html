@@ -105,6 +105,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae0e240209377a03fdee6b277e18592ef"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#ae0e240209377a03fdee6b277e18592ef">Session</a> ()</td></tr>
 <tr class="memitem:a8065e5ea2be7c99dbddccacd5dfe7938"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a8065e5ea2be7c99dbddccacd5dfe7938">~Session</a> ()</td></tr>
 <tr class="memitem:a4bc691025d80a2bbf85276824c807138"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a4bc691025d80a2bbf85276824c807138">shutdown</a> ()</td></tr>
+<tr class="memitem:a3c81c9c3858b95bfe2455f84230eaa48"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a3c81c9c3858b95bfe2455f84230eaa48">start</a> ()</td></tr>
 <tr class="memitem:a1d05c20759173b7a1b55bf15c8636f47"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a1d05c20759173b7a1b55bf15c8636f47">stop</a> ()</td></tr>
 <tr class="memitem:aeedeeeac75287de1f2dcaa5602965d1a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#aeedeeeac75287de1f2dcaa5602965d1a">initialize</a> (uint32_t deviceIndex)</td></tr>
 </table><table class="memberdecls">
@@ -118,8 +119,7 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:afc0ef7ada8453b8d10f0c558805ea656"><td class="memItemLeft" align="right" valign="top">Argus::UniqueObj<br class="typebreak"/>
 &lt; Argus::OutputStream &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#afc0ef7ada8453b8d10f0c558805ea656">m_outputStream</a></td></tr>
 <tr class="memdesc:afc0ef7ada8453b8d10f0c558805ea656"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespaceArgus.html">Argus</a> output stream.  <a href="#afc0ef7ada8453b8d10f0c558805ea656"></a><br/></td></tr>
-<tr class="memitem:ae946461dfe8e224cd0f7034a26fe498e"><td class="memItemLeft" align="right" valign="top">UniquePointer&lt; <a class="el" href="classArgusSamples_1_1EventThread.html">EventThread</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#ae946461dfe8e224cd0f7034a26fe498e">m_eventThread</a></td></tr>
-<tr class="memitem:a23fc4dc56ae250adf324af3c958b41cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classArgusSamples_1_1PerfTracker.html">PerfTracker</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a23fc4dc56ae250adf324af3c958b41cc">m_perfTracker</a></td></tr>
+<tr class="memitem:a9d217af5656a51403e0b1d87cf7c068b"><td class="memItemLeft" align="right" valign="top">UniquePointer&lt; <a class="el" href="classArgusSamples_1_1SessionPerfTracker.html">SessionPerfTracker</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgusSamples_1_1TaskMultiSession_1_1Session.html#a9d217af5656a51403e0b1d87cf7c068b">m_perfTracker</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>For each device there is one session with a request. </p>
@@ -157,7 +157,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00057">57</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00056">56</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
 
 </div>
 </div>
@@ -176,7 +176,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00062">62</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00061">61</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
 
 </div>
 </div>
@@ -197,6 +197,23 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a3c81c9c3858b95bfe2455f84230eaa48"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ArgusSamples::TaskMultiSession::Session::start </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00103">103</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a1d05c20759173b7a1b55bf15c8636f47"></a>
 <div class="memitem">
 <div class="memproto">
@@ -210,25 +227,11 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00114">114</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8cpp_source.html#l00118">118</a> of file <a class="el" href="MultiSession_8cpp_source.html">MultiSession.cpp</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="ae946461dfe8e224cd0f7034a26fe498e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">UniquePointer&lt;<a class="el" href="classArgusSamples_1_1EventThread.html">EventThread</a>&gt; ArgusSamples::TaskMultiSession::Session::m_eventThread</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00086">86</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="afc0ef7ada8453b8d10f0c558805ea656"></a>
 <div class="memitem">
 <div class="memproto">
@@ -241,16 +244,16 @@ Public Attributes</h2></td></tr>
 
 <p><a class="el" href="namespaceArgus.html">Argus</a> output stream. </p>
 
-<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00084">84</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00085">85</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a23fc4dc56ae250adf324af3c958b41cc"></a>
+<a class="anchor" id="a9d217af5656a51403e0b1d87cf7c068b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classArgusSamples_1_1PerfTracker.html">PerfTracker</a> ArgusSamples::TaskMultiSession::Session::m_perfTracker</td>
+          <td class="memname">UniquePointer&lt;<a class="el" href="classArgusSamples_1_1SessionPerfTracker.html">SessionPerfTracker</a>&gt; ArgusSamples::TaskMultiSession::Session::m_perfTracker</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -271,7 +274,7 @@ Public Attributes</h2></td></tr>
 
 <p><a class="el" href="namespaceArgus.html">Argus</a> request. </p>
 
-<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00083">83</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00084">84</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
 
 </div>
 </div>
@@ -287,7 +290,7 @@ Public Attributes</h2></td></tr>
 
 <p><a class="el" href="namespaceArgus.html">Argus</a> session. </p>
 
-<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00082">82</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
+<p>Definition at line <a class="el" href="MultiSession_8h_source.html#l00083">83</a> of file <a class="el" href="MultiSession_8h_source.html">MultiSession.h</a>.</p>
 
 </div>
 </div>
@@ -298,7 +301,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

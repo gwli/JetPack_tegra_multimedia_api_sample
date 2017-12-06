@@ -329,6 +329,7 @@ static bool execute(const ExecuteOptions& options)
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(g_cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Ensure face detection is supported.
     if (!iCameraProvider->supportsExtension(EXT_FACE_DETECT))
@@ -366,6 +367,7 @@ static bool execute(const ExecuteOptions& options)
         iStreamSettings->setPixelFormat(PIXEL_FMT_YCbCr_420_888);
         iStreamSettings->setResolution(STREAM_SIZE);
         iStreamSettings->setEGLDisplay(g_display.get());
+        iStreamSettings->setMetadataEnable(true);
     }
     UniqueObj<OutputStream> outputStream(iCaptureSession->createOutputStream(streamSettings.get()));
     IStream *iStream = interface_cast<IStream>(outputStream);
@@ -429,11 +431,13 @@ static bool execute(const ExecuteOptions& options)
 
 int main(int argc, char** argv)
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
     ArgusSamples::Value<uint32_t> cameraIndex(ArgusSamples::DEFAULT_CAMERA_INDEX);
     ArgusSamples::Value<uint32_t> captureTime(ArgusSamples::DEFAULT_CAPTURE_TIME);
     ArgusSamples::Value<Rectangle<uint32_t> > windowRect(ArgusSamples::DEFAULT_WINDOW_RECT);
 
-    ArgusSamples::Options options("argus_facedetect");
+    ArgusSamples::Options options(basename(argv[0]));
     options.addOption(ArgusSamples::createValueOption
         ("device", 'd', "INDEX", "Camera index.", cameraIndex));
     options.addOption(ArgusSamples::createValueOption

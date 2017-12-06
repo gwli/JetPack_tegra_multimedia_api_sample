@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,20 +33,6 @@
 namespace ArgusSamples
 {
 
-/* static */ bool AppModuleMultiExposure::exposureRange(void *userPtr, const char *optArg)
-{
-    AppModuleMultiExposure *module = reinterpret_cast<AppModuleMultiExposure*>(userPtr);
-    PROPAGATE_ERROR(module->m_multiExposure.m_exposureRange.setFromString(optArg));
-    return true;
-}
-
-/* static */ bool AppModuleMultiExposure::exposureSteps(void *userPtr, const char *optArg)
-{
-    AppModuleMultiExposure *module = reinterpret_cast<AppModuleMultiExposure*>(userPtr);
-    PROPAGATE_ERROR(module->m_multiExposure.m_exposureSteps.setFromString(optArg));
-    return true;
-}
-
 AppModuleMultiExposure::AppModuleMultiExposure()
     : m_initialized(false)
     , m_running(false)
@@ -68,12 +54,11 @@ bool AppModuleMultiExposure::initialize(Options &options)
     PROPAGATE_ERROR(m_multiExposure.initialize());
 
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("exposurerange", 0, "RANGE", m_multiExposure.m_exposureRange,
-            "set the exposure range to RANGE.", exposureRange, this)));
+        createValueOption("exposurerange", 0, "RANGE", "set the exposure range to RANGE.",
+            m_multiExposure.m_exposureRange)));
     PROPAGATE_ERROR(options.addOption(
-        Options::Option("exposuresteps", 0, "COUNT", m_multiExposure.m_exposureSteps,
-            "sample the exposure range at COUNT steps.",
-            exposureSteps, this)));
+        createValueOption("exposuresteps", 0, "COUNT", "sample the exposure range at COUNT steps.",
+            m_multiExposure.m_exposureSteps)));
 
     m_initialized = true;
 

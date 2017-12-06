@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>Argus API: include/Argus/Types.h File Reference</title>
+<title>Libargus API: include/Argus/Types.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,9 +21,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">Argus API
+   <div id="projectname">Libargus API
    </div>
-   <div id="projectbrief">Argus Camera API</div>
+   <div id="projectbrief">Libargus Camera API</div>
   </td>
  </tr>
  </tbody>
@@ -38,6 +38,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -70,7 +71,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Groups</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(11)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -97,7 +98,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Defines the basic types that are used by the API.  
+<p><b>Libargus API: Types API</b>  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdint.h&gt;</code><br/>
 <code>#include &lt;vector&gt;</code><br/>
@@ -111,26 +112,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr class="heading"><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1ExtensionName.html">Argus::ExtensionName</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extension name <a class="el" href="structArgus_1_1UUID.html" title="UUID.">UUID</a>.  <a href="classArgus_1_1ExtensionName.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extension name <a class="el" href="structArgus_1_1UUID.html" title="A universally unique identifier.">UUID</a>.  <a href="classArgus_1_1ExtensionName.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1PixelFormat.html">Argus::PixelFormat</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pixel formats.  <a href="classArgus_1_1PixelFormat.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1NonCopyable.html">Argus::NonCopyable</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility class for <a class="el" href="namespaceArgus.html">Argus</a> interfaces.  <a href="classArgus_1_1NonCopyable.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility class for libargus interfaces.  <a href="classArgus_1_1NonCopyable.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1Interface.html">Argus::Interface</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top-level interface class.  <a href="classArgus_1_1Interface.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1InterfaceID.html">Argus::InterfaceID</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A unique identifier for an <a class="el" href="namespaceArgus.html">Argus</a> <a class="el" href="classArgus_1_1Interface.html" title="The top-level interface class.">Interface</a>.  <a href="classArgus_1_1InterfaceID.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A unique identifier for a libargus <a class="el" href="classArgus_1_1Interface.html" title="The top-level interface class.">Interface</a>.  <a href="classArgus_1_1InterfaceID.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1InterfaceProvider.html">Argus::InterfaceProvider</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base interface for a class that provides <a class="el" href="namespaceArgus.html">Argus</a> Interfaces.  <a href="classArgus_1_1InterfaceProvider.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base interface for a class that provides libargus Interfaces.  <a href="classArgus_1_1InterfaceProvider.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1Destructable.html">Argus::Destructable</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A top level object class for <a class="el" href="namespaceArgus.html">Argus</a> objects that are created and owned by the client.  <a href="classArgus_1_1Destructable.html#details">More...</a><br/></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1rv.html">Argus::rv&lt; T &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Template helper emulating C++11 rvalue semantics.  <a href="classArgus_1_1rv.html#details">More...</a><br/></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structArgus_1_1remove__const_3_01const_01T_01_6_01_4.html">Argus::remove_const&lt; const T &amp; &gt;</a></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structArgus_1_1remove__const_3_01const_01T_01_5_01_4.html">Argus::remove_const&lt; const T * &gt;</a></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structArgus_1_1remove__const_3_01const_01T_01_4.html">Argus::remove_const&lt; const T &gt;</a></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structArgus_1_1remove__const.html">Argus::remove_const&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A top level object class for libargus objects that are created and owned by the client.  <a href="classArgus_1_1Destructable.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1UniqueObj.html">Argus::UniqueObj&lt; T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Template helper emulating C++11 rvalue semantics.  <a href="classArgus_1_1UniqueObj.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1Tuple.html">Argus::Tuple&lt; N, T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classArgus_1_1Tuple.html" title="Tuple template class.">Tuple</a> template class.  <a href="classArgus_1_1Tuple.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classArgus_1_1BayerTuple.html">Argus::BayerTuple&lt; T &gt;</a></td></tr>
@@ -276,8 +272,6 @@ Functions</h2></td></tr>
 <tr class="memdesc:a331c37645a2bf8b37aa9912b5408c683"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface-casting helper similar to dynamic_cast.  <a href="#a331c37645a2bf8b37aa9912b5408c683"></a><br/></td></tr>
 <tr class="memitem:a8630747cc51ad50335f4a4a9dbebd7a4"><td class="memTemplParams" colspan="2">template&lt;typename TheInterface &gt; </td></tr>
 <tr class="memitem:a8630747cc51ad50335f4a4a9dbebd7a4"><td class="memTemplItemLeft" align="right" valign="top">TheInterface *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceArgus.html#a8630747cc51ad50335f4a4a9dbebd7a4">Argus::interface_cast</a> (const InterfaceProvider *obj)</td></tr>
-<tr class="memitem:a76701a19faf999dc35f2a0064c2f52d6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a76701a19faf999dc35f2a0064c2f52d6"><td class="memTemplItemLeft" align="right" valign="top">rv&lt; T &gt; &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceArgus.html#a76701a19faf999dc35f2a0064c2f52d6">Argus::move</a> (T &amp;self)</td></tr>
 <tr class="memitem:a59fd0954abae19f59a0d1faf4d939644"><td class="memTemplParams" colspan="2">template&lt;typename TheInterface , typename TObject &gt; </td></tr>
 <tr class="memitem:a59fd0954abae19f59a0d1faf4d939644"><td class="memTemplItemLeft" align="right" valign="top">TheInterface *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceArgus.html#a59fd0954abae19f59a0d1faf4d939644">Argus::interface_cast</a> (const UniqueObj&lt; TObject &gt; &amp;obj)</td></tr>
 </table><table class="memberdecls">
@@ -287,13 +281,14 @@ Variables</h2></td></tr>
 <tr class="memdesc:a4a5b172cb29e126c9433f8a712a0d0d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constant used for infinite timeouts.  <a href="#a4a5b172cb29e126c9433f8a712a0d0d4"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>Defines the basic types that are used by the API. </p>
+<div class="textblock"><p><b>Libargus API: Types API</b> </p>
+<p><b>Description:</b> Defines the basic types that are used by the API. </p>
 
 <p>Definition in file <a class="el" href="Types_8h_source.html">Types.h</a>.</p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:26 for Argus API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:18 for Libargus API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

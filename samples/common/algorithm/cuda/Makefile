@@ -39,12 +39,8 @@ ifneq ($(CUDA_DEBUG),)
 	NVCCFLAGS += -g -G
 endif
 
-ALL_CPPFLAGS :=
-ALL_CPPFLAGS += $(NVCCFLAGS)
+ALL_CPPFLAGS := $(NVCCFLAGS)
 ALL_CPPFLAGS += $(addprefix -Xcompiler ,$(CPPFLAGS))
-
-# Common includes and paths for CUDA
-INCLUDES  := -I"../../../../include"
 
 # CUDA code generation flags
 GENCODE_SM53 := -gencode arch=compute_53,code=sm_53

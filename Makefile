@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,17 +33,19 @@ SUBDIRS = \
 	samples/01_video_encode \
 	samples/02_video_dec_cuda \
 	samples/03_video_cuda_enc \
-	samples/04_video_dec_gie \
+	samples/04_video_dec_trt \
 	samples/05_jpeg_encode \
 	samples/06_jpeg_decode \
 	samples/07_video_convert \
+	samples/08_video_dec_drm \
 	samples/09_camera_jpeg_capture \
 	samples/10_camera_recording \
 	samples/11_camera_object_identification \
 	samples/12_camera_v4l2_cuda \
 	samples/backend \
 	samples/frontend \
-	tools/ConvertCaffeToGieModel
+	samples/v4l2cuda \
+	tools/ConvertCaffeToTrtModel
 
 .PHONY: all
 all:

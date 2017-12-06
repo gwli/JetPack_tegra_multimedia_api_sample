@@ -91,7 +91,7 @@ typedef struct
     float    alpha;
 }window_t;
 
-class GIE_Context;
+class TRT_Context;
 
 #define WINDOW_NUM 4
 #define CHANNEL_NUM 4
@@ -133,7 +133,7 @@ typedef struct
     uint32_t dec_status; //0 stream off, 1 stream on
     NvVideoDecoder *dec;
     NvVideoConverter *conv;
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     NvVideoConverter *conv1; // for algorithm
 #endif
     uint32_t decoder_pixfmt;
@@ -165,7 +165,7 @@ typedef struct
     bool input_nalu;
 
     std::queue < NvBuffer * > *conv_output_plane_buf_queue;
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     std::queue < NvBuffer * > *conv1_output_plane_buf_queue;
 #endif
     map< uint64_t, frame_info_t* > *frame_info_map;
@@ -173,13 +173,13 @@ typedef struct
 
     pthread_mutex_t queue_lock; // for dec and conv
     pthread_cond_t queue_cond;
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     pthread_mutex_t queue1_lock; // for conv and conv1
     pthread_cond_t queue1_cond;
 #endif
     pthread_mutex_t fps_lock;
     pthread_cond_t fps_cond;
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     sem_t result_ready_sem;
 
     uint32_t *parray;
@@ -217,17 +217,17 @@ typedef struct
 typedef struct
 {
     int dump_jpeg;
-    int channel_num;
+    uint32_t channel_num;
     char *in_file_path[CHANNEL_NUM];
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     string deployfile;
     string modelfile;
 #endif
 } global_cfg;
 
 int parse_csv_args(context_t * ctx,
-#ifdef ENABLE_GIE
-    GIE_Context *gie_ctx,
+#ifdef ENABLE_TRT
+    TRT_Context *trt_ctx,
 #endif
     int argc, char *argv[]);
 void parse_global(global_cfg* cfg, int argc, char ***argv);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,15 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #include <sstream>
 #include <iomanip>
 #include <unistd.h>
 
 #include "StillCapture.h"
-#include "Renderer.h"
+#include "Composer.h"
 #include "Dispatcher.h"
 #include "Error.h"
-#include "EventThread.h"
+#include "PerfTracker.h"
 
 namespace ArgusSamples
 {
@@ -44,7 +45,6 @@ TaskStillCapture::TaskStillCapture()
     , m_running(false)
     , m_wasRunning(false)
     , m_captureIndex(0)
-    , m_eventThread(NULL)
 {
 }
 
@@ -58,11 +58,31 @@ bool TaskStillCapture::initialize()
     if (m_initialized)
         return true;
 
-    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_deviceOpen.registerObserver(this,
+    Dispatcher &dispatcher = Dispatcher::getInstance();
+
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.registerObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskStillCapture::onDeviceOpenChanged)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskStillCapture::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.registerObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskStillCapture::restartStreams)));
+
+    m_perfTracker.reset(new SessionPerfTracker());
+    if (!m_perfTracker)
+        ORIGINATE_ERROR("Out of memory");
 
     m_initialized = true;
 
+    return true;
+}
+
+bool TaskStillCapture::restartStreams(__attribute__((unused)) const Observed &source)
+{
+    if (m_running)
+    {
+        PROPAGATE_ERROR(stop());
+        PROPAGATE_ERROR(start());
+    }
     return true;
 }
 
@@ -90,52 +110,37 @@ bool TaskStillCapture::start()
 {
     if (!m_initialized)
         ORIGINATE_ERROR("Not initialized");
+
     if (m_running)
         return true;
 
-    m_perfTracker.onEvent(TASK_START);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_TASK_START));
+
     Dispatcher &dispatcher = Dispatcher::getInstance();
-    Renderer &renderer = Renderer::getInstance();
+    Composer &composer = Composer::getInstance();
 
     PROPAGATE_ERROR(dispatcher.createRequest(m_previewRequest, Argus::CAPTURE_INTENT_PREVIEW));
 
     // Create the preview stream
-    PROPAGATE_ERROR(dispatcher.createOutputStream(m_previewRequest.get(), m_previewStream));
+    PROPAGATE_ERROR(dispatcher.createOutputStream(m_previewRequest.get(), false, m_previewStream));
 
-    Argus::IStream *iStream =
-        Argus::interface_cast<Argus::IStream>(m_previewStream);
+    Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_previewStream);
     if (!iStream)
         ORIGINATE_ERROR("Failed to get IStream interface");
 
     // render the preview stream
-    PROPAGATE_ERROR(renderer.bindStream(iStream->getEGLStream()));
+    PROPAGATE_ERROR(composer.bindStream(iStream->getEGLStream()));
 
     const Argus::Size2D<uint32_t> streamSize = iStream->getResolution();
-    PROPAGATE_ERROR(renderer.setStreamAspectRatio(iStream->getEGLStream(),
+    PROPAGATE_ERROR(composer.setStreamAspectRatio(iStream->getEGLStream(),
         (float)streamSize.width() / (float)streamSize.height()));
-    PROPAGATE_ERROR(renderer.setStreamActive(iStream->getEGLStream(), true));
+    PROPAGATE_ERROR(composer.setStreamActive(iStream->getEGLStream(), true));
 
     // Enable the preview stream
     PROPAGATE_ERROR(dispatcher.enableOutputStream(m_previewRequest.get(), m_previewStream.get()));
 
-    std::vector<Argus::EventType> eventTypes;
-    eventTypes.push_back(Argus::EVENT_TYPE_CAPTURE_COMPLETE);
-
-    Argus::UniqueObj<Argus::EventQueue> eventQueue;
-    PROPAGATE_ERROR(dispatcher.createEventQueue(eventTypes, eventQueue));
-
-    // pass ownership of eventQueue to EventThread
-    m_eventThread.reset(new EventThread(NULL, eventQueue.release(), &m_perfTracker));
-    if (!m_eventThread)
-    {
-        ORIGINATE_ERROR("Failed to allocate EventThread");
-    }
-
-    PROPAGATE_ERROR(m_eventThread->initialize());
-    PROPAGATE_ERROR(m_eventThread->waitRunning());
-
-    m_perfTracker.onEvent(ISSUE_CAPTURE);
     // start the repeating request for the preview
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_ISSUE_CAPTURE));
     PROPAGATE_ERROR(dispatcher.startRepeat(m_previewRequest.get()));
 
     m_running = true;
@@ -147,40 +152,40 @@ bool TaskStillCapture::stop()
 {
     if (!m_initialized)
         ORIGINATE_ERROR("Not initialized");
+
     if (!m_running)
         return true;
 
-    m_perfTracker.onEvent(CLOSE_REQUESTED);
-
-    PROPAGATE_ERROR(m_eventThread->shutdown());
-    m_eventThread.reset();
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_REQUESTED));
 
     Dispatcher &dispatcher = Dispatcher::getInstance();
-    Renderer &renderer = Renderer::getInstance();
 
     // stop the repeating request
     PROPAGATE_ERROR(dispatcher.stopRepeat());
 
-    PROPAGATE_ERROR(renderer.setStreamActive(
-        Argus::interface_cast<Argus::IStream>(m_previewStream)->getEGLStream(), false));
-
     PROPAGATE_ERROR(dispatcher.waitForIdle());
-    m_perfTracker.onEvent(FLUSH_DONE);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_FLUSH_DONE));
 
-    // destroy the preview producer
+    // disable the output stream
     PROPAGATE_ERROR(dispatcher.disableOutputStream(m_previewRequest.get(), m_previewStream.get()));
-    const EGLStreamKHR eglStream =
-        Argus::interface_cast<Argus::IStream>(m_previewStream)->getEGLStream();
 
+    Argus::IStream *iStream = Argus::interface_cast<Argus::IStream>(m_previewStream);
+    if (!iStream)
+        ORIGINATE_ERROR("Failed to get IStream interface");
+
+    // disconnect the EGL stream
+    iStream->disconnect();
+
+    // unbind the preview stream from the composer
+    PROPAGATE_ERROR(Composer::getInstance().unbindStream(iStream->getEGLStream()));
+
+    // destroy the preview stream
     m_previewStream.reset();
-
-    // unbind the preview stream from the renderer
-    PROPAGATE_ERROR(renderer.unbindStream(eglStream));
 
     // destroy the preview request
     PROPAGATE_ERROR(m_previewRequest.reset());
 
-    m_perfTracker.onEvent(CLOSE_DONE);
+    PROPAGATE_ERROR(m_perfTracker->onEvent(SESSION_EVENT_CLOSE_DONE));
 
     m_running = false;
 
@@ -201,7 +206,7 @@ bool TaskStillCapture::execute()
 
     // Create the still stream
     Argus::UniqueObj<Argus::OutputStream> stillStream;
-    PROPAGATE_ERROR(dispatcher.createOutputStream(stillRequest.get(), stillStream));
+    PROPAGATE_ERROR(dispatcher.createOutputStream(stillRequest.get(), true, stillStream));
 
     // Enable the still stream
     PROPAGATE_ERROR(dispatcher.enableOutputStream(stillRequest.get(), stillStream.get()));
@@ -278,9 +283,18 @@ bool TaskStillCapture::shutdown()
         return true;
 
     // stop the module
-    PROPAGATE_ERROR(stop());
+    PROPAGATE_ERROR_CONTINUE(stop());
 
-    PROPAGATE_ERROR_CONTINUE(Dispatcher::getInstance().m_deviceOpen.unregisterObserver(this,
+    PROPAGATE_ERROR_CONTINUE(m_perfTracker->shutdown());
+    m_perfTracker.reset();
+
+    Dispatcher &dispatcher = Dispatcher::getInstance();
+
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_outputSize.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskStillCapture::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_sensorModeIndex.unregisterObserver(this,
+        static_cast<IObserver::CallbackFunction>(&TaskStillCapture::restartStreams)));
+    PROPAGATE_ERROR_CONTINUE(dispatcher.m_deviceOpen.unregisterObserver(this,
         static_cast<IObserver::CallbackFunction>(&TaskStillCapture::onDeviceOpenChanged)));
 
     m_initialized = false;

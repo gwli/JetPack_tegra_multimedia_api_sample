@@ -42,10 +42,10 @@
 #include "v4l2_backend_test.h"
 #include <sys/time.h>
 
-#ifdef ENABLE_GIE
-#include "gie_inference.h"
+#ifdef ENABLE_TRT
+#include "trt_inference.h"
 
-#define    GIE_MODEL        GOOGLENET_SINGLE_CLASS
+#define    TRT_MODEL        GOOGLENET_SINGLE_CLASS
 
 #endif
 
@@ -78,23 +78,23 @@ const char *GOOGLE_NET_MODEL_NAME =
 
 using namespace std;
 
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
 #define OSD_BUF_NUM 100
-static int frame_num = 1;  //this is used to filter image feeding to GIE
+static int frame_num = 1;  //this is used to filter image feeding to TRT
 
-//following struture is used to conmmunicate between GIE thread and
+//following struture is used to conmmunicate between TRT thread and
 //V4l2 capture thread
-queue<Shared_Buffer> GIE_Buffer_Queue;
-pthread_mutex_t      GIE_lock; // for dec and conv
-pthread_cond_t       GIE_cond;
-int                  GIE_Stop = 0;
-pthread_t            GIE_Thread_handle;
+queue<Shared_Buffer> TRT_Buffer_Queue;
+pthread_mutex_t      TRT_lock; // for dec and conv
+pthread_cond_t       TRT_cond;
+int                  TRT_Stop = 0;
+pthread_t            TRT_Thread_handle;
 
 using namespace nvinfer1;
 using namespace nvcaffeparser1;
 
-GIE_Context g_gie_context;
-void *gie_thread(void *data);
+TRT_Context g_trt_context;
+void *trt_thread(void *data);
 
 #endif
 
@@ -171,7 +171,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     // Reached end of buffer but could not find NAL unit
     if (!nalu_found)
     {
-        cerr << "Could not read nal unit from file. File seems to be corrupted"
+        cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
         return -1;
     }
@@ -202,7 +202,7 @@ read_decoder_input_nalu(ifstream * stream, NvBuffer * buffer,
     }
 
     // Reached end of buffer but could not find NAL unit
-    cerr << "Could not read nal unit from file. File seems to be corrupted"
+    cerr << "Could not read nal unit from file. EOF or file corrupted"
             << endl;
     return -1;
 }
@@ -315,7 +315,7 @@ conv_output_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
     return true;
 }
 
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
 static bool
 conv1_output_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
                                    NvBuffer * buffer, NvBuffer * shared_buffer,
@@ -336,8 +336,8 @@ conv1_output_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
 static void *render_thread(void* arg)
 {
     context_t *ctx = (context_t *) arg;
-    Shared_Buffer gie_buffer;
-#ifdef ENABLE_GIE
+    Shared_Buffer trt_buffer;
+#ifdef ENABLE_TRT
     frame_bbox *bbox = NULL;
     frame_bbox temp_bbox;
     temp_bbox.g_rect_num = 0;
@@ -377,16 +377,16 @@ static void *render_thread(void* arg)
             }
         }
         //pop up buffer from queue to process
-        gie_buffer = ctx->render_buf_queue->front();
+        trt_buffer = ctx->render_buf_queue->front();
         ctx->render_buf_queue->pop();
         pthread_mutex_unlock(&ctx->render_lock);
 
-        struct v4l2_buffer *v4l2_buf = &gie_buffer.v4l2_buf;
-        NvBuffer *buffer             = gie_buffer.buffer;
+        struct v4l2_buffer *v4l2_buf = &trt_buffer.v4l2_buf;
+        NvBuffer *buffer             = trt_buffer.buffer;
 
         if (ctx->cpu_occupation_option != PARSER_DECODER_VIC)
         {
-#ifndef ENABLE_GIE
+#ifndef ENABLE_TRT
             // Create EGLImage from dmabuf fd
             ctx->egl_image = NvEGLImageFromFd(egl_display,
                                                 buffer->planes[0].fd);
@@ -405,7 +405,7 @@ static void *render_thread(void* arg)
             ctx->egl_image = NULL;
 #else
             // Render thread is waiting for result, wait here
-            if (gie_buffer.bProcess  == 1)
+            if (trt_buffer.bProcess  == 1)
             {
                 sem_wait(&ctx->result_ready_sem);
                 pthread_mutex_lock(&ctx->osd_lock);
@@ -445,7 +445,7 @@ static void *render_thread(void* arg)
             return NULL;
         }
     }
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
     delete []temp_bbox.g_rect;
 #endif
     return NULL;
@@ -460,10 +460,10 @@ conv_capture_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
     context_t *ctx = (context_t *) arg;
     Shared_Buffer batch_buffer;
     batch_buffer.bProcess = 0;
-#ifdef ENABLE_GIE
-    // here we only queue buffer for GIE process to conv1
-    if (ctx->channel < g_gie_context.getNumGieInstances() &&
-            (frame_num++ % g_gie_context.getFilterNum()) == 0)
+#ifdef ENABLE_TRT
+    // here we only queue buffer for TRT process to conv1
+    if (ctx->channel < g_trt_context.getNumTrtInstances() &&
+            (frame_num++ % g_trt_context.getFilterNum()) == 0)
     {
         int ret;
         struct v4l2_buffer conv_capture_ret_buffer;
@@ -512,29 +512,30 @@ conv_capture_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
 }
 
 
-#ifdef ENABLE_GIE
-void *gie_thread(void *data)
+#ifdef ENABLE_TRT
+void *trt_thread(void *data)
 {
-    int buf_num = 0;
+    uint32_t buf_num = 0;
     EGLImageKHR egl_image = NULL;
     struct v4l2_buffer *v4l2_buf;
     NvBuffer *buffer;
-    NvBuffer *shared_buffer;
-    context_t *ctx;
+    context_t *ctx = NULL;
     int process_last_batch = 0;
-    float *gie_inputbuf = g_gie_context.getInputBuf();
-    int classCnt = g_gie_context.getModelClassCnt();
+#if USE_CPU_FOR_INTFLOAT_CONVERSION
+    float *trt_inputbuf = g_trt_context.getInputBuf();
+#endif
+    int classCnt = g_trt_context.getModelClassCnt();
 
     while (1)
     {
         // wait for buffer for process to come
-        Shared_Buffer gie_buffer;
-        pthread_mutex_lock(&GIE_lock);
-        if(GIE_Buffer_Queue.empty())
+        Shared_Buffer trt_buffer;
+        pthread_mutex_lock(&TRT_lock);
+        if(TRT_Buffer_Queue.empty())
         {
-            if (GIE_Stop)
+            if (TRT_Stop)
             {
-                pthread_mutex_unlock(&GIE_lock);
+                pthread_mutex_unlock(&TRT_lock);
                 break;
             }
             else
@@ -544,50 +545,49 @@ void *gie_thread(void *data)
                 timeout.tv_sec = time(0) + 3;
                 timeout.tv_nsec = 0;
                 int ret =
-                    pthread_cond_timedwait(&GIE_cond, &GIE_lock, &timeout);
+                    pthread_cond_timedwait(&TRT_cond, &TRT_lock, &timeout);
                 if (ret != 0)
                 {
                     cout << "Timedout waiting for input data"<<endl;
                 }
             }
         }
-        if (GIE_Buffer_Queue.size() != 0)
+        if (TRT_Buffer_Queue.size() != 0)
         {
-            gie_buffer = GIE_Buffer_Queue.front();
-            GIE_Buffer_Queue.pop();
+            trt_buffer = TRT_Buffer_Queue.front();
+            TRT_Buffer_Queue.pop();
         }
         else
         {
             process_last_batch = 1;
         }
-        pthread_mutex_unlock(&GIE_lock);
+        pthread_mutex_unlock(&TRT_lock);
         // we still have buffer, so accumulate buffer into batch
         if (process_last_batch == 0)
         {
-            v4l2_buf           = &gie_buffer.v4l2_buf;
-            buffer             = gie_buffer.buffer;
-            shared_buffer      = gie_buffer.shared_buffer;
-            ctx                = (context_t *)gie_buffer.arg;
+            v4l2_buf           = &trt_buffer.v4l2_buf;
+            buffer             = trt_buffer.buffer;
+            ctx                = (context_t *)trt_buffer.arg;
 
-            int batch_offset = buf_num  * g_gie_context.getNetWidth() *
-                g_gie_context.getNetHeight() * g_gie_context.getChannel();
+            int batch_offset = buf_num  * g_trt_context.getNetWidth() *
+                g_trt_context.getNetHeight() * g_trt_context.getChannel();
 #if USE_CPU_FOR_INTFLOAT_CONVERSION
             // copy with CPU is much slower than GPU
             // but still keep it just in case customer want to save GPU
             //generate input buffer for first time
             unsigned char *data = buffer->planes[0].data;
-            int channel_offset = g_gie_context.getNetWidth() *
-                            g_gie_context.getNetHeight();
+            int channel_offset = g_trt_context.getNetWidth() *
+                            g_trt_context.getNetHeight();
             // copy buffer into input_buf
-            for (int i = 0; i < g_gie_context.getChannel(); i++)
+            for (int i = 0; i < g_trt_context.getChannel(); i++)
             {
-                for (int j = 0; j < g_gie_context.getNetHeight(); j++)
+                for (int j = 0; j < g_trt_context.getNetHeight(); j++)
                 {
-                    for (int k = 0; k < g_gie_context.getNetWidth(); k++)
+                    for (int k = 0; k < g_trt_context.getNetWidth(); k++)
                     {
                         int total_offset = batch_offset + channel_offset * i +
-                            j * g_gie_context.getNetWidth() + k;
-                        gie_inputbuf[total_offset] =
+                            j * g_trt_context.getNetWidth() + k;
+                        trt_inputbuf[total_offset] =
                             (float)(*(data + j * buffer->planes[0].fmt.stride
                             + k * 4 + 3 - i - 1));
                     }
@@ -605,12 +605,12 @@ void *gie_thread(void *data)
                 return NULL;
             }
 
-            void *cuda_buf = g_gie_context.getBuffer(0);
+            void *cuda_buf = g_trt_context.getBuffer(0);
             // map eglimage into GPU address
             mapEGLImage2Float(&egl_image,
-                g_gie_context.getNetWidth(),
-                g_gie_context.getNetHeight(),
-                (GIE_MODEL == GOOGLENET_THREE_CLASS) ? COLOR_FORMAT_BGR : COLOR_FORMAT_RGB,
+                g_trt_context.getNetWidth(),
+                g_trt_context.getNetHeight(),
+                (TRT_MODEL == GOOGLENET_THREE_CLASS) ? COLOR_FORMAT_BGR : COLOR_FORMAT_RGB,
                 (char *)cuda_buf + batch_offset * sizeof(float));
 
             // Destroy EGLImage
@@ -624,7 +624,7 @@ void *gie_thread(void *data)
                 cout<<"conv1 queue buffer error"<<endl;
             }
             // buffer is not enough for a batch, continue to wait for buffer
-            if (buf_num < g_gie_context.getBatchSize())
+            if (buf_num < g_trt_context.getBatchSize())
             {
                 continue;
             }
@@ -639,16 +639,16 @@ void *gie_thread(void *data)
         buf_num = 0;
         queue<vector<cv::Rect>> rectList_queue[classCnt];
 #if USE_CPU_FOR_INTFLOAT_CONVERSION
-        g_gie_context.doInference(
-            rectList_queue, gie_inputbuf);
+        g_trt_context.doInference(
+            rectList_queue, trt_inputbuf);
 #else
-        g_gie_context.doInference(
+        g_trt_context.doInference(
             rectList_queue);
 #endif
 
         for (int i = 0; i < classCnt; i++)
         {
-            assert(rectList_queue[i].size() == g_gie_context.getBatchSize());
+            assert(rectList_queue[i].size() == g_trt_context.getBatchSize());
         }
 
         while (!rectList_queue[0].empty())
@@ -662,20 +662,20 @@ void *gie_thread(void *data)
             {
                 vector<cv::Rect> rectList = rectList_queue[class_num].front();
                 rectList_queue[class_num].pop();
-                for (int i = 0; i < rectList.size(); i++)
+                for (uint32_t i = 0; i < rectList.size(); i++)
                 {
                     cv::Rect &r = rectList[i];
-                    if ((r.width * IMAGE_WIDTH / g_gie_context.getNetWidth() < 10) ||
-                        (r.height * IMAGE_HEIGHT / g_gie_context.getNetHeight() < 10))
+                    if ((r.width * IMAGE_WIDTH / g_trt_context.getNetWidth() < 10) ||
+                        (r.height * IMAGE_HEIGHT / g_trt_context.getNetHeight() < 10))
                         continue;
                     bbox->g_rect[rectNum].left =
-                        (unsigned int) (r.x * IMAGE_WIDTH / g_gie_context.getNetWidth());
+                        (unsigned int) (r.x * IMAGE_WIDTH / g_trt_context.getNetWidth());
                     bbox->g_rect[rectNum].top =
-                        (unsigned int) (r.y * IMAGE_HEIGHT / g_gie_context.getNetHeight());
+                        (unsigned int) (r.y * IMAGE_HEIGHT / g_trt_context.getNetHeight());
                     bbox->g_rect[rectNum].width =
-                        (unsigned int) (r.width * IMAGE_WIDTH / g_gie_context.getNetWidth());
+                        (unsigned int) (r.width * IMAGE_WIDTH / g_trt_context.getNetWidth());
                     bbox->g_rect[rectNum].height =
-                        (unsigned int) (r.height * IMAGE_HEIGHT / g_gie_context.getNetHeight());
+                        (unsigned int) (r.height * IMAGE_HEIGHT / g_trt_context.getNetHeight());
                     bbox->g_rect[rectNum].border_width = 5;
                     bbox->g_rect[rectNum].has_bg_color = 0;
                     bbox->g_rect[rectNum].border_color.red = ((class_num == 0) ? 1.0f : 0.0);
@@ -688,7 +688,7 @@ void *gie_thread(void *data)
             pthread_mutex_lock(&ctx->osd_lock);
             ctx->osd_queue->push(bbox);
             pthread_mutex_unlock(&ctx->osd_lock);
-            //GIE has prepared result, notify here
+            //TRT has prepared result, notify here
             sem_post(&ctx->result_ready_sem);
         }
 
@@ -708,20 +708,20 @@ conv1_capture_dqbuf_thread_callback(struct v4l2_buffer *v4l2_buf,
                                     void *arg)
 {
     //push buffer to process queue
-    Shared_Buffer gie_buffer;
+    Shared_Buffer trt_buffer;
 
     // v4l2_buf is local in the DQthread and exists in the scope of the callback
     // function only and not in the entire application. The application has to
     // copy this for using at out of the callback.
-    memcpy(&gie_buffer.v4l2_buf, v4l2_buf, sizeof(v4l2_buffer));
+    memcpy(&trt_buffer.v4l2_buf, v4l2_buf, sizeof(v4l2_buffer));
 
-    gie_buffer.buffer = buffer;
-    gie_buffer.shared_buffer = shared_buffer;
-    gie_buffer.arg = arg;
-    pthread_mutex_lock(&GIE_lock);
-    GIE_Buffer_Queue.push(gie_buffer);
-    pthread_cond_broadcast(&GIE_cond);
-    pthread_mutex_unlock(&GIE_lock);
+    trt_buffer.buffer = buffer;
+    trt_buffer.shared_buffer = shared_buffer;
+    trt_buffer.arg = arg;
+    pthread_mutex_lock(&TRT_lock);
+    TRT_Buffer_Queue.push(trt_buffer);
+    pthread_cond_broadcast(&TRT_cond);
+    pthread_mutex_unlock(&TRT_lock);
 
     return true;
 }
@@ -738,7 +738,9 @@ query_and_set_capture(context_t * ctx)
     int error = 0;
     uint32_t window_width;
     uint32_t window_height;
+#ifndef ENABLE_TRT
     char OSDcontent[512];
+#endif
 
     // Get capture plane format from the decoder. This may change after
     // an resolution change event
@@ -786,7 +788,7 @@ query_and_set_capture(context_t * ctx)
                    error);
 
         ctx->renderer->setFPS(ctx->fps);
-#ifndef ENABLE_GIE
+#ifndef ENABLE_TRT
         sprintf(OSDcontent, "Channel:%d", ctx->channel);
         ctx->renderer->setOverlayText(OSDcontent, 800, 50);
 #endif
@@ -827,8 +829,8 @@ query_and_set_capture(context_t * ctx)
 
     ctx->conv->output_plane.deinitPlane();
     ctx->conv->capture_plane.deinitPlane();
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ctx->conv1->waitForIdle(1000);
         ctx->conv1->output_plane.stopDQThread();
@@ -842,8 +844,8 @@ query_and_set_capture(context_t * ctx)
     {
         ctx->conv_output_plane_buf_queue->pop();
     }
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         while(!ctx->conv1_output_plane_buf_queue->empty())
         {
@@ -868,8 +870,8 @@ query_and_set_capture(context_t * ctx)
     ret = ctx->conv->setCropRect(0, 0, crop.c.width, crop.c.height);
     TEST_ERROR(ret < 0, "Error while setting crop rect", error);
 
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ret = ctx->conv1->setOutputPlaneFormat(format.fmt.pix_mp.pixelformat,
                                             crop.c.width,
@@ -879,8 +881,8 @@ query_and_set_capture(context_t * ctx)
                 error);
 
         ret = ctx->conv1->setCapturePlaneFormat(V4L2_PIX_FMT_ABGR32,
-                                            g_gie_context.getNetWidth(),
-                                            g_gie_context.getNetHeight(),
+                                            g_trt_context.getNetWidth(),
+                                            g_trt_context.getNetHeight(),
                                             V4L2_NV_BUFFER_LAYOUT_PITCH);
         TEST_ERROR(ret < 0, "Error in converter capture plane set format",
                 error);
@@ -898,8 +900,8 @@ query_and_set_capture(context_t * ctx)
                                                  dec->capture_plane.
                                                  getNumBuffers(), true, false);
     TEST_ERROR(ret < 0, "Error in converter capture plane setup", error);
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ret =
             ctx->conv1->output_plane.setupPlane(V4L2_MEMORY_DMABUF,
@@ -920,8 +922,8 @@ query_and_set_capture(context_t * ctx)
     ret = ctx->conv->capture_plane.setStreamStatus(true);
     TEST_ERROR(ret < 0, "Error in converter output plane streamoff",
                 error);
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ret = ctx->conv1->output_plane.setStreamStatus(true);
         TEST_ERROR(ret < 0, "Error in converter output plane streamon", error);
@@ -938,8 +940,8 @@ query_and_set_capture(context_t * ctx)
                 getNthBuffer(i));
     }
 
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         // Add all empty conv1 output plane buffers to conv1_output_plane_buf_queue
         for (uint32_t i = 0; i < ctx->conv1->output_plane.getNumBuffers(); i++)
@@ -964,8 +966,8 @@ query_and_set_capture(context_t * ctx)
                     error);
     }
 
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         for (uint32_t i = 0; i < ctx->conv1->capture_plane.getNumBuffers();
             i++)
@@ -986,8 +988,8 @@ query_and_set_capture(context_t * ctx)
 #endif
     ctx->conv->output_plane.startDQThread(ctx);
     ctx->conv->capture_plane.startDQThread(ctx);
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ctx->conv1->output_plane.startDQThread(ctx);
         ctx->conv1->capture_plane.startDQThread(ctx);
@@ -1392,8 +1394,8 @@ set_defaults(context_t * ctx)
     ctx->cpu_occupation_option = 0;
     ctx->dec_status = 0;
     ctx->conv_output_plane_buf_queue = new queue < NvBuffer * >;
-#ifdef ENABLE_GIE
-    if (ctx->channel < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+    if (ctx->channel < g_trt_context.getNumTrtInstances())
     {
         ctx->conv1_output_plane_buf_queue = new queue < NvBuffer * >;
     }
@@ -1406,14 +1408,14 @@ set_defaults(context_t * ctx)
     ctx->nvosd_context = NULL;
 }
 
-#ifdef ENABLE_GIE
 static void
 set_globalcfg_default(global_cfg *cfg)
 {
+#ifdef ENABLE_TRT
     cfg->deployfile = GOOGLE_NET_DEPLOY_NAME;
     cfg->modelfile = GOOGLE_NET_MODEL_NAME;
-}
 #endif
+}
 
 static void
 get_disp_resolution(display_resolution_t *res)
@@ -1473,21 +1475,18 @@ main(int argc, char *argv[])
     context_t ctx[CHANNEL_NUM];
     global_cfg cfg;
     int error = 0;
-    int iterator;
+    uint32_t iterator;
     map<uint64_t, frame_info_t*>::iterator  iter;
     display_resolution_t disp_info;
     char **argp;
-    memset(&cfg, 0, sizeof(global_cfg));
-#ifdef ENABLE_GIE
     set_globalcfg_default(&cfg);
-#endif
 
     argp = argv;
     parse_global(&cfg, argc, &argp);
 
     if (parse_csv_args(&ctx[0],
-#ifdef ENABLE_GIE
-        &g_gie_context,
+#ifdef ENABLE_TRT
+        &g_trt_context,
 #endif
         argc - cfg.channel_num - 1, argp))
     {
@@ -1495,26 +1494,26 @@ main(int argc, char *argv[])
         return -1;
     }
 
-#ifdef ENABLE_GIE
-    g_gie_context.setModelIndex(GIE_MODEL);
+#ifdef ENABLE_TRT
+    g_trt_context.setModelIndex(TRT_MODEL);
 #if USE_CPU_FOR_INTFLOAT_CONVERSION
-    g_gie_context.buildGieContext(cfg.deployfile, cfg.modelfile, true);
+    g_trt_context.buildTrtContext(cfg.deployfile, cfg.modelfile, true);
 #else
-    g_gie_context.buildGieContext(cfg.deployfile, cfg.modelfile);
+    g_trt_context.buildTrtContext(cfg.deployfile, cfg.modelfile);
 #endif
     //Batchsize * FilterNum should be not bigger than buffers allocated by VIC
-    if (g_gie_context.getBatchSize() * g_gie_context.getFilterNum() > 10)
+    if (g_trt_context.getBatchSize() * g_trt_context.getFilterNum() > 10)
     {
         fprintf(stderr,
-            "Not enough buffers. Decrease gie-proc-interval and run again. Exiting\n");
+            "Not enough buffers. Decrease trt-proc-interval and run again. Exiting\n");
 #if USE_CPU_FOR_INTFLOAT_CONVERSION
-        g_gie_context.destroyGieContext(true);
+        g_trt_context.destroyTrtContext(true);
 #else
-        g_gie_context.destroyGieContext();
+        g_trt_context.destroyTrtContext();
 #endif
         return 0;
     }
-    pthread_create(&GIE_Thread_handle, NULL, gie_thread, NULL);
+    pthread_create(&TRT_Thread_handle, NULL, trt_thread, NULL);
 #endif
 
     get_disp_resolution(&disp_info);
@@ -1542,7 +1541,7 @@ main(int argc, char *argv[])
     {
         int ret = 0;
         sem_init(&(ctx[iterator].dec_run_sem), 0, 0);
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
         sem_init(&(ctx[iterator].result_ready_sem), 0, 0);
 #endif
         set_defaults(&ctx[iterator]);
@@ -1552,8 +1551,8 @@ main(int argc, char *argv[])
         ctx[iterator].channel = iterator;
 
         if (parse_csv_args(&ctx[iterator],
-#ifdef ENABLE_GIE
-            &g_gie_context,
+#ifdef ENABLE_TRT
+            &g_trt_context,
 #endif
             argc - cfg.channel_num - 1, argp))
         {
@@ -1624,8 +1623,8 @@ main(int argc, char *argv[])
             setDQThreadCallback(conv_output_dqbuf_thread_callback);
         ctx[iterator].conv->capture_plane.
             setDQThreadCallback(conv_capture_dqbuf_thread_callback);
-#ifdef ENABLE_GIE
-        if (iterator < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+        if (iterator < g_trt_context.getNumTrtInstances())
         {
             sprintf(convname, "conv1-%d", iterator);
             ctx[iterator].conv1 =
@@ -1695,19 +1694,19 @@ cleanup:
         ctx[iterator].stop_render = 1;
         pthread_cond_broadcast(&ctx[iterator].render_cond);
         pthread_join(ctx[iterator].render_feed_handle, NULL);
-#ifdef ENABLE_GIE
-        if (GIE_Stop == 0)
+#ifdef ENABLE_TRT
+        if (TRT_Stop == 0)
         {
-            GIE_Stop = 1;
-            pthread_cond_broadcast(&GIE_cond);
-            pthread_join(GIE_Thread_handle, NULL);
+            TRT_Stop = 1;
+            pthread_cond_broadcast(&TRT_cond);
+            pthread_join(TRT_Thread_handle, NULL);
         }
 #endif
         ctx[iterator].conv->waitForIdle(-1);
         ctx[iterator].conv->capture_plane.stopDQThread();
         ctx[iterator].conv->output_plane.stopDQThread();
-#ifdef ENABLE_GIE
-        if (iterator < g_gie_context.getNumGieInstances())
+#ifdef ENABLE_TRT
+        if (iterator < g_trt_context.getNumTrtInstances())
         {
             ctx[iterator].conv1->waitForIdle(-1);
             ctx[iterator].conv1->capture_plane.stopDQThread();
@@ -1733,7 +1732,7 @@ cleanup:
             do_statistic(&ctx[iterator]);
 
         sem_destroy(&(ctx[iterator].dec_run_sem));
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
         sem_destroy(&(ctx[iterator].result_ready_sem));
         pthread_mutex_destroy(&ctx[iterator].osd_lock);
 #endif
@@ -1741,7 +1740,7 @@ cleanup:
         // unmap buffers, tell decoder to deallocate buffer (reqbufs ioctl with counnt = 0),
         // and finally call v4l2_close on the fd.
         delete ctx[iterator].dec;
-
+        delete ctx[iterator].conv;
         // Similarly, EglRenderer destructor does all the cleanup
         if (ctx->cpu_occupation_option == PARSER_DECODER_VIC_RENDER)
             delete ctx[iterator].renderer;
@@ -1754,9 +1753,10 @@ cleanup:
             nvosd_destroy_context(ctx[iterator].nvosd_context);
             ctx[iterator].nvosd_context = NULL;
         }
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
         delete ctx[iterator].osd_queue;
-        if (iterator < g_gie_context.getNumGieInstances())
+        delete ctx[iterator].conv1;
+        if (iterator < g_trt_context.getNumTrtInstances())
         {
            delete ctx[iterator].conv1_output_plane_buf_queue;
         }
@@ -1781,11 +1781,11 @@ cleanup:
             cout << "App run was successful" << endl;
         }
     }
-#ifdef ENABLE_GIE
+#ifdef ENABLE_TRT
 #if USE_CPU_FOR_INTFLOAT_CONVERSION
-    g_gie_context.destroyGieContext(true);
+    g_trt_context.destroyTrtContext(true);
 #else
-    g_gie_context.destroyGieContext();
+    g_trt_context.destroyTrtContext();
 #endif
 #endif
     // Terminate EGL display connection

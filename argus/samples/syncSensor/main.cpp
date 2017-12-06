@@ -214,6 +214,8 @@ bool StereoDisparityConsumerThread::threadExecute()
     }
     CONSUMER_PRINT("No more frames. Cleaning up.\n");
 
+    PROPAGATE_ERROR(requestShutdown());
+
     return true;
 }
 
@@ -317,6 +319,7 @@ static bool execute()
     ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
     if (!iCameraProvider)
         ORIGINATE_ERROR("Failed to get ICameraProvider interface");
+    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
 
     // Get the camera devices.
     std::vector<CameraDevice*> cameraDevices;
@@ -405,6 +408,8 @@ static bool execute()
 
 int main(int argc, const char *argv[])
 {
+    printf("Executing Argus Sample: %s\n", basename(argv[0]));
+
     if (!ArgusSamples::execute())
         return EXIT_FAILURE;
 

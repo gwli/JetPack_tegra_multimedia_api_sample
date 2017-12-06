@@ -38,8 +38,8 @@
 
 /**
  *
- * @defgroup ee_nvjpegencoder_group Image Encoder
- * @ingroup ee_nvimage_group
+ * @defgroup l4t_mm_nvjpegencoder_group Image Encoder
+ * @ingroup l4t_mm_nvimage_group
  *
  * The \c %NvJPEGEncoder API provides functionality for encoding JPEG
  * images using libjpeg APIs.
@@ -86,7 +86,7 @@ class NvJPEGEncoder:public NvElement
 {
 public:
     /**
-     * Create a new JPEG Encoder named @a comp_name.
+     * Creates a new JPEG encoder named @a comp_name.
      *
      * @return Reference to the newly created decoder object, or NULL
      *          in case of failure during initialization.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,7 +32,7 @@
 
 #include "Error.h"
 #include "VideoPipeline.h"
-#include "Renderer.h"
+#include "Composer.h"
 
 namespace ArgusSamples
 {
@@ -130,7 +130,7 @@ bool VideoPipeline::setupForRecording(EGLStreamKHR videoStream, uint32_t width, 
         ORIGINATE_ERROR("Failed to add video source to pipeline");
     unrefer.cancel();
 
-    g_object_set(G_OBJECT(videoSource), "display", Renderer::getInstance().getEGLDisplay(), NULL);
+    g_object_set(G_OBJECT(videoSource), "display", Composer::getInstance().getEGLDisplay(), NULL);
     g_object_set(G_OBJECT(videoSource), "eglstream", videoStream, NULL);
 
     // Create queue
@@ -388,7 +388,7 @@ bool VideoPipeline::setupForPlayback(EGLStreamKHR *videoStream, const char *file
     unrefer.cancel();
 
     // configure video sink
-    g_object_set(G_OBJECT(videoSink), "display", Renderer::getInstance().getEGLDisplay(), NULL);
+    g_object_set(G_OBJECT(videoSink), "display", Composer::getInstance().getEGLDisplay(), NULL);
     // get the EGL stream
     *videoStream = EGL_NO_STREAM_KHR;
     g_object_get(G_OBJECT(videoSink), "stream", videoStream, NULL);

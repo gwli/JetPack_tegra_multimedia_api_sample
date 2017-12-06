@@ -90,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="AppModuleMultiExposure_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * Redistribution and use in source and binary forms, with or without</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * modification, are permitted provided that the following conditions</span></div>
@@ -144,29 +144,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        Window::IGuiContainer *iGuiContainerConfig = NULL);</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a2e1f55aa31be327744406addc29d28c0" title="Stop the module.">stop</a>();<span class="comment"></span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">    /**@}*/</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">    /** @name option callbacks */</span><span class="comment"></span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">    /**@{*/</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#aefe3c4e0e693473f4b88efea591b0561">exposureRange</a>(<span class="keywordtype">void</span> *userPtr, <span class="keyword">const</span> <span class="keywordtype">char</span> *optArg);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a3badba3d4e5ab119cc0ed1111f987709">exposureSteps</a>(<span class="keywordtype">void</span> *userPtr, <span class="keyword">const</span> <span class="keywordtype">char</span> *optArg);<span class="comment"></span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">    /**@}*/</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00064"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a4ca63ce7f581b9c9d2aa764851b0491a">   64</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a4ca63ce7f581b9c9d2aa764851b0491a" title="set if initialized">m_initialized</a>;                 <span class="comment">///&lt; set if initialized</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad67211bd86ab92e92e7b72e27693c8d5">   65</a></span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad67211bd86ab92e92e7b72e27693c8d5" title="set if running">m_running</a>;                     <span class="comment">///&lt; set if running</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad5e763258220f21c1516474f169969ef">   66</a></span>&#160;<span class="comment"></span>    <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html" title="This task captures multiple streams with different exposure compensation values.">TaskMultiExposure</a> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad5e763258220f21c1516474f169969ef" title="multi exposure task">m_multiExposure</a>;  <span class="comment">///&lt; multi exposure task</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00068"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a93c5dfe3403e3059c04c0c4c36fd0ba2">   68</a></span>&#160;    Window::IGuiContainer *<a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a93c5dfe3403e3059c04c0c4c36fd0ba2" title="configuration GUI container">m_guiContainerConfig</a>; <span class="comment">///&lt; configuration GUI container</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a550ecb0f6dbd5b3b05bda839b9ec5080">   69</a></span>&#160;<span class="comment"></span>    Window::IGuiContainerGrid *<a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a550ecb0f6dbd5b3b05bda839b9ec5080" title="configuration GUI">m_guiConfig</a>; <span class="comment">///&lt; configuration GUI</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span>};</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif // ARGUS_APPS_CAMERA_UI_APP_MODULE_MULTI_EXPOSURE_H</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a4ca63ce7f581b9c9d2aa764851b0491a">   58</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a4ca63ce7f581b9c9d2aa764851b0491a" title="set if initialized">m_initialized</a>;                 <span class="comment">///&lt; set if initialized</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad67211bd86ab92e92e7b72e27693c8d5">   59</a></span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad67211bd86ab92e92e7b72e27693c8d5" title="set if running">m_running</a>;                     <span class="comment">///&lt; set if running</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad5e763258220f21c1516474f169969ef">   60</a></span>&#160;<span class="comment"></span>    <a class="code" href="classArgusSamples_1_1TaskMultiExposure.html" title="This task captures multiple streams with different exposure compensation values.">TaskMultiExposure</a> <a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#ad5e763258220f21c1516474f169969ef" title="multi exposure task">m_multiExposure</a>;  <span class="comment">///&lt; multi exposure task</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a93c5dfe3403e3059c04c0c4c36fd0ba2">   62</a></span>&#160;    Window::IGuiContainer *<a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a93c5dfe3403e3059c04c0c4c36fd0ba2" title="configuration GUI container">m_guiContainerConfig</a>; <span class="comment">///&lt; configuration GUI container</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a550ecb0f6dbd5b3b05bda839b9ec5080">   63</a></span>&#160;<span class="comment"></span>    Window::IGuiContainerGrid *<a class="code" href="classArgusSamples_1_1AppModuleMultiExposure.html#a550ecb0f6dbd5b3b05bda839b9ec5080" title="configuration GUI">m_guiConfig</a>; <span class="comment">///&lt; configuration GUI</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment"></span>};</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;}; <span class="comment">// namespace ArgusSamples</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#endif // ARGUS_APPS_CAMERA_UI_APP_MODULE_MULTI_EXPOSURE_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 10 2017 11:35:27 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 15 2017 14:18:19 for Argus Camera Sample by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1
 </small></address>

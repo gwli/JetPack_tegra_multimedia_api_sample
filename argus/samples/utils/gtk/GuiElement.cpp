@@ -137,6 +137,8 @@ static bool createElement(GtkWidget *widget, Window::IGuiElement **element)
         newElement.reset(new GuiMenuBar(widget));
     else if (GTK_IS_CONTAINER(widget))
         newElement.reset(new GuiContainer(widget));
+    else if (GTK_IS_IMAGE(widget))
+        newElement.reset(new GuiImage(widget));
     else
         newElement.reset(new GuiElement(widget));
 
@@ -178,6 +180,19 @@ GtkWidget *WidgetHolder::getWidget() const
     return m_widget;
 }
 
+/*static*/ bool Window::IGuiImage::create(IGuiImage **iGuiImage)
+{
+    UniquePointer<GuiImage> newImage(new GuiImage());
+    if (!newImage)
+        ORIGINATE_ERROR("Out of memory");
+
+    PROPAGATE_ERROR(newImage->initialize());
+
+    *iGuiImage = newImage.release();
+
+    return true;
+}
+
 /*static*/ bool Window::IGuiMenuItem::create(const char *name, CallBackFunc function, void *userPtr,
     IGuiMenuItem **iGuiMenuItem)
 {
@@ -205,7 +220,100 @@ GuiElementBase::~GuiElementBase()
 {
 }
 
+GuiImage::GuiImage()
+    : m_surface(NULL)
+{
+}
+
+GuiImage::GuiImage(GtkWidget *widget)
+    : GuiElementBase(widget)
+    , m_surface(NULL)
+{
+}
+
+GuiImage::~GuiImage()
+{
+    if (m_surface)
+        cairo_surface_destroy(m_surface);
+}
+
+bool GuiImage::initialize()
+{
+    if (getWidget())
+        ORIGINATE_ERROR("Already initialized");
+
+    UniqueGObject<GtkWidget> drawingArea(gtk_drawing_area_new());
+    if (!drawingArea)
+        ORIGINATE_ERROR("Out of memory");
+    g_signal_connect(G_OBJECT(drawingArea.get()), "draw", G_CALLBACK(drawCallback), this);
+    setWidget(drawingArea.release());
+
+    return true;
+}
+
+bool GuiImage::set(size_t width, size_t height, uint32_t components, size_t rowStride,
+    const uint8_t *data)
+{
+    if ((components != 3) && (components != 4))
+        ORIGINATE_ERROR("Invalid component count %d, should be 3 or 4", components);
+
+    if (m_surface)
+        cairo_surface_destroy(m_surface);
+
+    m_surface = cairo_image_surface_create(
+        (components == 3) ? CAIRO_FORMAT_RGB24 : CAIRO_FORMAT_ARGB32, width, height);
+    if (!m_surface)
+        ORIGINATE_ERROR("Out of memory");
+
+    cairo_surface_flush(m_surface);
+    uint8_t *pixels = cairo_image_surface_get_data(m_surface);
+    for (size_t y = 0; y < height; ++y)
+    {
+        const uint8_t *src = data;
+        uint32_t *dst = reinterpret_cast<uint32_t*>(pixels);
+        for (size_t x = 0; x < width; ++x)
+        {
+            uint32_t pixel = (src[0] << 16) | (src[1] << 8) | src[2];
+            if (components == 4)
+                pixel = src[3] << 24;
+            *dst = pixel;
+
+            src += components;
+            dst++;
+        }
+
+        pixels += cairo_image_surface_get_stride(m_surface);
+        data += rowStride;
+    }
+    cairo_surface_mark_dirty(m_surface);
+
+    gtk_widget_set_size_request(getWidget(), width, height);
+    gtk_widget_queue_draw(getWidget());
+
+    return true;
+}
+
+/*static*/ gboolean GuiImage::drawCallback(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+    GuiImage *image = static_cast<GuiImage*>(data);
+
+    if (image->m_surface)
+    {
+        const guint width = gtk_widget_get_allocated_width(widget);
+        const guint height = gtk_widget_get_allocated_height(widget);
+
+        cairo_set_source_surface(cr, image->m_surface,
+            (width - cairo_image_surface_get_width(image->m_surface)) / 2,
+            (height - cairo_image_surface_get_height(image->m_surface)) / 2);
+        cairo_paint(cr);
+    }
+
+    return FALSE;
+}
+
 GuiMenuItem::GuiMenuItem()
+    : m_function(NULL)
+    , m_userPtr(NULL)
 {
 }
 
@@ -247,7 +355,6 @@ bool GuiMenuItem::initialize(const char *name, CallBackFunc function, void *user
     PROPAGATE_ERROR_CONTINUE(menuItem->m_function(menuItem->m_userPtr, NULL));
 }
 
-
 /*static*/ bool Window::IGuiMenu::create(const char *name, IGuiMenu **iGuiMenu)
 {
     UniquePointer<GuiMenu> newMenu(new GuiMenu());
@@ -268,6 +375,7 @@ GuiMenu::GuiMenu()
 
 GuiMenu::GuiMenu(GtkWidget *widget)
     : GuiElementBase(widget)
+    , m_menu(NULL)
 {
 }
 
@@ -563,9 +671,12 @@ bool GuiBuilder::initialize()
         ORIGINATE_ERROR("Already initialized");
 
     // create the GUI element from the builder string
-    m_builder = gtk_builder_new_from_string(m_builderString, -1);
+    m_builder = gtk_builder_new();
     if (!m_builder)
-        ORIGINATE_ERROR("Failed to build from string");
+        ORIGINATE_ERROR("Failed to create builder");
+
+    if (!gtk_builder_add_from_string(m_builder, m_builderString, -1, NULL))
+        ORIGINATE_ERROR("Failed to add to builder from string");
 
     // the first element is the root widget
     GSList *objList = gtk_builder_get_objects(m_builder);
@@ -624,6 +735,7 @@ public:
         FLAG_FILE_CHOOSER = (1 << 0),       ///< this is a file chooser
         FLAG_PATH_CHOOSER = (1 << 1),       ///< this is a path chooser
         FLAG_COMBO_BOX_ENTRY = (1 << 2),    ///< the combo box has an entry
+        FLAG_NUMERIC_SLIDER = (1 << 3),     ///< a numeric input has a slider
     };
 
     /**
@@ -640,6 +752,18 @@ public:
     bool cleanup()
     {
         ORIGINATE_ERROR("Not implemented");
+    }
+
+    /**
+     * Convert a IGuiElement flag to GuiElementValue flag
+     */
+    static Flags convertFlags(Window::IGuiElement::Flags flags)
+    {
+        Flags flagsValue = FLAG_NONE;
+        if (flags & Window::IGuiElement::FLAG_NUMERIC_SLIDER)
+            flagsValue = static_cast<Flags>(static_cast<int>(flagsValue) | FLAG_NUMERIC_SLIDER);
+
+        return flagsValue;
     }
 
 private:
@@ -667,7 +791,7 @@ private:
      * Initialize elements needed for numeric input. This is commonly used for float, int, etc.
      * values.
      */
-    bool initializeNumericInput();
+    bool initializeNumericInput(Flags flags);
 
     /**
      * Cleanup for numeric input.
@@ -807,8 +931,21 @@ template<> bool GuiElementValue<bool>::cleanup()
     GtkWidget *widget, gpointer data)
 {
     GuiElementValue *element = static_cast<GuiElementValue*>(data);
-    GtkSpinButton *spinButton = GTK_SPIN_BUTTON(widget);
-    double value = gtk_spin_button_get_value(spinButton);
+    double value = 0;
+
+    gpointer index = g_object_get_data(G_OBJECT(widget), "index");
+    if (index == reinterpret_cast<gpointer>(0))
+    {
+        GtkRange *range = GTK_RANGE(widget);
+        value = gtk_range_get_value(range);
+    }
+    else
+    {
+        assert(index == reinterpret_cast<gpointer>(1));
+
+        GtkSpinButton *spinButton = GTK_SPIN_BUTTON(widget);
+        value = gtk_spin_button_get_value(spinButton);
+    }
 
     PROPAGATE_ERROR_CONTINUE(element->m_value->set(static_cast<T>(value)));
 }
@@ -819,7 +956,23 @@ template<> bool GuiElementValue<bool>::cleanup()
 template<typename T> bool GuiElementValue<T>::onValueChangedNumericInput(const Observed &source)
 {
     assert(&source == m_value);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(getWidget()), static_cast<double>(m_value->get()));
+    const double value = static_cast<double>(m_value->get());
+
+    GtkWidget *widget = getWidget();
+    GtkSpinButton *spinButton;
+    if (GTK_IS_BOX(widget))
+    {
+        GList *children = gtk_container_get_children(GTK_CONTAINER(widget));
+        gtk_range_set_value(GTK_RANGE(children->data), value);
+        children = g_list_next(children);
+        spinButton = GTK_SPIN_BUTTON(children->data);
+        g_list_free(children);
+    }
+    else
+    {
+        spinButton = GTK_SPIN_BUTTON(widget);
+    }
+    gtk_spin_button_set_value(spinButton, value);
     return true;
 }
 
@@ -831,7 +984,10 @@ template<typename T> bool GuiElementValue<T>::onValidatorChangedNumericInput(con
     assert(&source == (m_value->getValidator()));
 
     IValidator<T> *validator = m_value->getValidator();
-    T min = std::numeric_limits<T>::min();
+    // Possible issue. It will work with float, double, and long double types.
+    // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+    T min = std::numeric_limits<T>::is_integer ?
+                std::numeric_limits<T>::min() : -std::numeric_limits<T>::max();
     T max = std::numeric_limits<T>::max();
     if (validator)
     {
@@ -839,36 +995,113 @@ template<typename T> bool GuiElementValue<T>::onValidatorChangedNumericInput(con
         validator->getMax(&max);
     }
 
-    gtk_spin_button_set_range(GTK_SPIN_BUTTON(getWidget()), min, max);
+    GtkWidget *widget = getWidget();
+    GtkSpinButton *spinButton;
+    if (GTK_IS_BOX(widget))
+    {
+        GList *children = gtk_container_get_children(GTK_CONTAINER(getWidget()));
+        gtk_range_set_range(GTK_RANGE(children->data), min, max);
+        children = g_list_next(children);
+        spinButton = GTK_SPIN_BUTTON(children->data);
+        g_list_free(children);
+    }
+    else
+    {
+        spinButton = GTK_SPIN_BUTTON(widget);
+    }
+
+    gtk_spin_button_set_range(spinButton, min, max);
+    double step = (max - min) / 10.;
+    if (std::numeric_limits<T>::is_integer)
+        step = std::max(1., step);
+    gtk_spin_button_set_increments(spinButton, step, step * 10.);
+
     return true;
 }
 
 /**
  * Initialize a GUI element to input numeric values
  */
-template<typename T> bool GuiElementValue<T>::initializeNumericInput()
+template<typename T> bool GuiElementValue<T>::initializeNumericInput(Flags flags)
 {
     if (getWidget())
         ORIGINATE_ERROR("Already initialized");
 
     // create the spin button
-    GtkWidget *spinButton = gtk_spin_button_new_with_range(std::numeric_limits<T>::min(),
+    GtkWidget *spinButton = gtk_spin_button_new_with_range(
+        // Possible issue. It will work with float, double, and long double types.
+        // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+        std::numeric_limits<T>::is_integer ?
+                std::numeric_limits<T>::min() : -std::numeric_limits<T>::max(),
         std::numeric_limits<T>::max(), 1);
     if (!spinButton)
         ORIGINATE_ERROR("Out of memory");
-    setWidget(spinButton);
 
     // should expand horizontally
     gtk_widget_set_hexpand(spinButton, TRUE);
+
+    g_object_set_data(G_OBJECT(spinButton), "index", reinterpret_cast<gpointer>(1));
+
+    GtkWidget *scale = NULL;
+    if (flags & FLAG_NUMERIC_SLIDER)
+    {
+        // create a scale
+        scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,
+            // Possible issue. It will work with float, double, and long double types.
+            // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+            std::numeric_limits<T>::is_integer ?
+                    std::numeric_limits<T>::min() : -std::numeric_limits<T>::max(),
+            std::numeric_limits<T>::max(), 1);
+        if (!scale)
+            ORIGINATE_ERROR("Out of memory");
+
+        g_object_set_data(G_OBJECT(scale), "index", reinterpret_cast<gpointer>(0));
+
+        gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
+
+        // should expand horizontally
+        gtk_widget_set_hexpand(scale, TRUE);
+
+        // create a box, a scale and a spin button will be added
+        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+        if (!box)
+            ORIGINATE_ERROR("Out of memory");
+
+        // should expand horizontally
+        gtk_widget_set_hexpand(box, TRUE);
+        gtk_box_set_homogeneous(GTK_BOX(box), TRUE);
+
+        // add to box
+        gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(box), spinButton, TRUE, TRUE, 0);
+
+        setWidget(box);
+    }
+    else
+    {
+        setWidget(spinButton);
+    }
+
     // set numeric for integers and digits for floats
     if (std::numeric_limits<T>::is_integer)
+    {
         gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(spinButton), TRUE);
+    }
     else
+    {
         gtk_spin_button_set_digits(GTK_SPIN_BUTTON(spinButton), 3);
+        if (scale)
+            gtk_scale_set_digits(GTK_SCALE(scale), 3);
+    }
 
     // connect the widget with the call back function, the value is updated when the widget changes
     g_signal_connect(G_OBJECT(spinButton), "value-changed",
         G_CALLBACK(GuiElementValue<T>::onGuiElementChangedNumericInput), this);
+    if (scale)
+    {
+        g_signal_connect(G_OBJECT(scale), "value-changed",
+            G_CALLBACK(GuiElementValue<T>::onGuiElementChangedNumericInput), this);
+    }
 
     // connect the value with the observer function, the widget is updated when the value changes
     PROPAGATE_ERROR(m_value->registerObserver(this,
@@ -898,7 +1131,7 @@ template<typename T> bool GuiElementValue<T>::cleanupNumericInput()
  */
 template<> bool GuiElementValue<int32_t>::initialize(Flags flags)
 {
-    PROPAGATE_ERROR(initializeNumericInput());
+    PROPAGATE_ERROR(initializeNumericInput(flags));
     return true;
 }
 
@@ -916,7 +1149,7 @@ template<> bool GuiElementValue<int32_t>::cleanup()
  */
 template<> bool GuiElementValue<uint32_t>::initialize(Flags flags)
 {
-    PROPAGATE_ERROR(initializeNumericInput());
+    PROPAGATE_ERROR(initializeNumericInput(flags));
     return true;
 }
 
@@ -934,7 +1167,7 @@ template<> bool GuiElementValue<uint32_t>::cleanup()
  */
 template<> bool GuiElementValue<float>::initialize(Flags flags)
 {
-    PROPAGATE_ERROR(initializeNumericInput());
+    PROPAGATE_ERROR(initializeNumericInput(flags));
     return true;
 }
 
@@ -978,7 +1211,7 @@ template<> bool GuiElementValue<std::string>::onValueChanged(const Observed &sou
     assert(&source == m_value);
     if (GTK_IS_FILE_CHOOSER_BUTTON(getWidget()))
     {
-        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(getWidget()),
+        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(getWidget()),
             m_value->get().c_str());
     }
     else
@@ -1282,8 +1515,18 @@ template<typename T> template<typename VT> bool GuiElementValue<T>::onValidatorC
 
     // get the validator and the min and max values
     IValidator<T> *validator = m_value->getValidator();
-    T min(std::numeric_limits<VT>::min(), std::numeric_limits<VT>::max());
-    T max(std::numeric_limits<VT>::min(), std::numeric_limits<VT>::max());
+    T min(
+        // Possible issue. It will work with float, double, and long double types.
+        // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+        std::numeric_limits<VT>::is_integer ?
+                std::numeric_limits<VT>::min() : -std::numeric_limits<VT>::max(),
+        std::numeric_limits<VT>::max());
+    T max(
+        // Possible issue. It will work with float, double, and long double types.
+        // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+        std::numeric_limits<VT>::is_integer ?
+                std::numeric_limits<VT>::min() : -std::numeric_limits<VT>::max(),
+        std::numeric_limits<VT>::max());
     if (validator)
     {
         validator->getMin(&min);
@@ -1326,7 +1569,11 @@ template<typename T> template<typename VT> bool GuiElementValue<T>::initializeRa
     gtk_widget_set_hexpand(box, TRUE);
 
     // create min spin button
-    GtkWidget *spinButton = gtk_spin_button_new_with_range(std::numeric_limits<VT>::min(),
+    GtkWidget *spinButton = gtk_spin_button_new_with_range(
+        // Possible issue. It will work with float, double, and long double types.
+        // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+        std::numeric_limits<VT>::is_integer ?
+                std::numeric_limits<VT>::min() : -std::numeric_limits<VT>::max(),
         std::numeric_limits<VT>::max(), 1);
     if (!spinButton)
         ORIGINATE_ERROR("Out of memory");
@@ -1350,7 +1597,11 @@ template<typename T> template<typename VT> bool GuiElementValue<T>::initializeRa
         G_CALLBACK(GuiElementValue<T>::onGuiElementChangedRange<VT>), this);
 
     // create max spin button
-    spinButton = gtk_spin_button_new_with_range(std::numeric_limits<VT>::min(),
+    spinButton = gtk_spin_button_new_with_range(
+        // Possible issue. It will work with float, double, and long double types.
+        // Although it is not guaranteed that FP type the lowest value is necessary -highest.
+        std::numeric_limits<VT>::is_integer ?
+                std::numeric_limits<VT>::min() : -std::numeric_limits<VT>::max(),
         std::numeric_limits<VT>::max(), 1);
     if (!spinButton)
         ORIGINATE_ERROR("Out of memory");
@@ -1472,13 +1723,13 @@ template<> bool GuiElementValue<Window::IGuiElement::ValueTypeEnum>::cleanup()
  * Create a GuiElement for a value
  */
 template<typename T> /*static*/ bool Window::IGuiElement::createValue(Value<T> *value,
-    IGuiElement **element)
+    IGuiElement **element, Flags flags)
 {
     UniquePointer<GuiElementValue<T> > newGuiElement(new GuiElementValue<T>(value));
     if (!newGuiElement)
         ORIGINATE_ERROR("Out of memory");
 
-    PROPAGATE_ERROR(newGuiElement->initialize());
+    PROPAGATE_ERROR(newGuiElement->initialize(GuiElementValue<T>::convertFlags(flags)));
 
     *element = newGuiElement.release();
     return true;
@@ -1486,25 +1737,25 @@ template<typename T> /*static*/ bool Window::IGuiElement::createValue(Value<T> *
 
 // Instantiation to have them available at link time.
 template bool Window::IGuiElement::createValue<bool>(Value<bool> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<float>(Value<float> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<int32_t>(Value<int32_t> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<uint32_t>(Value<uint32_t> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<std::string>(Value<std::string> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<Argus::NamedUUID>(Value<Argus::NamedUUID> *value,
-    IGuiElement **element);
+    IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<Argus::Size2D<uint32_t> >(
-    Value<Argus::Size2D<uint32_t> > *value, IGuiElement **element);
+    Value<Argus::Size2D<uint32_t> > *value, IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<Argus::Range<uint64_t> >(
-    Value<Argus::Range<uint64_t> > *value, IGuiElement **element);
+    Value<Argus::Range<uint64_t> > *value, IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<Argus::Range<float> >(
-    Value<Argus::Range<float> > *value, IGuiElement **element);
+    Value<Argus::Range<float> > *value, IGuiElement **element, Flags flags);
 template bool Window::IGuiElement::createValue<Window::IGuiElement::ValueTypeEnum>(
-    Value<ValueTypeEnum> *value, IGuiElement **element);
+    Value<ValueTypeEnum> *value, IGuiElement **element, Flags flags);
 
 /**
  * Create a GUI element for a file chooser.
